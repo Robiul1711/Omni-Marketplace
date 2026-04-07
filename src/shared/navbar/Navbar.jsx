@@ -68,9 +68,9 @@ const Navbar = () => {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="flex items-center gap-2 md:gap-4">
-            <Link to={`/auth/login`}>
-              <Button className="hidden sm:flex bg-white text-black! rounded-xl! hover:bg-gray-100 border-none px-6 md:px-8 py-3 font-medium text-sm md:text-base">
+          <div className="flex items-center gap-2 md:gap-4 ">
+            <Link to={`/auth/login`} className="hidden sm:flex">
+              <Button className=" bg-white text-black! rounded-xl! hover:bg-gray-100 border-none px-6 md:px-8 py-3 font-medium text-sm md:text-base">
                 LOG IN
               </Button>
             </Link>
