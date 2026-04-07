@@ -2,7 +2,6 @@ import React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import Button from "../../components/ui/Button";
 
 const MobileOptions = ({ isOpen, onClose, navLinks }) => {
   return (
@@ -63,22 +62,20 @@ const MobileOptions = ({ isOpen, onClose, navLinks }) => {
             </nav>
 
             {/* Actions */}
-            <div className="p-6 bg-black/10 border-t border-white/10 gap-4 flex flex-col mt-auto">
-              <Link to={`/auth/login`}>
-                <Button
-                  onClick={onClose}
-                  className="bg-white text-black! font-bold py-4 rounded-xl shadow-sm hover:bg-white/90"
-                >
-                  LOG IN
-                </Button>
+            <div className="p-6 bg-black/10 border-t border-white/10 flex flex-col gap-3 mt-auto">
+              <Link
+                to="/auth/login"
+                onClick={onClose}
+                className="w-full block text-center py-4 bg-white text-[#1e3a8a] font-bold rounded-xl shadow-lg shadow-black/10 hover:bg-white/90 transition-all font-host-grotesk tracking-widest text-[14px]"
+              >
+                LOG IN
               </Link>
-              <Link to={`/auth/choose`}>
-                <Button
-                  onClick={onClose}
-                  className="bg-[#335cff] text-white font-bold py-4 rounded-xl shadow-lg shadow-black/20"
-                >
-                  Get Started
-                </Button>
+              <Link
+                to="/auth/choose"
+                onClick={onClose}
+                className="w-full block text-center py-4 bg-[#335cff] text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 hover:bg-[#2849cc] transition-all font-host-grotesk text-[16px]"
+              >
+                Get Started
               </Link>
             </div>
           </motion.div>
