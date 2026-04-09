@@ -1,10 +1,11 @@
 import AuthHeader from "@/pages/auth/AuthHeader";
 import React from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, ScrollRestoration } from "react-router-dom";
 
 const AuthLayout = () => {
   return (
     <div>
+      <ScrollRestoration />
       <AuthHeader />
       <Outlet />
     </div>
