@@ -26,7 +26,7 @@ const PlacementCard = ({ item }) => {
 
         {/* Overlay Badges */}
         <div className="absolute top-4 right-4 flex items-center gap-2 px-1">
-          <button className="bg-[rgba(255,255,255,0.30)] backdrop-blur-md p-2 rounded-full text-white hover:bg-white hover:text-red-500 transition-all border border-white/30 flex items-center justify-center">
+          <button className="bg-[rgba(255,255,255,0.30)] backdrop-blur-md p-2 rounded-full text-white  hover:text-red-500 transition-all border border-white/30 flex items-center justify-center">
             <Heart
               size={16}
               fill="currentColor"
@@ -55,11 +55,7 @@ const PlacementCard = ({ item }) => {
             {item.host}
           </span>
           {item.verified && (
-            <CheckCircle2
-              size={16}
-              className="text-[#10B981]"
-              fill="#D1FAE5"
-            />
+            <CheckCircle2 size={16} className="text-[#10B981]" fill="#D1FAE5" />
           )}
         </div>
 
@@ -107,7 +103,7 @@ const PlacementCard = ({ item }) => {
               </span>
             </div>
             <Link
-              to={`#`}
+              to={`/placement/${item.id}`}
               className="flex items-center gap-1.5 text-Primary font-medium text-base hover:translate-x-1 transition-transform"
             >
               View Placement <ArrowRight size={16} />
