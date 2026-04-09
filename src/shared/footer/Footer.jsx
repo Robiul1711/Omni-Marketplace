@@ -16,7 +16,7 @@ const Footer = () => {
     {
       title: "For Hosts",
       links: [
-        { name: "Become a Host", path: "/auth/onboard-host" },
+        { name: "Become a Host", path: "/auth/choose" },
         { name: "Host Dashboard", path: "/host-dashboard" },
       ],
     },

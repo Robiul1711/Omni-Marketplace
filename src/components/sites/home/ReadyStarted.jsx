@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import BlueImage from "@/assets/images/blueImage.png";
 import { fadeInUp } from "@/utils/animations";
 import Button from "../../ui/Button";
+import { Link } from "react-router-dom";
 
 const ReadyStarted = () => {
   return (
@@ -35,12 +36,11 @@ const ReadyStarted = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            <Button className="bg-[#171717] text-white hover:bg-black font-semibold px-10 py-4 min-w-[180px] rounded-xl">
-              Join Us
-            </Button>
-            <Button className="bg-white text-Primary! hover:bg-gray-50 font-semibold px-10 py-4 min-w-[180px] rounded-xl shadow-lg shadow-black/5">
-              Become a host
-            </Button>
+            <Link to={"/auth/choose"}>
+              <Button className="bg-[#171717] text-white hover:bg-black font-semibold px-10 py-4 min-w-[180px] rounded-xl">
+                Join Us
+              </Button>
+            </Link>
           </div>
         </div>
       </motion.div>
