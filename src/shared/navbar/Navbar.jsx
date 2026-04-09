@@ -10,7 +10,24 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
-  const navLinks = ["BROWSE PLACEMENTS", "HOW IT WORKS", "BECOME A HOST"];
+
+  const navLinks = [
+    {
+      id: 1,
+      title: "BROWSE PLACEMENTS",
+      path: "/browse-placements",
+    },
+    {
+      id: 2,
+      title: "HOW IT WORKS",
+      path: "/how-it-works",
+    },
+    {
+      id: 3,
+      title: "BECOME A HOST",
+      path: "/auth/onboard-host",
+    },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,8 +69,8 @@ const Navbar = () => {
           <nav className="hidden xlg:flex items-center gap-8">
             {navLinks.map((item) => (
               <NavLink
-                key={item}
-                to={`/${item.toLowerCase().replace(/ /g, "-")}`}
+                key={item.id}
+                to={item.path}
                 className={({ isActive }) =>
                   `text-white hover:text-white font-host-grotesk xl:text-base text-sm tracking-wider transition-all duration-300 hover:scale-105 ${
                     isActive
@@ -62,7 +79,7 @@ const Navbar = () => {
                   }`
                 }
               >
-                {item}
+                {item.title}
               </NavLink>
             ))}
           </nav>

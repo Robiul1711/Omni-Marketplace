@@ -13,6 +13,9 @@ import ResetPassword from "@/pages/auth/ResetPassword";
 import BrowsePlacement from "@/pages/sites/BrowsePlacement";
 import BrowsePlacementMap from "@/pages/sites/BrowsePlacementMap";
 import { createBrowserRouter } from "react-router-dom";
+import PlacementDetails from "@/pages/sites/PlacementDetails";
+import BookingProcess from "@/pages/sites/BookingProcess";
+import UnderDevelopment from "@/pages/sites/UnderDevelopment";
 
 const router = createBrowserRouter([
   {
@@ -66,7 +69,15 @@ const router = createBrowserRouter([
         path: "/browse-placements-map",
         element: <BrowsePlacementMap />,
       },
+      {
+        path: "/placement/:id",
+        element: <PlacementDetails />,
+      },
     ],
+  },
+  {
+    path: "/booking-process",
+    element: <BookingProcess />,
   },
   // Admin routes
   {
@@ -78,6 +89,10 @@ const router = createBrowserRouter([
         element: <Dashboard />,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <UnderDevelopment />,
   },
 ]);
 

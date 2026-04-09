@@ -9,15 +9,14 @@ const Footer = () => {
     {
       title: "For Advertisers",
       links: [
-        { name: "Browse Placements", path: "/explore" },
-        { name: "Sign Up", path: "/signup" },
-        { name: "Dashboard", path: "/dashboard" },
+        { name: "Browse Placements", path: "/browse-placements" },
+        { name: "Sign Up", path: "/auth/signup" },
       ],
     },
     {
       title: "For Hosts",
       links: [
-        { name: "Become a Host", path: "/become-host" },
+        { name: "Become a Host", path: "/auth/onboard-host" },
         { name: "Host Dashboard", path: "/host-dashboard" },
       ],
     },

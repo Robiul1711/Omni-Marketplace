@@ -42,8 +42,8 @@ const MobileOptions = ({ isOpen, onClose, navLinks }) => {
             <nav className="flex-1 overflow-y-auto py-4">
               {navLinks.map((item, index) => (
                 <NavLink
-                  key={item}
-                  to={`/${item.toLowerCase().replace(/ /g, "-")}`}
+                  key={item.id}
+                  to={item.path}
                   onClick={onClose}
                   className={({ isActive }) =>
                     `flex items-center justify-between px-6 py-5 border-b border-white/5 font-host-grotesk tracking-wide transition-all ${
@@ -53,7 +53,7 @@ const MobileOptions = ({ isOpen, onClose, navLinks }) => {
                     }`
                   }
                 >
-                  <span className="text-[17px]">{item}</span>
+                  <span className="text-[17px]">{item.title}</span>
                   <div
                     className={`w-1.5 h-1.5 rounded-full ${index % 2 === 0 ? "bg-blue-400" : "bg-indigo-400"} opacity-60`}
                   />
