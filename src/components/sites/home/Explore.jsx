@@ -5,6 +5,7 @@ import { PLACEMENTS_DATA } from "@/utils/AllData";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
 import Button from "../../ui/Button";
 import PlacementCard from "./PlacementCard";
+import { Link } from "react-router-dom";
 
 const Explore = () => {
   return (
@@ -47,12 +48,14 @@ const Explore = () => {
           viewport={{ once: true }}
           className="flex justify-center"
         >
-          <Button
-            variant="secondary"
-            className="px-10 py-3.5 border-2 border-[#335cff]/10 hover:border-[#335cff] text-[#292929] font-bold rounded-2xl flex items-center gap-2 bg-white"
-          >
-            Browse All Placements <ArrowRight size={20} />
-          </Button>
+          <Link to={"/browse-placements"}>
+            <Button
+              variant="secondary"
+              className="px-10 py-3.5 border-2 border-[#335cff]/10 hover:border-[#335cff] text-[#292929] font-bold rounded-2xl flex items-center gap-2 bg-white"
+            >
+              Browse All Placements <ArrowRight size={20} />
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>
