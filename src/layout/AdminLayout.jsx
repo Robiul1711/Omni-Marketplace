@@ -1,12 +1,13 @@
-import CommonNavbar from "@/pages/admin/CommonNavbar";
-import SideBar from "@/pages/admin/SideBar";
+import CommonNavbar from "@/pages/advertisingSites/CommonNavbar";
+import SideBar from "@/pages/advertisingSites/SideBar";
 
 import React, { useEffect, useState } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
+import { FiBox, FiHeart, FiDollarSign, FiSettings } from "react-icons/fi";
 import { CgProfile } from "react-icons/cg";
 import { useUserProfile } from "@/hooks/fetchUserProfile";
-const AdminLayout = () => {
+const AdvertisingLayout = () => {
   useUserProfile();
   const [Open, setOpen] = useState(false);
 
@@ -15,31 +16,41 @@ const AdminLayout = () => {
       id: 1,
       icon: <MdDashboard />,
       text: "Dashboard",
-      path: "/dashboard", // main path (optional, if you still want to keep it)
-      activePaths: [
-        "/dashboard",
-        "/dashboard/settings",
-        "/dashboard/analytics",
-      ], // all paths that should make this item active
+      path: "/advertising/dashboard",
+      activePaths: ["/advertising/dashboard"],
       sublink: false,
     },
     {
       id: 2,
-      icon: <MdDashboard />,
-      text: "Admin Management",
-      path: "/dashboard/admin-list",
-      sublink: [
-        {
-          id: 1,
-          text: "Admin List",
-          path: "/dashboard/admin-list",
-        },
-        {
-          id: 1,
-          text: "Add New Admin",
-          path: "/dashboard/asdasd",
-        },
-      ],
+      icon: <FiBox />,
+      text: "My Campaigns",
+      path: "/advertising/dashboard/my-campaigns",
+      activePaths: ["/advertising/dashboard/my-campaigns"],
+      sublink: false,
+    },
+    {
+      id: 3,
+      icon: <FiHeart />,
+      text: "Saved Placements",
+      path: "/advertising/dashboard/saved-placements",
+      activePaths: ["/advertising/dashboard/saved-placements"],
+      sublink: false,
+    },
+    {
+      id: 4,
+      icon: <FiDollarSign />,
+      text: "Payment History",
+      path: "/advertising/dashboard/payment-history",
+      activePaths: ["/advertising/dashboard/payment-history"],
+      sublink: false,
+    },
+    {
+      id: 5,
+      icon: <FiSettings />,
+      text: "Settings",
+      path: "/advertising/dashboard/settings",
+      activePaths: ["/advertising/dashboard/settings"],
+      sublink: false,
     },
   ];
   const location = useLocation();
@@ -52,12 +63,15 @@ const AdminLayout = () => {
   return (
     <>
       <ScrollRestoration />
-      <div className="flex  h-screen min-h-screen w-full">
+      <div className="flex min-h-screen w-full bg-[#F8F9FC]">
         <SideBar open={Open} setOpen={setOpen} sidebar={sideBar} />
-        <div className="flex-1 bg-dark text-white flex flex-col overflow-auto custom-scrollbar">
-          <div className=" flex flex-col lg:gap-10 gap-5 lg:py-6 py-3 lg:px-[30px] px-2.5 sm:px-5">
+        
+        <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 xlg:ml-[280px]">
+          <div className="flex flex-col flex-1 ">
             <CommonNavbar open={Open} setOpen={setOpen} />
-            <Outlet />
+            <main className="flex-1 p-4 md:p-6">
+              <Outlet />
+            </main>
           </div>
         </div>
       </div>
@@ -65,4 +79,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default AdvertisingLayout;
