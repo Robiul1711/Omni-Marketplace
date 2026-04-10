@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Button from "../../components/ui/Button";
 import { ArrowRight, Menu } from "lucide-react";
 import MobileOptions from "./MobileOptions";
@@ -9,6 +9,8 @@ import Logo from "@/assets/images/logo.png";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   const location = useLocation();
 
   const navLinks = [
@@ -31,11 +33,28 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
+      const currentScrollY = window.scrollY;
+      
+      // Update solid background state
+      setScrolled(currentScrollY > 50);
+
+      // Handle navbar visibility (hide on scroll down, show on scroll up)
+      if (currentScrollY > 100) { 
+        if (currentScrollY > lastScrollY && isVisible) {
+          setIsVisible(false);
+        } else if (currentScrollY < lastScrollY && !isVisible) {
+          setIsVisible(true);
+        }
+      } else {
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [lastScrollY, isVisible]);
 
   const isNotHome = location.pathname !== "/";
   const showSolidBg = scrolled || isNotHome;
@@ -43,13 +62,16 @@ const Navbar = () => {
   return (
     <>
       <motion.header
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="fixed top-6 left-0 right-0 z-50 px-4 md:px-8 section-padding-x"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ 
+          y: isVisible ? 0 : -120, // Move it off-screen when not visible
+          opacity: isVisible ? 1 : 0 
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="fixed top-6 left-0 right-0 z-50 px-4 md:px-8 section-padding-x lg:top-6"
       >
         <div
-          className="flex items-center justify-between p-2.5 rounded-[16px] backdrop-blur-[16.4px] shadow-2xl shadow-blue-900/10 transition-all duration-300"
+          className="flex items-center justify-between p-2.5 rounded-[16px] backdrop-blur-[16.4px] shadow-2xl shadow-blue-900/10 transition-all duration-300 "
           style={{
             borderRadius: "16px",
             background: showSolidBg ? "#304AAF" : "rgba(48, 74, 175, 0.32)",

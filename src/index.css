@@ -110,6 +110,41 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Custom Scrollbar */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(51, 102, 255, 0.6);
+  border-radius: 20px;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(51, 102, 255, 1);
+}
+
+/* For Firefox */
+html,
+body,
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(51, 102, 255, 0.6) transparent;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -248,4 +283,8 @@
   .thumbnail-swiper .swiper-slide-thumb-active {
     border-color: #2563eb !important;
   }
+}
+
+button{
+  cursor: pointer;
 }

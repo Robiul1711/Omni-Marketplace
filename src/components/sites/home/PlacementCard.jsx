@@ -26,12 +26,12 @@ const PlacementCard = ({ item }) => {
 
         {/* Overlay Badges */}
         <div className="absolute top-4 right-4 flex items-center gap-2 px-1">
-          <button className="bg-[rgba(255,255,255,0.30)] backdrop-blur-md p-2 rounded-full text-white  hover:text-red-500 transition-all border border-white/30 flex items-center justify-center">
+          <button className="bg-[rgba(255,255,255,0.30)] backdrop-blur-md p-2 rounded-full text-white hover:bg-white/40 transition-all border border-white/30 flex items-center justify-center">
             <Heart
-              size={16}
-              fill="currentColor"
-              fillOpacity={0}
-              className="cursor-pointer text-white"
+              size={18}
+              fill={item.isSaved ? "#FF4D4F" : "currentColor"}
+              fillOpacity={item.isSaved ? 1 : 0}
+              className={`cursor-pointer transition-colors ${item.isSaved ? "text-[#FF4D4F]" : "text-white hover:text-red-500"}`}
             />
           </button>
         </div>
@@ -50,14 +50,14 @@ const PlacementCard = ({ item }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 mb-6">
+        <Link to={`/host/${item.id}`} className="flex items-center gap-1.5 mb-6">
           <span className="text-[#525866] text-sm font-semibold">
             {item.host}
           </span>
           {item.verified && (
             <CheckCircle2 size={16} className="text-[#10B981]" fill="#D1FAE5" />
           )}
-        </div>
+        </Link>
 
         <div className="space-y-3 mb-4">
           <div className="flex items-center gap-2.5 text-[#4A5565]">

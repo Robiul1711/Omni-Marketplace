@@ -1,5 +1,4 @@
-import Dashboard from "@/components/admin/Dashboard";
-import AdminLayout from "@/layout/AdminLayout";
+
 import AuthLayout from "@/layout/AuthLayout";
 import Layout from "@/layout/Layout";
 import Home from "@/pages/sites/Home";
@@ -16,6 +15,14 @@ import { createBrowserRouter } from "react-router-dom";
 import PlacementDetails from "@/pages/sites/PlacementDetails";
 import BookingProcess from "@/pages/sites/BookingProcess";
 import UnderDevelopment from "@/pages/sites/UnderDevelopment";
+import HostDetaolsPage from "@/pages/sites/HostDetaolsPage";
+import AdvertisingLayout from "@/layout/AdminLayout";
+import Dashboard from "@/pages/advertisingSites/Dashboard";
+import MyCampaigns from "@/pages/advertisingSites/MyCampaigns";
+import SavedPlacements from "@/pages/advertisingSites/SavedPlacements";
+import PaymentHistory from "@/pages/advertisingSites/PaymentHistory";
+import Settings from "@/pages/advertisingSites/Settings";
+import CampaignDetails from "@/pages/advertisingSites/CampaignDetails";
 
 const router = createBrowserRouter([
   {
@@ -73,6 +80,10 @@ const router = createBrowserRouter([
         path: "/placement/:id",
         element: <PlacementDetails />,
       },
+      {
+        path: "/host/:id",
+        element: <HostDetaolsPage />,
+      },
     ],
   },
   {
@@ -81,12 +92,32 @@ const router = createBrowserRouter([
   },
   // Admin routes
   {
-    path: "/dashboard",
-    element: <AdminLayout />,
+    path: "/advertising/dashboard",
+    element: <AdvertisingLayout />,
     children: [
       {
-        path: "/dashboard",
+        index: true,
         element: <Dashboard />,
+      },
+      {
+        path: "my-campaigns",
+        element: <MyCampaigns />,
+      },
+      {
+        path: "saved-placements",
+        element: <SavedPlacements />,
+      },
+      {
+        path: "payment-history",
+        element: <PaymentHistory />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
+      },
+      {
+        path: "campaign/:id",
+        element: <CampaignDetails />,
       },
     ],
   },
