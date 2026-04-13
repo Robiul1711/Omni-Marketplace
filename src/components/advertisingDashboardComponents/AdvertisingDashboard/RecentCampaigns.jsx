@@ -52,13 +52,13 @@ const RecentCampaigns = () => {
   };
 
   return (
-    <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm overflow-hidden">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <h2 className="text-[20px] font-bold text-[#1A1D1F]">Recent Campaigns</h2>
+    <div className="bg-white rounded-[24px] border border-gray-100 p-4 md:p-6 shadow-sm overflow-hidden">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
+        <h2 className="text-lg md:text-[20px] font-bold text-[#1A1D1F]">Recent Campaigns</h2>
         
-        <div className="relative">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-[14px] font-medium text-[#1A1D1F] hover:bg-gray-50 transition-colors">
-            Sort by: <span className="text-gray-500">Status</span>
+        <div className="relative w-full sm:w-auto">
+          <button className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-[14px] font-medium text-[#1A1D1F] hover:bg-gray-50 transition-colors">
+            <span className="flex items-center gap-1">Sort by: <span className="text-gray-500 font-normal">Status</span></span>
             <MdKeyboardArrowDown size={18} className="text-gray-400" />
           </button>
         </div>
