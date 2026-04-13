@@ -66,7 +66,7 @@ const AdvertisingLayout = () => {
       <div className="flex min-h-screen w-full bg-[#F8F9FC]">
         <SideBar open={Open} setOpen={setOpen} sidebar={sideBar} />
         
-        <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 xlg:ml-[280px]">
+        <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 xlg:ml-[300px]">
           <div className="flex flex-col flex-1 ">
             <CommonNavbar open={Open} setOpen={setOpen} />
             <main className="flex-1 p-4 md:p-6">

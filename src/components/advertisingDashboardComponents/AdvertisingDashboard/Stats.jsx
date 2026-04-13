@@ -34,13 +34,13 @@ const Stats = () => {
   ];
 
   return (
-    <div className="space-y-8 mb-10">
+    <div className="space-y-6 md:space-y-8 mb-10">
       <div>
-        <h1 className="text-[28px] font-bold text-[#1A1D1F]">Welcome Back</h1>
-        <p className="text-[#6F767E] text-[15px] mt-2">Manage your advertising campaigns and bookings from your dashboard.</p>
+        <h1 className="text-2xl md:text-[28px] font-bold text-[#1A1D1F]">Welcome Back</h1>
+        <p className="text-[#6F767E] text-sm md:text-[15px] mt-2">Manage your advertising campaigns and bookings from your dashboard.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {statsData.map((stat, index) => (
           <div
             key={index}

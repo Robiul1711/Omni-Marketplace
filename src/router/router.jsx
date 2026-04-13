@@ -1,4 +1,3 @@
-
 import AuthLayout from "@/layout/AuthLayout";
 import Layout from "@/layout/Layout";
 import Home from "@/pages/sites/Home";

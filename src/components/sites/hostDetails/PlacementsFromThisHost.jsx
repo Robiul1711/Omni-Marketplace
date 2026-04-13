@@ -98,10 +98,10 @@ const PlacementsFromThisHost = () => {
   ];
 
   return (
-    <div className="w-full border border-gray-100 rounded-[32px] p-8 shadow-sm ">
+    <div className="w-full border border-gray-100 rounded-[32px] p-5 md:p-8 shadow-sm ">
       {/* Header with Sorting */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <h3 className="text-gray-500 font-medium">Placements from this Host</h3>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <h3 className="text-gray-500 font-medium text-sm md:text-base">Placements from this Host</h3>
         
         <div className="relative group min-w-[200px]">
           <button className="w-full flex items-center justify-between gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:border-Primary transition-colors">
@@ -112,7 +112,7 @@ const PlacementsFromThisHost = () => {
       </div>
 
       {/* Placements Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
         {placements.map((item) => (
           <PlacementCard key={item.id} item={item} />
         ))}

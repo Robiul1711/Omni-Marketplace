@@ -77,7 +77,7 @@ const SideBar = ({ sidebar, open, setOpen }) => {
       {/* Sidebar */}
       <div
         className={`fixed top-0 bottom-0 h-screen transition-all duration-300 ease-in-out z-[260] bg-white border-r border-gray-100 flex flex-col ${
-          open ? "left-0 w-[280px]" : "-left-full xlg:left-0 xlg:w-[280px]"
+          open ? "left-0 w-[300px]" : "-left-full xlg:left-0 xlg:w-[300px]"
         }`}
       >
         {/* Logo */}

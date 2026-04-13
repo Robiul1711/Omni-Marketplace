@@ -3,7 +3,7 @@ import { Check, Package, Info } from 'lucide-react';
 
 const HostProfileLeft = () => {
   return (
-    <div className="bg-white border border-gray-100 rounded-[32px] p-8 shadow-sm flex flex-col items-center w-full">
+    <div className="bg-white border border-gray-100 rounded-[32px] p-6 md:p-8 shadow-sm flex flex-col items-center w-full">
       {/* Profile Image */}
       <div className="w-32 h-32 rounded-[24px] overflow-hidden bg-gray-100 mb-6">
         <img
