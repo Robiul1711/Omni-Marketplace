@@ -26,6 +26,11 @@ const Navbar = () => {
     },
     {
       id: 3,
+      title: "ABOUT US",
+      path: "/about-us",
+    },
+    {
+      id: 4,
       title: "BECOME A HOST",
       path: "/auth/choose",
     },
