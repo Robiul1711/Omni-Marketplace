@@ -22,6 +22,10 @@ import SavedPlacements from "@/pages/advertisingSites/SavedPlacements";
 import PaymentHistory from "@/pages/advertisingSites/PaymentHistory";
 import Settings from "@/pages/advertisingSites/Settings";
 import CampaignDetails from "@/pages/advertisingSites/CampaignDetails";
+import HowItsWork from "@/pages/sites/HowItsWork";
+import AboutUs from "@/pages/sites/AboutUs";
+import TermsOfService from "@/pages/sites/TermsOfService";
+import PrivacyPolicy from "@/pages/sites/PrivacyPolicy";
 
 const router = createBrowserRouter([
   {
@@ -72,6 +76,14 @@ const router = createBrowserRouter([
         element: <BrowsePlacement />,
       },
       {
+        path: "/how-it-works",
+        element: <HowItsWork />,
+      },
+      {
+        path: "/about-us",
+        element: <AboutUs />,
+      },
+      {
         path: "/browse-placements-map",
         element: <BrowsePlacementMap />,
       },
@@ -82,6 +94,14 @@ const router = createBrowserRouter([
       {
         path: "/host/:id",
         element: <HostDetaolsPage />,
+      },
+      {
+        path: "/terms",
+        element: <TermsOfService />,
+      },
+      {
+        path: "/privacy",
+        element: <PrivacyPolicy />,
       },
     ],
   },

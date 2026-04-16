@@ -23,8 +23,8 @@ const Footer = () => {
     {
       title: "Company",
       links: [
-        { name: "About", path: "/about" },
-        { name: "Help Center", path: "/help" },
+        { name: "About", path: "/about-us" },
+        { name: "How It Works", path: "/how-it-works" },
         { name: "Terms of Service", path: "/terms" },
         { name: "Privacy Policy", path: "/privacy" },
       ],
