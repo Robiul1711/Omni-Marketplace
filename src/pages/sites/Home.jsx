@@ -9,7 +9,7 @@ import ReadyStarted from "@/components/sites/home/ReadyStarted";
 
 const Home = () => {
   return (
-    <div className="text-black! flex flex-col xlg:gap-[120px] md:gap-14 gap-8">
+    <div className="text-black! flex lg:flex-col flex-col xlg:gap-[120px] md:gap-14 gap-8">
       <HeroBanner />
       <Explore />
       <MarketPlaceworks />
