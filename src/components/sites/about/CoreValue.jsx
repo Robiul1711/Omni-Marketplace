@@ -21,7 +21,6 @@ const CoreValues = () => {
   ];
 
   return (
-  
       <div className="">
         
         {/* Main Content Area */}
