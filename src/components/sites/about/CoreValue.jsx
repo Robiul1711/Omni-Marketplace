@@ -19,7 +19,6 @@ const CoreValues = () => {
       desc: 'Transparent pricing, escrow protection, and verified delivery',
     },
   ];
-
   return (
       <div className="">
         
