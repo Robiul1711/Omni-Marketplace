@@ -15,8 +15,11 @@ import PlacementDetails from "@/pages/sites/PlacementDetails";
 import BookingProcess from "@/pages/sites/BookingProcess";
 import UnderDevelopment from "@/pages/sites/UnderDevelopment";
 import HostDetaolsPage from "@/pages/sites/HostDetaolsPage";
+import ContactUs from "@/pages/sites/ContactUs";
 import AdvertisingLayout from "@/layout/AdminLayout";
+import HostLayout from "@/layout/HostLayout";
 import Dashboard from "@/pages/advertisingSites/Dashboard";
+import HostDashboard from "@/pages/hostDashboard/Dashboard";
 import MyCampaigns from "@/pages/advertisingSites/MyCampaigns";
 import SavedPlacements from "@/pages/advertisingSites/SavedPlacements";
 import PaymentHistory from "@/pages/advertisingSites/PaymentHistory";
@@ -103,6 +106,10 @@ const router = createBrowserRouter([
         path: "/privacy",
         element: <PrivacyPolicy />,
       },
+      {
+        path: "/contact-us",
+        element: <ContactUs />,
+      },
     ],
   },
   {
@@ -137,6 +144,17 @@ const router = createBrowserRouter([
       {
         path: "campaign/:id",
         element: <CampaignDetails />,
+      },
+    ],
+  },
+  // Host routes
+  {
+    path: "/host/dashboard",
+    element: <HostLayout />,
+    children: [
+      {
+        index: true,
+        element: <HostDashboard />,
       },
     ],
   },

@@ -17,7 +17,7 @@ const Footer = () => {
       title: "For Hosts",
       links: [
         { name: "Become a Host", path: "/auth/choose" },
-        { name: "Host Dashboard", path: "/host-dashboard" },
+        { name: "Host Dashboard", path: "/host/dashboard" },
       ],
     },
     {
@@ -27,6 +27,7 @@ const Footer = () => {
         { name: "How It Works", path: "/how-it-works" },
         { name: "Terms of Service", path: "/terms" },
         { name: "Privacy Policy", path: "/privacy" },
+        { name: "Contact Us", path: "/contact-us" },
       ],
     },
   ];
