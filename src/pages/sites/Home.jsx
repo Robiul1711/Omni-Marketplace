@@ -6,6 +6,7 @@ import ExtraSection from "@/components/sites/home/ExtraSection";
 import PromoteAnything from "@/components/sites/home/PromoteAnything";
 import ChooseOmni from "@/components/sites/home/ChooseOmni";
 import ReadyStarted from "@/components/sites/home/ReadyStarted";
+import FAQ from "@/components/sites/home/FAQ";
 
 const Home = () => {
   return (
@@ -16,6 +17,7 @@ const Home = () => {
       <ExtraSection />
       <PromoteAnything />
       <ChooseOmni />
+      <FAQ />
       <ReadyStarted />
     </div>
   );
