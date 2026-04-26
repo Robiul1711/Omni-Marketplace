@@ -30,11 +30,11 @@ const FAQ = () => {
       answer:
         "We maintain a rigorous verification process for all our hosts and their listings to ensure transparency and reliability for every transaction.",
     },
-    {
-      question: "What payment methods are supported?",
-      answer:
-        "We support a variety of payment methods including major credit cards and direct bank transfers, all processed through our secure payment gateway.",
-    },
+   {
+  question: "What payment methods are supported?",
+  answer:
+    "We accept payments through Stripe, which supports major debit and credit cards. All transactions are processed securely through our payment system.",
+}
   ];
 
   return (

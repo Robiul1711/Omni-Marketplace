@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <RouterProvider router={router} />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </PersistGate>
       </Provider>
     </QueryClientProvider>

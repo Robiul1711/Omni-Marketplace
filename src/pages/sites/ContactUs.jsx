@@ -68,19 +68,6 @@ const ContactUs = () => {
                                         <p className="text-base md:text-lg text-[#525866] font-normal font-host-grotesk">+1 (555) 000-0000</p>
                                     </div>
                                 </div>
-
-                                <div className="flex items-start gap-4 md:gap-5">
-                                    <div className="w-10 h-10 md:w-12 md:h-12 bg-Primary/10 rounded-xl flex items-center justify-center text-Primary shrink-0">
-                                        <FiMapPin className="size-5 md:size-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="text-lg md:text-xl font-medium text-[#171717] font-host-grotesk mb-1">Visit Us</h4>
-                                        <p className="text-base md:text-lg text-[#525866] font-normal font-host-grotesk leading-relaxed">
-                                            123 Advertising Way, Suite 100<br />
-                                            New York, NY 10001
-                                        </p>
-                                    </div>
-                                </div>
                             </div>
                         </motion.div>
 
