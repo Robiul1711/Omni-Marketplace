@@ -24,7 +24,14 @@ const HostSidebar = ({ sidebar, open, setOpen }) => {
   const isActive = (paths) => {
     if (!paths) return false;
     const pathArray = Array.isArray(paths) ? paths : [paths];
-    return pathArray.includes(location.pathname);
+    
+    return pathArray.some(path => {
+      if (path.includes(':')) {
+        const basePath = path.split(':')[0];
+        return location.pathname.startsWith(basePath);
+      }
+      return path === location.pathname;
+    });
   };
 
   const isParentActive = (item) => {

@@ -29,6 +29,8 @@ import HowItsWork from "@/pages/sites/HowItsWork";
 import AboutUs from "@/pages/sites/AboutUs";
 import TermsOfService from "@/pages/sites/TermsOfService";
 import PrivacyPolicy from "@/pages/sites/PrivacyPolicy";
+import MyPlacement from "@/pages/hostDashboard/MyPlacement";
+import TotalOrder from "@/pages/hostDashboard/TotalOrder";
 
 const router = createBrowserRouter([
   {
@@ -155,6 +157,14 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HostDashboard />,
+      },
+      {
+        path: "my-placements/:id",
+        element: <MyPlacement />,
+      },
+      {
+        path: "total-order",
+        element: <TotalOrder />,
       },
     ],
   },
