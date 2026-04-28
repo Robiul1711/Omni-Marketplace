@@ -29,8 +29,11 @@ import HowItsWork from "@/pages/sites/HowItsWork";
 import AboutUs from "@/pages/sites/AboutUs";
 import TermsOfService from "@/pages/sites/TermsOfService";
 import PrivacyPolicy from "@/pages/sites/PrivacyPolicy";
-import MyPlacement from "@/pages/hostDashboard/MyPlacement";
+
 import TotalOrder from "@/pages/hostDashboard/TotalOrder";
+import MyPlaceMents from "@/pages/hostDashboard/MyPlaceMents";
+import OrderDetails from "@/pages/hostDashboard/OrderDetails";
+import CreatePlacement from "@/pages/hostDashboard/CreatePlacement";
 
 const router = createBrowserRouter([
   {
@@ -159,8 +162,16 @@ const router = createBrowserRouter([
         element: <HostDashboard />,
       },
       {
-        path: "my-placements/:id",
-        element: <MyPlacement />,
+        path: "my-placements",
+        element: <MyPlaceMents />,
+      },
+      {
+        path: "create-placement",
+        element: <CreatePlacement />,
+      },
+      {
+        path: "order/:id",
+        element: <OrderDetails />,
       },
       {
         path: "total-order",
