@@ -20,6 +20,13 @@ const HostLayout = () => {
     },
     {
       id: 2,
+      icon: <FiBox size={22} />,
+      text: "My placements",
+      path: "/host/dashboard/my-placements",
+      activePaths: ["/host/dashboard/my-placements", "/host/dashboard/create-placement"],
+    },
+    {
+      id: 3,
       icon: <FiShoppingCart size={22} />,
       text: "Orders",
       path: "/host/dashboard/total-order",
@@ -61,7 +68,7 @@ const HostLayout = () => {
       <ScrollRestoration />
       <div className="flex min-h-screen w-full bg-[#F8F9FC]">
         <HostSidebar open={Open} setOpen={setOpen} sidebar={sideBar} />
-        
+
         <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 xlg:ml-[300px]">
           <div className="flex flex-col flex-1 ">
             <HostNavbar open={Open} setOpen={setOpen} />

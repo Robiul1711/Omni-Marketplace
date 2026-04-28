@@ -1,7 +1,13 @@
 import React from "react";
 import { HiArrowLeft } from "react-icons/hi";
 import { Link } from "react-router-dom";
-import { IoIosArrowDown } from "react-icons/io";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const OrderHeader = () => {
   return (
@@ -19,10 +25,16 @@ const OrderHeader = () => {
           <h1 className="text-xl md:text-2xl font-bold text-[#1A1D1F]">Order - ord - 001</h1>
           <p className="text-[#6F767E] text-xs md:text-sm">Instagram Story Feature - Tech Niche</p>
         </div>
-        <button className="flex items-center justify-center md:justify-start gap-2 px-4 py-2 bg-[#F0F5FF] text-[#3366FF] rounded-lg font-semibold text-sm hover:bg-[#E0EAFF] transition-colors w-full md:w-auto">
-          In Progress
-          <IoIosArrowDown className="text-lg" />
-        </button>
+        <Select defaultValue="in-progress">
+          <SelectTrigger className="flex items-center justify-center md:justify-start gap-2 px-4 py-2 bg-[#F0F5FF] text-[#3366FF] rounded-lg font-semibold text-sm hover:bg-[#E0EAFF] transition-colors w-full md:w-auto border-none shadow-none focus-visible:ring-0">
+            <SelectValue placeholder="In Progress" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="delivered">Delivered</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );

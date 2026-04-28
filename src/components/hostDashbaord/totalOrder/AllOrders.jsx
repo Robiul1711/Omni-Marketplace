@@ -1,6 +1,14 @@
 import React from 'react';
-import { FiSearch, FiCalendar, FiChevronDown } from 'react-icons/fi';
+import { FiSearch, FiCalendar } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
+import { DatePicker } from 'antd';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 const AllOrders = () => {
   const orders = [
@@ -31,27 +39,36 @@ const AllOrders = () => {
         <div className="flex items-center gap-3 flex-1">
           {/* Search Input */}
           <div className="relative w-full max-w-[320px]">
-            <input 
-              type="text" 
-              placeholder="Search here" 
+            <input
+              type="text"
+              placeholder="Search here"
               className="w-full pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
             <FiSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
           </div>
 
           {/* Date Picker Trigger */}
-          <button className="p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors">
-            <FiCalendar size={20} />
-          </button>
+          <div className="relative date-picker-custom">
+            <DatePicker 
+              suffixIcon={<FiCalendar size={18} className="text-gray-400" />}
+              placeholder=""
+              className="h-[42px] w-[52px] bg-white border border-gray-200 rounded-xl hover:border-blue-400 focus:border-blue-400 transition-all flex items-center justify-center cursor-pointer"
+              variant="borderless"
+            />
+          </div>
         </div>
 
         {/* Status Dropdown */}
-        <div className="relative">
-          <button className="flex items-center justify-between gap-3 px-4 py-2.5 bg-[#EEF2FF] text-[#335CFF] rounded-xl font-semibold text-sm min-w-[140px]">
-            In Progress
-            <FiChevronDown />
-          </button>
-        </div>
+        <Select defaultValue="in-progress">
+          <SelectTrigger className="px-4 py-2.5 bg-[#EEF2FF] text-[#335CFF] rounded-xl font-semibold text-sm min-w-[140px] border-none shadow-none focus-visible:ring-0">
+            <SelectValue placeholder="In Progress" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="delivered">Delivered</SelectItem>
+            <SelectItem value="in-progress">In Progress</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table Section */}
@@ -88,7 +105,7 @@ const AllOrders = () => {
                 <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.endDate}</td>
                 <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{order.amount}</td>
                 <td className="px-6 py-5 text-right">
-                  <Link to={`/host/dashboard/my-placements/${order.id}`} className="text-[14px] font-bold text-[#335CFF] hover:underline">
+                  <Link to={`/host/dashboard/order/${order.id}`} className="text-[14px] font-bold text-[#335CFF] hover:underline">
                     View
                   </Link>
                 </td>
