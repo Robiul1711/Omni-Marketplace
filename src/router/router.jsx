@@ -34,6 +34,8 @@ import TotalOrder from "@/pages/hostDashboard/TotalOrder";
 import MyPlaceMents from "@/pages/hostDashboard/MyPlaceMents";
 import OrderDetails from "@/pages/hostDashboard/OrderDetails";
 import CreatePlacement from "@/pages/hostDashboard/CreatePlacement";
+import HostSettings from "@/pages/hostDashboard/Settings";
+import HostSupport from "@/pages/hostDashboard/Support";
 
 const router = createBrowserRouter([
   {
@@ -176,6 +178,14 @@ const router = createBrowserRouter([
       {
         path: "total-order",
         element: <TotalOrder />,
+      },
+      {
+        path: "settings",
+        element: <HostSettings />,
+      },
+      {
+        path: "support",
+        element: <HostSupport />,
       },
     ],
   },
