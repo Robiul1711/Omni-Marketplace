@@ -36,6 +36,8 @@ import OrderDetails from "@/pages/hostDashboard/OrderDetails";
 import CreatePlacement from "@/pages/hostDashboard/CreatePlacement";
 import HostSettings from "@/pages/hostDashboard/Settings";
 import HostSupport from "@/pages/hostDashboard/Support";
+import Earnigns from "@/pages/hostDashboard/Earnigns";
+import Profile from "@/pages/hostDashboard/Profile";
 
 const router = createBrowserRouter([
   {
@@ -168,6 +170,10 @@ const router = createBrowserRouter([
         element: <MyPlaceMents />,
       },
       {
+        path: "earnings",
+        element: <Earnigns />,
+      },
+      {
         path: "create-placement",
         element: <CreatePlacement />,
       },
@@ -186,6 +192,10 @@ const router = createBrowserRouter([
       {
         path: "support",
         element: <HostSupport />,
+      },
+      {
+        path: "profile",
+        element: <Profile />,
       },
     ],
   },
