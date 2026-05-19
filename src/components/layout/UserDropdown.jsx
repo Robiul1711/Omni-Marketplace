@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
@@ -12,6 +12,7 @@ const UserDropdown = () => {
   const user = useSelector((state) => state.ui.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,6 +29,9 @@ const UserDropdown = () => {
     navigate("/login");
     setIsOpen(false);
   };
+
+  const isHost = location.pathname.startsWith('/host');
+  const profilePath = isHost ? '/host/dashboard/profile' : '/dashboard/profile';
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -65,7 +69,7 @@ const UserDropdown = () => {
           </div>
           
           <Link
-            to="/dashboard/profile"
+            to={profilePath}
             className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#1A1D1F] hover:bg-gray-50 transition-colors"
             onClick={() => setIsOpen(false)}
           >
