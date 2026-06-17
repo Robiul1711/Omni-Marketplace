@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Upload, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Button from "@/components/ui/Button";
+import useClient from "@/hooks/useClient";
+import useMutationClient from "@/hooks/useMutationClient";
+import { HOST_ONBOARDING } from "@/apiFunctions/apiEndPoints";
 
 export const OnBoardHost = () => {
   const [step, setStep] = useState(1);
@@ -25,6 +28,8 @@ export const OnBoardHost = () => {
     trigger,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -34,15 +39,45 @@ export const OnBoardHost = () => {
       operatingHours: "",
       footTraffic: "",
       responseTime: "",
+      verificationFile: "",
     },
   });
 
   const verificationFile = watch("verificationFile");
 
+  const { data: existingOnboarding } = useClient({
+    queryKey: ["hostOnboarding"],
+    url: HOST_ONBOARDING,
+    isPrivate: true,
+  });
+
+  useEffect(() => {
+    if (existingOnboarding?.data) {
+      const onboardData = existingOnboarding.data;
+      setValue("establishmentName", onboardData.establishment_name || "");
+      setValue("type", onboardData.establishment_type || "");
+      setValue("internetAccess", onboardData.has_internet_access ? "yes" : "no");
+      setValue("operatingHours", onboardData.operating_hours || "");
+      setValue("footTraffic", onboardData.estimated_monthly_foot_traffic || "");
+      setValue("responseTime", onboardData.typical_campaign_response_time || "");
+      if (onboardData.business_registration_file) {
+        setValue("verificationFile", onboardData.business_registration_file_url || onboardData.business_registration_file);
+      }
+    }
+  }, [existingOnboarding, setValue]);
+
+  const { mutate: onboardMutate, isPending } = useMutationClient({
+    url: HOST_ONBOARDING,
+    method: "post",
+    isPrivate: true,
+    successMessage: "Onboarding completed successfully!",
+  });
+
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       setValue("verificationFile", file, { shouldValidate: true });
+      clearErrors("verificationFile");
       console.log("File selected:", file.name);
     }
   };
@@ -58,29 +93,53 @@ export const OnBoardHost = () => {
         "footTraffic",
         "responseTime",
       ];
+      const isValid = await trigger(fieldsToValidate);
+      if (!isValid) return;
+      setStep(2);
     } else {
-      fieldsToValidate = ["verificationFile"];
-    }
-
-    const isValid = await trigger(fieldsToValidate);
-    if (!isValid) return;
-
-    if (step < 2) {
-      setStep(step + 1);
-    } else {
+      if (!verificationFile) {
+        setError("verificationFile", {
+          type: "required",
+          message: "Verification file is required",
+        });
+        return;
+      }
       handleSubmit(onSubmit)();
     }
   };
 
   const onSubmit = (data) => {
-    console.log("Onboarding complete:", data);
-    navigate("/");
+    const formData = new FormData();
+    formData.append("establishment_name", data.establishmentName);
+    formData.append("establishment_type", data.type);
+    formData.append("has_internet_access", data.internetAccess === "yes" ? "1" : "0");
+    formData.append("operating_hours", data.operatingHours);
+    formData.append("estimated_monthly_foot_traffic", data.footTraffic);
+    formData.append("typical_campaign_response_time", data.responseTime);
+
+    if (data.verificationFile instanceof File) {
+      formData.append("business_registration_file", data.verificationFile);
+    }
+
+    onboardMutate(
+      { data: formData },
+      {
+        onSuccess: () => {
+          navigate("/host/dashboard");
+        },
+      }
+    );
   };
 
   const handleBack = () => {
     if (step === 2) setStep(1);
     else navigate(-1);
   };
+
+  const handleSkip = () => {
+    navigate("/host/dashboard");
+  };
+
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-[#F9FAFB] flex flex-col items-center justify-start p-6 py-20 pb-40">
@@ -116,9 +175,18 @@ export const OnBoardHost = () => {
               </button>
             )}
           </div>
-          <div className="flex items-center gap-2">
-            <div className={`h-1.5 w-12 rounded-full transition-all duration-300 ${step >= 1 ? "bg-Primary" : "bg-gray-200"}`} />
-            <div className={`h-1.5 w-12 rounded-full transition-all duration-300 ${step >= 2 ? "bg-Primary" : "bg-gray-200"}`} />
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <div className={`h-1.5 w-12 rounded-full transition-all duration-300 ${step >= 1 ? "bg-Primary" : "bg-gray-200"}`} />
+              <div className={`h-1.5 w-12 rounded-full transition-all duration-300 ${step >= 2 ? "bg-Primary" : "bg-gray-200"}`} />
+            </div>
+            <button 
+              type="button" 
+              onClick={handleSkip} 
+              className="text-sm font-semibold text-gray-400 hover:text-Primary transition-colors cursor-pointer"
+            >
+              Skip
+            </button>
           </div>
         </div>
 
@@ -320,8 +388,12 @@ export const OnBoardHost = () => {
                       <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-green-600 shadow-sm transition-transform">
                         <FileText size={22} />
                       </div>
-                      <span className="text-sm font-medium text-green-600 font-host-grotesk">
-                        {verificationFile.name}
+                      <span className="text-sm font-medium text-green-600 font-host-grotesk text-center max-w-[200px] truncate">
+                        {verificationFile instanceof File
+                          ? verificationFile.name
+                          : typeof verificationFile === "string"
+                          ? verificationFile.split("/").pop()
+                          : "Uploaded Document"}
                       </span>
                     </div>
                   ) : (
@@ -346,8 +418,12 @@ export const OnBoardHost = () => {
         </AnimatePresence>
 
         <div className="mt-12 space-y-6">
-          <Button onClick={handleNext} className="w-full h-14 bg-Primary text-white rounded-xl font-bold text-base hover:bg-[#2849cc] transition-all">
-            {step === 1 ? "Next" : "Complete"}
+          <Button 
+            onClick={handleNext} 
+            disabled={isPending}
+            className="w-full h-14 bg-Primary text-white rounded-xl font-bold text-base hover:bg-[#2849cc] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? "Submitting..." : step === 1 ? "Next" : "Complete"}
           </Button>
           <p className="text-xs text-gray-400 font-normal font-host-grotesk text-center">
             You can change these settings later

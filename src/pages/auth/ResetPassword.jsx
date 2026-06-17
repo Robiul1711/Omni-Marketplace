@@ -5,29 +5,50 @@ import { Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { fadeInUp } from "@/utils/animations";
 import { useForm } from "react-hook-form";
 import Button from "@/components/ui/Button";
+import useMutationClient from "@/hooks/useMutationClient";
+import { RESET_PASSWORD } from "@/apiFunctions/apiEndPoints";
 
 const ResetPassword = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get("email");
+  const token = searchParams.get("token");
 
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   const {
-      register,
-      handleSubmit,
-      watch,
-      formState: { errors },
-    } = useForm();
-  
-    const password = watch("password");
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const password = watch("password");
+
+  const { mutate: resetMutate, isPending } = useMutationClient({
+    url: RESET_PASSWORD,
+    method: "post",
+    successMessage: "Password has been reset successfully.",
+  });
 
   const onSubmit = (data) => {
-    console.log("Reset Password - Data submitted for email:", email, data.password);
-    // Redirect to login after success
-    navigate("/auth/login?status=reset_success");
+    resetMutate(
+      {
+        data: {
+          password: data.password,
+          password_confirmation: data.confirmPassword,
+          token: token,
+        },
+      },
+      {
+        onSuccess: () => {
+          navigate("/auth/login?status=reset_success");
+        },
+      }
+    );
   };
+
 
   const isStrong = password?.length >= 8;
 
@@ -124,8 +145,12 @@ const ResetPassword = () => {
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-14 rounded-xl font-bold text-base mt-2">
-            Continue
+          <Button 
+            type="submit" 
+            disabled={isPending}
+            className="w-full h-14 rounded-xl font-bold text-base mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? "Resetting..." : "Continue"}
           </Button>
         </form>
       </motion.div>

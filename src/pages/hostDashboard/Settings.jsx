@@ -1,22 +1,95 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState, useEffect, useRef } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { FiCamera, FiAlertCircle, FiClock, FiRefreshCw } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import useClient from '@/hooks/useClient';
+import useMutationClient from '@/hooks/useMutationClient';
+import { PROFILE, HOST_ONBOARDING, UPDATE_PASSWORD, REQUEST_VERIFICATION } from '@/apiFunctions/apiEndPoints';
 
-const AccountSettings = () => {
+const getFileUrl = (path) => {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  const cleanPath = path.replace(/\\/g, "/");
+  const base = import.meta.env.VITE_IMG_URL || "";
+  const separator = (base.endsWith("/") || cleanPath.startsWith("/")) ? "" : "/";
+  return `${base}${separator}${cleanPath}`;
+};
+
+const isImage = (path) => {
+  if (!path) return false;
+  const ext = path.split('.').pop().toLowerCase();
+  return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+};
+
+const SettingsSkeleton = () => {
+  return (
+    <div className="space-y-6 md:pb-10 pb-4 animate-pulse">
+      <div className="mb-8 space-y-3">
+        <div className="h-8 bg-gray-200 rounded-lg w-1/4"></div>
+        <div className="h-4 bg-gray-200 rounded-lg w-1/3"></div>
+      </div>
+      <div className="border-b border-gray-200">
+        <div className="flex gap-8 max-w-xl pb-3">
+          <div className="h-5 bg-gray-200 rounded-lg w-20"></div>
+          <div className="h-5 bg-gray-200 rounded-lg w-20"></div>
+        </div>
+      </div>
+      <div className="bg-white rounded-[24px] border border-gray-100 p-5 md:p-8 shadow-sm space-y-8">
+        <div className="h-6 bg-gray-200 rounded-lg w-24"></div>
+        <div className="flex items-center gap-6">
+          <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gray-200"></div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded-lg w-24"></div>
+            <div className="h-3 bg-gray-200 rounded-lg w-32"></div>
+          </div>
+        </div>
+        <div className="space-y-5 max-w-2xl">
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
+            <div className="h-12 bg-gray-100 rounded-xl w-full"></div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
+            <div className="h-12 bg-gray-100 rounded-xl w-full"></div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded-lg w-16"></div>
+            <div className="h-12 bg-gray-100 rounded-xl w-full"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AccountSettings = ({ user, refetch }) => {
+  const [avatarFile, setAvatarFile] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const avatarInputRef = useRef(null);
+
   // Profile Form
   const {
     register: registerProfile,
     handleSubmit: handleProfileSubmit,
+    setValue: setProfileValue,
     formState: { errors: profileErrors },
   } = useForm({
     defaultValues: {
-      name: 'TechCo',
-      email: 'contact@techco.com',
-      phone: '+1 (555) 123-4567',
+      name: user?.name || '',
+      email: user?.email || '',
+      phone: user?.phone || '',
     }
   });
+
+  // Keep form fields synced if user query returns after initial mount
+  useEffect(() => {
+    if (user) {
+      setProfileValue('name', user.name || '');
+      setProfileValue('email', user.email || '');
+      setProfileValue('phone', user.phone || '');
+    }
+  }, [user, setProfileValue]);
 
   // Security Form
   const {
@@ -29,15 +102,55 @@ const AccountSettings = () => {
 
   const newPassword = watch('newPassword');
 
+  const { mutate: updateProfile, isPending: isProfileSaving } = useMutationClient({
+    url: PROFILE,
+    method: "post",
+    isPrivate: true,
+    successMessage: "Profile updated successfully!",
+  });
+
+  const { mutate: updatePassword, isPending: isPasswordSaving } = useMutationClient({
+    url: UPDATE_PASSWORD,
+    method: "post",
+    isPrivate: true,
+    successMessage: "Password updated successfully!",
+  });
+
   const onProfileSave = (data) => {
-    console.log('Profile Data:', data);
-    toast.success('Profile updated successfully!');
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('phone', data.phone || '');
+    if (avatarFile) {
+      formData.append('avatar', avatarFile);
+    }
+
+    updateProfile({ data: formData }, {
+      onSuccess: () => {
+        refetch();
+      }
+    });
   };
 
   const onSecuritySave = (data) => {
-    console.log('Security Data:', data);
-    toast.success('Password updated successfully!');
-    resetSecurity();
+    updatePassword({
+      data: {
+        current_password: data.currentPassword,
+        password: data.newPassword,
+        password_confirmation: data.confirmPassword,
+      }
+    }, {
+      onSuccess: () => {
+        resetSecurity();
+      }
+    });
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
   };
 
   return (
@@ -49,12 +162,15 @@ const AccountSettings = () => {
         <form onSubmit={handleProfileSubmit(onProfileSave)} className="space-y-6 md:space-y-8 max-w-2xl">
           {/* Avatar Area */}
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="relative w-24 h-24 md:w-32 md:h-32 group cursor-pointer">
+            <div 
+              className="relative w-24 h-24 md:w-32 md:h-32 group cursor-pointer"
+              onClick={() => avatarInputRef.current?.click()}
+            >
               <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-50 shadow-sm bg-gray-100">
                 <img 
-                  src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop" 
+                  src={avatarPreview || user?.avatar || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"} 
                   alt="Profile" 
-                  className="w-full h-full object-cover grayscale"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -63,6 +179,17 @@ const AccountSettings = () => {
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none group-hover:hidden">
                  <FiCamera size={20} className="text-white drop-shadow-md opacity-80" />
               </div>
+            </div>
+            <input 
+              type="file" 
+              ref={avatarInputRef} 
+              onChange={handleAvatarChange} 
+              className="hidden" 
+              accept="image/*"
+            />
+            <div className="text-center sm:text-left">
+              <p className="text-sm font-bold text-[#1A1D1F]">Profile Picture</p>
+              <p className="text-xs text-gray-400 mt-1">PNG, JPG max 5MB</p>
             </div>
           </div>
 
@@ -84,21 +211,11 @@ const AccountSettings = () => {
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-[#1A1D1F]">Email</label>
               <input 
-                {...registerProfile('email', { 
-                  required: 'Email is required',
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Invalid email address"
-                  }
-                })}
+                {...registerProfile('email')}
                 type="email" 
-                className={`w-full px-4 py-3 bg-[#F4F7FE] border-2 rounded-xl focus:ring-2 focus:ring-blue-100 transition-all font-medium text-[#1A1D1F] outline-none ${profileErrors.email ? 'border-red-400 focus:ring-red-50' : 'border-transparent focus:border-[#3366FF]'}`}
+                disabled
+                className="w-full px-4 py-3 bg-[#F4F7FE] border-2 border-transparent rounded-xl font-medium text-gray-400 outline-none cursor-not-allowed"
               />
-              {profileErrors.email && (
-                <p className="text-[12px] text-red-500 font-medium flex items-center gap-1 mt-1">
-                  <FiAlertCircle size={14} /> {profileErrors.email.message}
-                </p>
-              )}
             </div>
 
             <div className="space-y-1.5">
@@ -117,11 +234,12 @@ const AccountSettings = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-4">
-            <button type="submit" className="w-full sm:w-auto px-10 py-3 bg-[#3366FF] text-white font-medium text-sm rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-blue-50">
-              Save Changes
-            </button>
-            <button type="button" className="w-full sm:w-auto px-10 py-3 bg-white border border-gray-200 text-[#1A1D1F] font-medium text-sm rounded-lg hover:bg-gray-50 transition-all">
-              Cancel
+            <button 
+              type="submit" 
+              disabled={isProfileSaving}
+              className="w-full sm:w-auto px-10 py-3 bg-[#3366FF] text-white font-medium text-sm rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-blue-50 disabled:opacity-50"
+            >
+              {isProfileSaving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>
@@ -185,61 +303,98 @@ const AccountSettings = () => {
             </div>
           </div>
 
-          <button type="submit" className="w-full sm:w-auto px-10 py-3 bg-[#3366FF] text-white font-medium text-sm rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-blue-50">
-            Update Password
+          <button 
+            type="submit" 
+            disabled={isPasswordSaving}
+            className="w-full sm:w-auto px-10 py-3 bg-[#3366FF] text-white font-medium text-sm rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all shadow-lg shadow-blue-50 disabled:opacity-50"
+          >
+            {isPasswordSaving ? 'Updating...' : 'Update Password'}
           </button>
         </form>
-      </div>
-
-      {/* Notification Preferences Section */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-5 md:p-8 shadow-sm">
-        <h2 className="text-base md:text-[17px] font-bold text-[#1A1D1F] mb-6 md:mb-8">Notification Preferences</h2>
-        
-        <div className="space-y-4 md:space-y-6">
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm font-medium text-[#6F767E] pr-4">Get notified about order status changes</span>
-            <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-gray-200 text-[#3366FF] focus:ring-[#3366FF] cursor-pointer" />
-          </div>
-          <div className="flex items-center justify-between py-3">
-            <span className="text-sm font-medium text-[#6F767E] pr-4">System updates</span>
-            <input type="checkbox" className="w-5 h-5 rounded border-gray-200 text-[#3366FF] focus:ring-[#3366FF] cursor-pointer" />
-          </div>
-        </div>
-      </div>
-
-      {/* Payment Methods Section */}
-      <div className="bg-white rounded-[24px] border border-gray-100 p-5 md:p-8 shadow-sm">
-        <h2 className="text-base md:text-[17px] font-bold text-[#1A1D1F] mb-6 md:mb-8">Payment Methods</h2>
-        
-        <div>
-          <button className="w-full sm:w-auto px-10 py-3 bg-white border border-gray-200 text-[#1A1D1F] font-medium text-sm rounded-lg hover:bg-gray-50 transition-all shadow-sm active:scale-[0.98]">
-            Add your Stripe
-          </button>
-        </div>
       </div>
     </div>
   );
 };
 
-const ChannelSettings = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+const ChannelSettings = ({ onboarding, refetch }) => {
+  const docInputRef = useRef(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  const { register, handleSubmit, control, setValue, formState: { errors } } = useForm({
     defaultValues: {
-      establishmentName: 'Urban Beats Podcast',
-      channelInfo: '',
-      channelType: 'podcast',
-      internetAccess: 'Yes',
-      operatingHours: 'Mon-Fri [9:00 AM - 10:00 PM]',
-      responseTime: 'Within 24 hours'
+      establishmentName: onboarding?.establishment_name || '',
+      channelType: onboarding?.establishment_type || 'Restaurant',
+      internetAccess: onboarding?.has_internet_access ? 'Yes' : 'No',
+      operatingHours: onboarding?.operating_hours || '',
+      estimatedMonthlyFootTraffic: onboarding?.estimated_monthly_foot_traffic || '',
+      responseTime: onboarding?.typical_campaign_response_time || 'Within 24 hours'
     }
   });
 
+  useEffect(() => {
+    if (onboarding) {
+      setValue('establishmentName', onboarding.establishment_name || '');
+      setValue('channelType', onboarding.establishment_type || 'Restaurant');
+      setValue('internetAccess', onboarding.has_internet_access ? 'Yes' : 'No');
+      setValue('operatingHours', onboarding.operating_hours || '');
+      setValue('estimatedMonthlyFootTraffic', onboarding.estimated_monthly_foot_traffic || '');
+      setValue('responseTime', onboarding.typical_campaign_response_time || 'Within 24 hours');
+    }
+  }, [onboarding, setValue]);
+
+  const { mutate: updateChannel, isPending: isChannelSaving } = useMutationClient({
+    url: HOST_ONBOARDING,
+    method: "post",
+    isPrivate: true,
+    successMessage: "Channel settings updated successfully!",
+  });
+
+  const { mutate: requestVerification, isPending: isRequestingVerification } = useMutationClient({
+    url: REQUEST_VERIFICATION,
+    method: "post",
+    isPrivate: true,
+    successMessage: "Verification request submitted successfully!",
+  });
+
   const onSubmit = (data) => {
-    toast.success('Channel info updated successfully!');
+    const formData = new FormData();
+    formData.append('establishment_name', data.establishmentName);
+    formData.append('establishment_type', data.channelType);
+    formData.append('has_internet_access', data.internetAccess === 'Yes' ? '1' : '0');
+    formData.append('operating_hours', data.operatingHours);
+    formData.append('estimated_monthly_foot_traffic', data.estimatedMonthlyFootTraffic);
+    formData.append('typical_campaign_response_time', data.responseTime);
+
+    if (selectedFile) {
+      formData.append('business_registration_file', selectedFile);
+    }
+
+    updateChannel({ data: formData }, {
+      onSuccess: () => {
+        setSelectedFile(null);
+        refetch();
+      }
+    });
+  };
+
+  const handleDocChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleRequestVerification = () => {
+    requestVerification({}, {
+      onSuccess: () => {
+        refetch();
+      }
+    });
   };
 
   return (
-    <div className="space-y-6 md:space-y-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="md:space-y-6 space-y-4">
+    <div className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="bg-white rounded-[24px] border border-gray-100 p-5 md:p-8 shadow-sm">
           <h2 className="text-base md:text-[17px] font-bold text-[#1A1D1F] mb-6 md:mb-8">Channel Information</h2>
           
@@ -253,26 +408,23 @@ const ChannelSettings = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-[#1A1D1F]">Channel Info</label>
-              <input 
-                {...register('channelInfo')}
-                placeholder="Enter short description about you"
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 transition-all text-sm font-medium text-[#1A1D1F] outline-none placeholder:text-gray-400 placeholder:font-normal"
-              />
-            </div>
-
-            <div className="space-y-2">
               <label className="text-sm font-medium text-[#1A1D1F]">Channel Type</label>
-              <Select defaultValue="podcast">
-                <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="podcast">podcast</SelectItem>
-                  <SelectItem value="digital_billboard">Digital Billboard</SelectItem>
-                  <SelectItem value="tv_screen">TV Screen</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="channelType"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Restaurant">Restaurant</SelectItem>
+                      <SelectItem value="Podcast">Podcast</SelectItem>
+                      <SelectItem value="Digital Screen">Digital Screen</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-3 pt-2">
@@ -301,27 +453,89 @@ const ChannelSettings = () => {
             </div>
 
             <div className="space-y-2">
+              <label className="text-sm font-medium text-[#1A1D1F]">Estimated Monthly Foot Traffic</label>
+              <input 
+                {...register('estimatedMonthlyFootTraffic')}
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 transition-all text-sm font-medium text-[#1A1D1F] outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
               <label className="text-sm font-medium text-[#1A1D1F]">Typical Campaign Response Time</label>
-              <Select defaultValue="Within 24 hours">
-                <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
-                  <SelectValue placeholder="Select response time" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Within 24 hours">Within 24 hours</SelectItem>
-                  <SelectItem value="Within 48 hours">Within 48 hours</SelectItem>
-                  <SelectItem value="Within 1 week">Within 1 week</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="responseTime"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
+                      <SelectValue placeholder="Select response time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Within 24 hours">Within 24 hours</SelectItem>
+                      <SelectItem value="Within 48 hours">Within 48 hours</SelectItem>
+                      <SelectItem value="Within 1 week">Within 1 week</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center gap-3">
+                <input 
+                  type="file" 
+                  ref={docInputRef} 
+                  onChange={handleDocChange} 
+                  className="hidden" 
+                  accept=".pdf,.jpg,.png,.doc"
+                />
+                {selectedFile || onboarding?.business_registration_file ? (
+                  <div className="flex items-center gap-3">
+                    {selectedFile ? (
+                      <div 
+                        className="w-12 h-12 rounded-lg bg-[#4B5563] text-white flex flex-col items-center justify-center font-bold text-xs uppercase leading-none shadow-sm cursor-default"
+                        title="New local file chosen (Click Save Changes to upload)"
+                      >
+                        FILE
+                      </div>
+                    ) : (
+                      <a 
+                        href={getFileUrl(onboarding.business_registration_file)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-12 h-12 rounded-lg bg-[#4B5563] hover:bg-gray-700 text-white flex flex-col items-center justify-center font-bold text-xs uppercase leading-none transition-all shadow-sm cursor-pointer"
+                        title="Click to view/download document"
+                      >
+                        FILE
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 bg-gray-100 text-gray-400 flex flex-col items-center justify-center rounded-lg border border-gray-200 shadow-sm font-bold text-xs uppercase leading-none font-host-grotesk">
+                    None
+                  </div>
+                )}
+
+                <button 
+                  type="button"
+                  onClick={() => docInputRef.current?.click()}
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-50 cursor-pointer"
+                  title="Select new file"
+                >
+                   <FiRefreshCw size={18} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-[24px] border border-gray-100 p-5 shadow-sm flex gap-3">
-          <button type="submit" className="px-10 py-3 bg-[#3366FF] text-white font-medium text-sm rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all shadow-sm">
-            Save Changes
-          </button>
-          <button type="button" className="px-10 py-3 bg-white border border-gray-200 text-[#1A1D1F] font-medium text-sm rounded-lg hover:bg-gray-50 transition-all">
-            Cancel
+          <button 
+            type="submit" 
+            disabled={isChannelSaving}
+            className="px-10 py-3 bg-[#3366FF] text-white font-medium text-sm rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all shadow-sm disabled:opacity-50"
+          >
+            {isChannelSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
       </form>
@@ -331,28 +545,46 @@ const ChannelSettings = () => {
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 max-w-4xl">
           <div className="space-y-3">
-             <label className="text-sm font-medium text-[#1A1D1F]">Business Registration Document</label>
              <div className="flex items-center gap-3">
-               <div className="w-12 h-12 bg-[#4B5563] text-white flex flex-col items-center justify-center rounded-lg shadow-sm">
-                 <span className="font-bold text-sm leading-none">PDF</span>
-               </div>
-               <button className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-50">
-                  <FiRefreshCw size={18} />
-               </button>
+               {onboarding?.business_registration_file ? (
+                 <a 
+                   href={getFileUrl(onboarding.business_registration_file)} 
+                   target="_blank" 
+                   rel="noopener noreferrer"
+                   className="w-12 h-12 rounded-lg bg-[#4B5563] hover:bg-gray-700 text-white flex flex-col items-center justify-center font-bold text-xs uppercase leading-none transition-all shadow-sm cursor-pointer"
+                   title="Click to view/download document"
+                 >
+                   FILE
+                 </a>
+               ) : (
+                 <div className="w-12 h-12 bg-gray-100 text-gray-400 flex flex-col items-center justify-center rounded-lg border border-gray-200 shadow-sm font-bold text-xs uppercase leading-none font-host-grotesk">
+                   None
+                 </div>
+               )}
              </div>
           </div>
           
           <div className="flex flex-col items-start sm:items-end gap-2">
              <span className="text-sm font-medium text-[#1A1D1F]">Status</span>
-             <div className="px-6 py-1.5 bg-[#E6FFF5] text-[#00B67A] text-xs font-bold rounded-full">
-               Verified
+             <div className={`px-6 py-1.5 text-xs font-bold rounded-full uppercase ${
+               onboarding?.verification_status === 'verified'
+                 ? 'bg-[#E6FFF5] text-[#00B67A]'
+                 : onboarding?.verification_status === 'pending'
+                 ? 'bg-yellow-50 text-yellow-600'
+                 : 'bg-red-50 text-red-500'
+             }`}>
+               {onboarding?.verification_status || 'pending'}
              </div>
           </div>
         </div>
 
         <div className="mt-8">
-           <button className="px-6 py-3 bg-[#3366FF] text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-all">
-             Request for verification again
+           <button 
+             onClick={handleRequestVerification}
+             disabled={isRequestingVerification}
+             className="px-6 py-3 bg-[#3366FF] text-white text-sm font-medium rounded-lg hover:bg-blue-600 active:scale-[0.98] transition-all disabled:opacity-50 cursor-pointer"
+           >
+             {isRequestingVerification ? "Requesting..." : "Request for verification again"}
            </button>
         </div>
       </div>
@@ -362,6 +594,25 @@ const ChannelSettings = () => {
 
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('Account');
+
+  const { data: profileData, isLoading: isProfileLoading, refetch: refetchProfile } = useClient({
+    queryKey: ["userProfile"],
+    url: PROFILE,
+    isPrivate: true,
+  });
+
+  const { data: onboardingData, isLoading: isOnboardingLoading, refetch: refetchOnboarding } = useClient({
+    queryKey: ["hostOnboarding"],
+    url: HOST_ONBOARDING,
+    isPrivate: true,
+  });
+
+  if (isProfileLoading || isOnboardingLoading) {
+    return <SettingsSkeleton />;
+  }
+
+  const user = profileData?.data || profileData;
+  const onboarding = onboardingData?.data || onboardingData;
 
   return (
     <div className="space-y-6 md:pb-10 pb-4">
@@ -373,7 +624,7 @@ const Settings = () => {
       <div className="border-b border-gray-200">
         <div className="flex gap-8 max-w-xl">
           <button
-            className={`pb-3 text-sm font-medium transition-all w-full relative ${activeTab === 'Account' ? 'text-[#1A1D1F]' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`pb-3 text-sm font-medium transition-all w-full relative cursor-pointer ${activeTab === 'Account' ? 'text-[#1A1D1F]' : 'text-gray-400 hover:text-gray-600'}`}
             onClick={() => setActiveTab('Account')}
           >
             Account
@@ -382,7 +633,7 @@ const Settings = () => {
             )}
           </button>
           <button
-            className={`pb-3 text-sm font-medium transition-all w-full relative ${activeTab === 'Channel' ? 'text-[#1A1D1F]' : 'text-gray-400 hover:text-gray-600'}`}
+            className={`pb-3 text-sm font-medium transition-all w-full relative cursor-pointer ${activeTab === 'Channel' ? 'text-[#1A1D1F]' : 'text-gray-400 hover:text-gray-600'}`}
             onClick={() => setActiveTab('Channel')}
           >
             Channel
@@ -394,7 +645,11 @@ const Settings = () => {
       </div>
 
       <div className="pt-2">
-        {activeTab === 'Account' ? <AccountSettings /> : <ChannelSettings />}
+        {activeTab === 'Account' ? (
+          <AccountSettings user={user} refetch={refetchProfile} />
+        ) : (
+          <ChannelSettings onboarding={onboarding} refetch={refetchOnboarding} />
+        )}
       </div>
     </div>
   );

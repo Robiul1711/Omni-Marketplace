@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import { fadeInUp } from "@/utils/animations";
 import { useForm } from "react-hook-form";
+import useMutationClient from "@/hooks/useMutationClient";
+import { SIGN_UP } from "@/apiFunctions/apiEndPoints";
 
 const SignUp = () => {
   const [searchParams] = useSearchParams();
@@ -22,10 +24,32 @@ const SignUp = () => {
 
   const password = watch("password");
 
+  const { mutate: signupMutate, isPending } = useMutationClient({
+    url: SIGN_UP,
+    method: "post",
+    successMessage: "Verification code sent to email.",
+  });
+
   const onSubmit = (data) => {
-    console.log("Signup form submitted:", data, "Type:", type);
-    // Navigate to OTP verification with context
-    navigate(`/auth/verify-otp?email=${data.email}&type=${type}&flow=signup`);
+    const payload = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      password_confirmation: data.repeatPassword,
+      role: type === "host" ? "Host" : "Omnipresent",
+    };
+
+    signupMutate(
+      { data: payload },
+      {
+        onSuccess: (res) => {
+          const responseData = res?.data || res;
+          const token = responseData?.data?.token || responseData?.token;
+          const email = responseData?.data?.email || responseData?.email || payload.email;
+          navigate(`/auth/verify-otp?email=${email}&type=${type}&flow=signup&token=${token}`);
+        },
+      }
+    );
   };
 
   return (
@@ -167,9 +191,10 @@ const SignUp = () => {
 
           <button
             type="submit"
-            className="w-full h-14 bg-Primary text-white rounded-xl font-bold text-base hover:bg-[#2849cc] transition-all"
+            disabled={isPending}
+            className="w-full h-14 bg-Primary text-white rounded-xl font-bold text-base hover:bg-[#2849cc] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Create Account
+            {isPending ? "Creating Account..." : "Create Account"}
           </button>
         </form>
       </motion.div>

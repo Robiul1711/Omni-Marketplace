@@ -37,6 +37,7 @@ const useMutationClient = ({
     onError: (error) => {
       const msg = error?.response?.data?.message || error.message || "Something went wrong";
       toast.error(msg);
+      console.log(error)
     },
   });
 };

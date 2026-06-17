@@ -1,13 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import { FiBox, FiHeart, FiDollarSign, FiSettings } from "react-icons/fi";
 import { MdOutlineDashboard } from "react-icons/md";
+import { useDispatch } from "react-redux";
+import { clearAuth } from "@/redux/slices/authSlice";
+import { clearUiState } from "@/redux/slices/uiSlice";
+import { useQueryClient } from "@tanstack/react-query";
 
 const SideBar = ({ sidebar, open, setOpen }) => {
   const location = useLocation();
   const [activeParentIndex, setActiveParentIndex] = useState(null);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleLogout = () => {
+    dispatch(clearAuth());
+    dispatch(clearUiState());
+    queryClient.clear();
+    navigate("/auth/login");
+    setOpen(false);
+  };
 
   useEffect(() => {
     sidebar?.forEach((item, index) => {
@@ -165,7 +180,10 @@ const SideBar = ({ sidebar, open, setOpen }) => {
 
         {/* Bottom Section - Logout */}
         <div className="p-4 border-t border-gray-100">
-          <button className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-[#6F767E] hover:bg-red-50 hover:text-red-600 transition-all duration-200 group">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-4 py-3.5 rounded-xl text-[#6F767E] hover:bg-red-50 hover:text-red-600 transition-all duration-200 group cursor-pointer"
+          >
             <IoLogOutOutline size={22} className="group-hover:text-red-600" />
             <span className="font-semibold text-[15px]">Log Out</span>
           </button>

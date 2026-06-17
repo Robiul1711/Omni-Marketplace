@@ -4,10 +4,16 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import { fadeInUp } from "@/utils/animations";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { setToken } from "@/redux/slices/authSlice";
+import { setUser as setUiUser } from "@/redux/slices/uiSlice";
+import useMutationClient from "@/hooks/useMutationClient";
+import { LOGIN } from "@/apiFunctions/apiEndPoints";
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const dispatch = useDispatch();
 
   const {
     register,
@@ -15,13 +21,39 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
+  const { mutate: loginMutate, isPending } = useMutationClient({
+    url: LOGIN,
+    method: "post",
+    successMessage: "Logged in successfully!",
+  });
+
   const onSubmit = (data) => {
-    console.log("Login form submitted:", data);
-    
-    // Simulate role check - if it's a host, we go to onboarding (if not done)
-    // For now, go to home
-    navigate("/");
+    loginMutate(
+      { data: { email: data.email, password: data.password } },
+      {
+        onSuccess: (res) => {
+          const responseData = res?.data || res;
+          const bearerToken = responseData?.token;
+          const userObj = responseData?.data;
+
+          dispatch(setToken({ token: bearerToken, user: userObj }));
+          dispatch(setUiUser({ user: userObj }));
+
+          if (userObj?.role === "Host") {
+            if (userObj.is_onboarded === false || !userObj.is_onboarded) {
+              navigate("/auth/onboard-host");
+            } else {
+              navigate("/host/dashboard");
+            }
+          } else {
+            // Omnipresent / Business role
+            navigate("/");
+          }
+        },
+      }
+    );
   };
+
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-[#F9FAFB] flex flex-col items-center justify-center p-6 py-20">
@@ -119,9 +151,10 @@ const Login = () => {
 
           <button
             type="submit"
-            className="w-full h-14 bg-Primary text-white rounded-xl font-bold text-base hover:bg-[#2849cc] transition-all"
+            disabled={isPending}
+            className="w-full h-14 bg-Primary text-white rounded-xl font-bold text-base hover:bg-[#2849cc] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Log in
+            {isPending ? "Logging in..." : "Log in"}
           </button>
         </form>
       </motion.div>
