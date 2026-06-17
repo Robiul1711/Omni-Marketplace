@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentToken } from "@/redux/slices/authSlice";
 import useAxiosSecure from "./useAxiosSecure";
 import { useEffect } from "react";
-import { setUser } from "@/redux/slices/uiSlice";
+import { setUser as setUiUser } from "@/redux/slices/uiSlice";
+import { setUser as setAuthUser } from "@/redux/slices/authSlice";
+import { PROFILE } from "@/apiFunctions/apiEndPoints";
 
 export const useUserProfile = () => {
   const token = useSelector(selectCurrentToken);
@@ -14,8 +16,9 @@ export const useUserProfile = () => {
     queryKey: ["userProfile", token],
     queryFn: async () => {
       if (!token) return null;
-      const res = await axiosSecure.get("/get-profile");
-      return res.data.userdata || res.data;
+      const res = await axiosSecure.get(PROFILE);
+      // Backend returns details in res.data.data
+      return res.data.data || res.data;
     },
     enabled: !!token,
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -24,7 +27,8 @@ export const useUserProfile = () => {
   // Sync with Redux whenever data is fetched
   useEffect(() => {
     if (query.data) {
-      dispatch(setUser(query.data));
+      dispatch(setUiUser({ user: query.data }));
+      dispatch(setAuthUser(query.data));
     }
   }, [query.data, dispatch]);
 

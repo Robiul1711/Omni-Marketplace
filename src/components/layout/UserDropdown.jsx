@@ -1,18 +1,22 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { MdKeyboardArrowDown } from "react-icons/md";
+import { MdKeyboardArrowDown, MdDashboard } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
 import { useDispatch, useSelector } from "react-redux";
+import { clearAuth } from "@/redux/slices/authSlice";
+import { clearUiState } from "@/redux/slices/uiSlice";
 
+import { useQueryClient } from "@tanstack/react-query";
 
 const UserDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const user = useSelector((state) => state.ui.user);
+  const user = useSelector((state) => state.auth.user || state.ui.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -25,13 +29,16 @@ const UserDropdown = () => {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
+    dispatch(clearAuth());
+    dispatch(clearUiState());
+    queryClient.clear();
+    navigate("/auth/login");
     setIsOpen(false);
   };
 
-  const isHost = location.pathname.startsWith('/host');
-  const profilePath = isHost ? '/host/dashboard/profile' : '/dashboard/profile';
+  const isHost = user?.role === "Host";
+  const profilePath = isHost ? "/host/dashboard/settings" : "/advertising/dashboard/settings";
+  const dashboardPath = isHost ? "/host/dashboard" : "/advertising/dashboard";
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -50,7 +57,7 @@ const UserDropdown = () => {
         </div>
         <div className="hidden sm:block text-left">
           <p className="text-sm font-bold text-[#1A1D1F] truncate max-w-[120px]">
-            {user?.fullName || user?.name || "Kabir Nishat"}
+            {user?.name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}` : "Kabir Nishat")}
           </p>
           <p className="text-xs text-[#6F767E] truncate max-w-[120px]">
             {user?.email || "example@gmail.com"}
@@ -69,6 +76,15 @@ const UserDropdown = () => {
           </div>
           
           <Link
+            to={dashboardPath}
+            className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#1A1D1F] hover:bg-gray-50 transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            <MdDashboard className="text-[#6F767E]" size={20} />
+            Dashboard
+          </Link>
+
+          <Link
             to={profilePath}
             className="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-[#1A1D1F] hover:bg-gray-50 transition-colors"
             onClick={() => setIsOpen(false)}
@@ -80,7 +96,7 @@ const UserDropdown = () => {
           <div className="h-px bg-gray-50 my-2 mx-4"></div>
           
           <button
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
             onClick={handleLogout}
           >
             <IoLogOutOutline size={20} />

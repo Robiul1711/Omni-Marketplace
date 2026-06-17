@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { fadeInUp } from "@/utils/animations";
 import { useForm } from "react-hook-form";
 import Button from "@/components/ui/Button";
+import useMutationClient from "@/hooks/useMutationClient";
+import { FORGOT_PASSWORD } from "@/apiFunctions/apiEndPoints";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -13,10 +15,23 @@ const ForgotPassword = () => {
     formState: { errors },
   } = useForm();
 
+  const { mutate: forgotMutate, isPending } = useMutationClient({
+    url: FORGOT_PASSWORD,
+    method: "post",
+    successMessage: "Verification code sent to email.",
+  });
+
   const onSubmit = (data) => {
-    console.log("Forgot Password - Email submitted:", data.email);
-    // Navigate to OTP page with context
-    navigate(`/auth/verify-otp?email=${data.email}&flow=forgot`);
+    forgotMutate(
+      { data: { email: data.email } },
+      {
+        onSuccess: (res) => {
+          const responseData = res?.data || res;
+          const token = responseData?.data?.token || responseData?.token;
+          navigate(`/auth/verify-otp?email=${data.email}&flow=forgot&token=${token}`);
+        },
+      }
+    );
   };
 
   return (
@@ -65,8 +80,12 @@ const ForgotPassword = () => {
             />
           </div>
 
-          <Button type="submit" className="w-full h-14 rounded-xl font-bold text-base">
-            Continue
+          <Button 
+            type="submit" 
+            disabled={isPending}
+            className="w-full h-14 rounded-xl font-bold text-base disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isPending ? "Sending..." : "Continue"}
           </Button>
         </form>
       </motion.div>

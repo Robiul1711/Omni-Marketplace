@@ -3,6 +3,11 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/utils/animations";
 import Button from "@/components/ui/Button";
+import { useDispatch } from "react-redux";
+import { setToken } from "@/redux/slices/authSlice";
+import { setUser as setUiUser } from "@/redux/slices/uiSlice";
+import useMutationClient from "@/hooks/useMutationClient";
+import { VERIFY_OTP, FORGOT_PASSWORD_VERIFY_OTP } from "@/apiFunctions/apiEndPoints";
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
@@ -10,9 +15,22 @@ const VerifyOTP = () => {
   const email = searchParams.get("email") || "m*******y@gmail.com";
   const flow = searchParams.get("flow") || "signup"; // signup, forgot, invite
   const userType = searchParams.get("type") || "business";
+  const dispatch = useDispatch();
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
+
+  const { mutate: verifyOtpMutate, isPending: isVerifyPending } = useMutationClient({
+    url: VERIFY_OTP,
+    method: "post",
+    successMessage: "Registration successful!",
+  });
+
+  const { mutate: verifyForgotOtpMutate, isPending: isForgotPending } = useMutationClient({
+    url: FORGOT_PASSWORD_VERIFY_OTP,
+    method: "post",
+    successMessage: "OTP verified successfully!",
+  });
 
   const handleChange = (e, index) => {
     const value = e.target.value;
@@ -34,22 +52,61 @@ const VerifyOTP = () => {
     }
   };
 
+  const handlePaste = (e) => {
+    const pasteData = e.clipboardData.getData("text");
+    if (!pasteData || isNaN(Number(pasteData))) return;
+
+    const digits = pasteData.trim().substring(0, 6).split("");
+    const newOtp = [...otp];
+    for (let i = 0; i < 6; i++) {
+      newOtp[i] = digits[i] || "";
+    }
+    setOtp(newOtp);
+
+    const focusIndex = Math.min(digits.length, 5);
+    inputRefs.current[focusIndex]?.focus();
+    e.preventDefault();
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const joinedOtp = otp.join("");
-    console.log(`OTP submitted (${flow} flow):`, joinedOtp);
+    const tokenVal = searchParams.get("token");
 
     if (flow === "forgot") {
-      navigate(`/auth/reset-password?email=${email}`);
+      verifyForgotOtpMutate(
+        { data: { token: tokenVal, otp: joinedOtp } },
+        {
+          onSuccess: (res) => {
+            const responseData = res?.data || res;
+            const resetToken = responseData?.data?.reset_token || responseData?.reset_token;
+            navigate(`/auth/reset-password?email=${email}&token=${resetToken}`);
+          },
+        }
+      );
     } else {
-      // Signup flow completion
-      if (userType === "host") {
-        navigate("/auth/onboard-host");
-      } else {
-        navigate("/");
-      }
+      verifyOtpMutate(
+        { data: { token: tokenVal, otp: joinedOtp } },
+        {
+          onSuccess: (res) => {
+            const responseData = res?.data || res;
+            const bearerToken = responseData?.token;
+            const userObj = responseData?.data;
+
+            dispatch(setToken({ token: bearerToken, user: userObj }));
+            dispatch(setUiUser({ user: userObj }));
+
+            if (userObj?.role === "Host") {
+              navigate("/auth/onboard-host");
+            } else {
+              navigate("/");
+            }
+          },
+        }
+      );
     }
   };
+
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-[#F9FAFB] flex flex-col items-center justify-center p-6 py-20 pb-40">
@@ -92,13 +149,18 @@ const VerifyOTP = () => {
                 ref={(el) => (inputRefs.current[idx] = el)}
                 onChange={(e) => handleChange(e, idx)}
                 onKeyDown={(e) => handleKeyDown(e, idx)}
+                onPaste={handlePaste}
                 className="w-12 h-14 sm:w-16 sm:h-20 text-center text-2xl font-bold rounded-2xl border border-gray-200 focus:border-Primary focus:bg-Primary/5 focus:ring-1 focus:ring-Primary transition-all outline-none"
               />
             ))}
           </div>
 
-          <Button type="submit" className="w-full h-14 rounded-xl font-bold text-base max-w-[400px]">
-            Continue
+          <Button 
+            type="submit" 
+            disabled={isVerifyPending || isForgotPending}
+            className="w-full h-14 rounded-xl font-bold text-base max-w-[400px] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isVerifyPending || isForgotPending ? "Verifying..." : "Continue"}
           </Button>
         </form>
       </motion.div>

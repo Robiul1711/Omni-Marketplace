@@ -5,8 +5,12 @@ import Button from "../../components/ui/Button";
 import { ArrowRight, Menu } from "lucide-react";
 import MobileOptions from "./MobileOptions";
 import Logo from "@/assets/images/logo.png";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated } from "@/redux/slices/authSlice";
+import UserDropdown from "@/components/layout/UserDropdown";
 
 const Navbar = () => {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -113,16 +117,24 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="flex items-center gap-2 md:gap-4 ">
-            <Link to={`/auth/login`} className="hidden sm:flex">
-              <Button className=" bg-white text-black! rounded-xl! hover:bg-gray-100 border-none px-6 md:px-8 py-3 font-medium text-sm md:text-base">
-                LOG IN
-              </Button>
-            </Link>
-            <Link to="/auth/choose">
-              <Button className="bg-[#335cff] text-white hover:bg-[#2849cc] gap-2 px-6 md:px-8 py-3 rounded-xl! font-bold shadow-lg shadow-blue-500/20 text-sm md:text-base">
-                Get Started <ArrowRight size={18} className="hidden xs:block" />
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <div className="bg-white/95 px-3 py-1.5 rounded-2xl shadow-sm">
+                <UserDropdown />
+              </div>
+            ) : (
+              <>
+                <Link to={`/auth/login`} className="hidden sm:flex">
+                  <Button className=" bg-white text-black! rounded-xl! hover:bg-gray-100 border-none px-6 md:px-8 py-3 font-medium text-sm md:text-base">
+                    LOG IN
+                  </Button>
+                </Link>
+                <Link to="/auth/choose">
+                  <Button className="bg-[#335cff] text-white hover:bg-[#2849cc] gap-2 px-6 md:px-8 py-3 rounded-xl! font-bold shadow-lg shadow-blue-500/20 text-sm md:text-base">
+                    Get Started <ArrowRight size={18} className="hidden xs:block" />
+                  </Button>
+                </Link>
+              </>
+            )}
 
             {/* Mobile Hamburger */}
             <button
