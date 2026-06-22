@@ -93,8 +93,8 @@ const CreatePlacement = () => {
                     Back to My placement
                 </Link>
 
-                <div className="bg-white rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
-                    <div className="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-white">
+                <div className="bg-white rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100">
+                    <div className="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-white rounded-t-[32px]">
                         <h1 className="text-2xl font-bold text-[#1a1a1a]">Create Placement</h1>
                         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
                     </div>
