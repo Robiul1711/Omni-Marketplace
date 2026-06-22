@@ -19,48 +19,50 @@ const Step3Audience = ({ register, errors, control, Controller }) => {
           <Input
             {...register('footTraffic', { required: 'Foot traffic is required' })}
             placeholder="50K Audience"
-            className="h-12 bg-white"
+            className="h-12 bg-white focus-visible:ring-Primary"
           />
           {errors.footTraffic && <span className="text-xs text-red-500">{errors.footTraffic.message}</span>}
         </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium text-gray-700">Audience Demographics</label>
-          <div className="flex items-center gap-2 h-12 bg-white border border-input rounded-md px-3">
-             <Controller
-                name="malePercentage"
-                control={control}
-                defaultValue="78"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="border-none shadow-none focus-visible:ring-0 w-24 p-0 h-auto">
-                      <SelectValue placeholder="78% male" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="78">78% male</SelectItem>
-                      <SelectItem value="50">50% male</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 flex-1">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="Male %"
+                {...register('malePercentage', { 
+                  required: 'Required',
+                  min: { value: 0, message: 'Min 0%' },
+                  max: { value: 100, message: 'Max 100%' }
+                })}
+                className="h-12 bg-white focus-visible:ring-Primary"
               />
-              <div className="w-px h-6 bg-gray-200 mx-2" />
-              <Controller
-                name="femalePercentage"
-                control={control}
-                defaultValue="22"
-                render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="border-none shadow-none focus-visible:ring-0 w-28 p-0 h-auto">
-                      <SelectValue placeholder="22% female" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="22">22% female</SelectItem>
-                      <SelectItem value="50">50% female</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              <span className="text-xs font-semibold text-gray-500">% Male</span>
+            </div>
+            <div className="flex items-center gap-2 flex-1">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                placeholder="Female %"
+                {...register('femalePercentage', { 
+                  required: 'Required',
+                  min: { value: 0, message: 'Min 0%' },
+                  max: { value: 100, message: 'Max 100%' }
+                })}
+                className="h-12 bg-white focus-visible:ring-Primary"
               />
+              <span className="text-xs font-semibold text-gray-500">% Female</span>
+            </div>
           </div>
+          {(errors.malePercentage || errors.femalePercentage) && (
+            <span className="text-xs text-red-500">
+              {errors.malePercentage?.message || errors.femalePercentage?.message}
+            </span>
+          )}
         </div>
       </div>
 
@@ -75,12 +77,13 @@ const Step3Audience = ({ register, errors, control, Controller }) => {
               rules={{ required: 'Format is required' }}
               render={({ field }) => (
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <SelectTrigger className="w-full h-12 bg-white">
-                    <SelectValue placeholder="Audio" />
+                  <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                    <SelectValue placeholder="Select advertisement format" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="audio">Audio</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
+                  <SelectContent className="bg-white">
+                    <SelectItem value="Digital Display">Digital Display</SelectItem>
+                    <SelectItem value="Video Advertisement">Video Advertisement</SelectItem>
+                    <SelectItem value="Banner Advertisement">Banner Advertisement</SelectItem>
                   </SelectContent>
                 </Select>
               )}
@@ -97,12 +100,15 @@ const Step3Audience = ({ register, errors, control, Controller }) => {
                 rules={{ required: 'Ad length is required' }}
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="w-full h-12 bg-white">
-                      <SelectValue placeholder="60 seconds" />
+                    <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                      <SelectValue placeholder="15 seconds" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="30">30 seconds</SelectItem>
-                      <SelectItem value="60">60 seconds</SelectItem>
+                    <SelectContent className="bg-white">
+                      <SelectItem value="15">15 sec</SelectItem>
+                      <SelectItem value="30">30 sec</SelectItem>
+                      <SelectItem value="45">45 sec</SelectItem>
+                      <SelectItem value="60">60 sec</SelectItem>
+                      <SelectItem value="90">90 sec</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -115,7 +121,7 @@ const Step3Audience = ({ register, errors, control, Controller }) => {
               <Input
                 {...register('launchTime', { required: 'Launch time is required' })}
                 placeholder="E.g., Within 24 hours after host approval"
-                className="h-12 bg-white border-gray-200"
+                className="h-12 bg-white border-gray-200 focus-visible:ring-Primary"
               />
               {errors.launchTime && <span className="text-xs text-red-500">{errors.launchTime.message}</span>}
             </div>

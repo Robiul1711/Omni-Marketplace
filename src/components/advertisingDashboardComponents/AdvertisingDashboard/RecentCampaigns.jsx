@@ -3,40 +3,7 @@ import { MdKeyboardArrowDown } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 
 const RecentCampaigns = () => {
-  const campaigns = [
-    {
-      no: '#1',
-      placement: 'Mid-Roll Ad – Tech Podcast',
-      host: 'Tech Talks Daily',
-      status: 'Active',
-      startDate: '05/12/26',
-      amount: '$450',
-    },
-    {
-      no: '#2',
-      placement: 'Mid-Roll Ad – Tech Podcast',
-      host: 'Tech Talks Daily',
-      status: 'Delivered',
-      startDate: '05/12/26',
-      amount: '$450',
-    },
-    {
-      no: '#3',
-      placement: 'Mid-Roll Ad – Tech Podcast',
-      host: 'Tech Talks Daily',
-      status: 'Pending',
-      startDate: '05/12/26',
-      amount: '$450',
-    },
-    {
-      no: '#4',
-      placement: 'Mid-Roll Ad – Tech Podcast',
-      host: 'Tech Talks Daily',
-      status: 'Active',
-      startDate: '05/12/26',
-      amount: '$450',
-    },
-  ];
+  const campaigns = [];
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -78,31 +45,39 @@ const RecentCampaigns = () => {
             </tr>
           </thead>
           <tbody>
-            {campaigns.map((camp, index) => (
-              <tr 
-                key={index} 
-                className="group border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-6 py-5 text-[14px] font-bold text-gray-800">{camp.no}</td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#1A1D1F]">{camp.placement}</td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#1A1D1F]">{camp.host}</td>
-                <td className="px-6 py-5">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold ${getStatusStyle(camp.status)}`}>
-                    {camp.status}
-                  </span>
-                </td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{camp.startDate}</td>
-                <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{camp.amount}</td>
-                <td className="px-6 py-5 text-right">
-                  <Link 
-                    to={`/advertising/dashboard/campaign/${index + 1}`}
-                    className="text-[14px] font-bold text-[#3366FF] hover:underline decoration-offset-2"
-                  >
-                    View Campaign
-                  </Link>
+            {campaigns.length === 0 ? (
+              <tr>
+                <td colSpan="7" className="px-6 py-12 text-center text-[14px] text-[#6F767E] font-medium bg-white">
+                  No recent campaigns found
                 </td>
               </tr>
-            ))}
+            ) : (
+              campaigns.map((camp, index) => (
+                <tr 
+                  key={index} 
+                  className="group border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-5 text-[14px] font-bold text-gray-800">{camp.no}</td>
+                  <td className="px-6 py-5 text-[14px] font-medium text-[#1A1D1F]">{camp.placement}</td>
+                  <td className="px-6 py-5 text-[14px] font-medium text-[#1A1D1F]">{camp.host}</td>
+                  <td className="px-6 py-5">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold ${getStatusStyle(camp.status)}`}>
+                      {camp.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{camp.startDate}</td>
+                  <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{camp.amount}</td>
+                  <td className="px-6 py-5 text-right">
+                    <Link 
+                      to={`/advertising/dashboard/campaign/${index + 1}`}
+                      className="text-[14px] font-bold text-[#3366FF] hover:underline decoration-offset-2"
+                    >
+                      View Campaign
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

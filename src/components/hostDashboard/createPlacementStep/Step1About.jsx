@@ -1,21 +1,18 @@
-import React from 'react';
-import { useFieldArray } from 'react-hook-form';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Plus, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const Step1About = ({ register, errors, control, Controller }) => {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'whatsIncluded',
-  });
+  const [isOpen, setIsOpen] = useState(false);
+
+  const options = [
+    'High Traffic Location',
+    'Premium Audience',
+    'LED Display',
+    'Audio Enabled',
+    '24/7 Visibility'
+  ];
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -23,22 +20,11 @@ const Step1About = ({ register, errors, control, Controller }) => {
         <h2 className="text-xl font-semibold text-[#1a1a1a]">About This Placement</h2>
         
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-500">Placement Title</label>
-          <Controller
-            name="title"
-            control={control}
-            rules={{ required: 'Title is required' }}
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger className="w-full h-[52px] bg-white border-gray-200 text-gray-500">
-                  <SelectValue placeholder="select your title" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="title1">Title 1</SelectItem>
-                  <SelectItem value="title2">Title 2</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
+          <label className="text-sm font-medium text-gray-500">Establishment Name</label>
+          <Input
+            {...register('title', { required: 'Establishment Name is required' })}
+            placeholder="E.g., Tech Talks Daily"
+            className="h-[52px] bg-white border-gray-200 focus-visible:ring-Primary"
           />
           {errors.title && <span className="text-xs text-red-500">{errors.title.message}</span>}
         </div>
@@ -48,49 +34,93 @@ const Step1About = ({ register, errors, control, Controller }) => {
           <Textarea
             {...register('description', { required: 'Description is required' })}
             placeholder="Describe your placement offering..."
-            className="min-h-[140px] bg-white border-gray-200"
+            className="min-h-[140px] bg-white border-gray-200 focus-visible:ring-Primary"
           />
           {errors.description && <span className="text-xs text-red-500">{errors.description.message}</span>}
         </div>
       </div>
 
-      <div className="space-y-6 pt-2">
+      <div className="space-y-4 pt-2">
         <h2 className="text-xl font-semibold text-[#1a1a1a]">What's Included</h2>
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-500">Included</label>
-          <div className="space-y-4">
-            {fields.map((field, index) => (
-              <div key={field.id} className="flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                  <Input
-                    {...register(`whatsIncluded.${index}.value`, { required: 'This field is required' })}
-                    placeholder="E.g., 30-second mid-roll placement"
-                    className="h-[52px] bg-white border-gray-200 flex-1"
-                  />
-                  {fields.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="size-[52px] flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-100 hover:bg-red-50 transition-all shadow-sm"
-                    >
-                      <X className="size-5" />
-                    </button>
+          <label className="text-sm font-medium text-gray-500">Included Features</label>
+          
+          <Controller
+            name="whatsIncluded"
+            control={control}
+            rules={{ required: "At least one inclusion is required" }}
+            render={({ field }) => {
+              const selectedValues = field.value || [];
+              const toggleOption = (opt) => {
+                let newVal;
+                if (selectedValues.includes(opt)) {
+                  newVal = selectedValues.filter(val => val !== opt);
+                } else {
+                  newVal = [...selectedValues, opt];
+                }
+                field.onChange(newVal);
+              };
+
+              return (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="w-full min-h-[52px] bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center justify-between hover:border-gray-300 transition-colors text-left shadow-sm"
+                  >
+                    {selectedValues.length === 0 ? (
+                      <span className="text-gray-400 text-sm">Select what's included...</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {selectedValues.map(val => (
+                          <span
+                            key={val}
+                            className="inline-flex items-center gap-1 bg-Primary/5 text-Primary text-xs font-semibold px-2 py-1 rounded-lg border border-Primary/10"
+                          >
+                            {val}
+                            <X
+                              className="size-3 cursor-pointer hover:text-red-500"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleOption(val);
+                              }}
+                            />
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    <span className="text-gray-400 text-xs ml-2">▼</span>
+                  </button>
+
+                  {isOpen && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-20 py-2 max-h-[250px] overflow-y-auto">
+                        {options.map(opt => {
+                          const isSelected = selectedValues.includes(opt);
+                          return (
+                            <div
+                              key={opt}
+                              onClick={() => toggleOption(opt)}
+                              className="px-4 py-2.5 hover:bg-gray-50 flex items-center justify-between cursor-pointer transition-colors"
+                            >
+                              <span className={`text-sm ${isSelected ? 'font-semibold text-Primary' : 'text-gray-700'}`}>
+                                {opt}
+                              </span>
+                              {isSelected && (
+                                <span className="text-Primary font-bold text-sm">✓</span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </>
                   )}
                 </div>
-                {errors.whatsIncluded?.[index]?.value && (
-                  <span className="text-xs text-red-500">{errors.whatsIncluded[index].value.message}</span>
-                )}
-              </div>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => append({ value: '' })}
-            className="flex items-center gap-1 text-sm font-medium text-Primary hover:opacity-80 transition-opacity mt-2"
-          >
-            <Plus className="size-4" />
-            Add Item
-          </button>
+              );
+            }}
+          />
+          {errors.whatsIncluded && <span className="text-xs text-red-500">{errors.whatsIncluded.message}</span>}
         </div>
       </div>
     </div>

@@ -4,8 +4,8 @@ import { FiCalendar } from 'react-icons/fi';
 import { RiLineChartLine } from "react-icons/ri";
 
 const data = [
-  { name: 'Disputed', value: 70 },
-  { name: 'Remaining', value: 30 },
+  { name: 'Disputed', value: 0 },
+  { name: 'Remaining', value: 100 },
 ];
 
 const COLORS = ['#335CFF', '#EFEFEF'];
@@ -14,7 +14,7 @@ const DisputeOverview = () => {
   return (
     <div className="bg-white p-6 rounded-[24px] border border-gray-100 shadow-sm h-full flex flex-col">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-[20px] font-bold text-[#1A1D1F]">Dispute Over View</h2>
+        <h2 className="text-[20px] font-bold text-[#1A1D1F]">Dispute Overview</h2>
         <button className="p-2.5 bg-white border border-gray-100 rounded-xl text-[#6F767E] hover:bg-gray-50 transition-colors">
           <FiCalendar size={20} />
         </button>
@@ -44,9 +44,8 @@ const DisputeOverview = () => {
           </ResponsiveContainer>
         </div>
         
-        {/* Percentage Label */}
         <div className="absolute top-[55%] left-1/2 -translate-x-1/2 flex flex-col items-center">
-          <h3 className="text-[42px] font-bold text-[#1A1D1F] leading-tight">70.0%</h3>
+          <h3 className="text-[42px] font-bold text-[#1A1D1F] leading-tight">0.0%</h3>
           <p className="text-[14px] font-medium text-[#6F767E]">Total Dispute</p>
         </div>
       </div>
@@ -55,10 +54,10 @@ const DisputeOverview = () => {
         <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-50">
           <p className="text-[13px] font-medium text-[#6F767E]">Number Of Dispute</p>
           <div className="flex items-center justify-between mt-3">
-            <h4 className="text-[24px] font-bold text-[#1A1D1F]">102</h4>
+            <h4 className="text-[24px] font-bold text-[#1A1D1F]">0</h4>
             <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 text-[#335CFF] rounded-lg text-[11px] font-bold">
               <RiLineChartLine size={12} />
-              4.2
+              0
             </div>
           </div>
         </div>
@@ -66,10 +65,10 @@ const DisputeOverview = () => {
         <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-50">
           <p className="text-[13px] font-medium text-[#6F767E]">Number Of Amount</p>
           <div className="flex items-center justify-between mt-3">
-            <h4 className="text-[24px] font-bold text-[#1A1D1F]">$2016</h4>
+            <h4 className="text-[24px] font-bold text-[#1A1D1F]">$0</h4>
             <div className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-50 text-[#335CFF] rounded-lg text-[11px] font-bold">
               <RiLineChartLine size={12} />
-              4.2
+              0
             </div>
           </div>
         </div>

@@ -1,5 +1,5 @@
-import HostNavbar from "@/components/hostDashbaord/HostNavbar";
-import HostSidebar from "@/components/hostDashbaord/HostSidebar";
+import HostNavbar from "@/components/hostDashboard/HostNavbar";
+import HostSidebar from "@/components/hostDashboard/HostSidebar";
 import React, { useEffect, useState } from "react";
 import { Outlet, ScrollRestoration, useLocation } from "react-router-dom";
 import { MdDashboard } from "react-icons/md";
