@@ -74,7 +74,7 @@ const Profile = () => {
     {
       title: 'Active Placement',
       value: '08',
-      description: 'Panding:04',
+      description: 'Pending:04',
       icon: <FiBox size={22} />,
       active: false,
     },

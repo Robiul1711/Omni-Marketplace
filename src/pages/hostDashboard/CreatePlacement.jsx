@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -18,15 +18,47 @@ const CreatePlacement = () => {
         handleSubmit,
         control,
         trigger,
+        watch,
+        setValue,
         formState: { errors },
     } = useForm({
         defaultValues: {
-            whatsIncluded: [{ value: '' }],
-            basicPackage: { price: 0, features: [{ value: '' }] },
-            standardPackage: { price: 0, features: [{ value: '' }] },
-            premiumPackage: { price: 0, features: [{ value: '' }] },
+            title: '',
+            description: '',
+            whatsIncluded: [],
+            campaignDuration: '',
+            displayTime: 'operating_hours',
+            promotionType: '',
+            channelType: '',
+            slotsPerMonth: '1',
+            customSlots: '',
+            footTraffic: '',
+            format: '',
+            adLength: '15',
+            launchTime: '',
+            basicPackage: { price: 20, features: [] },
+            standardPackage: { price: 40, features: [] },
+            premiumPackage: { price: 60, features: [] },
         },
     });
+
+    const adLength = watch('adLength');
+
+    useEffect(() => {
+        if (adLength) {
+            const length = parseInt(adLength, 10);
+            let basePrice = 20;
+            if (length === 15) basePrice = 20;
+            else if (length === 30) basePrice = 40;
+            else if (length === 45) basePrice = 60;
+            else if (length === 60) basePrice = 80;
+            else if (length === 90) basePrice = 120;
+
+            setValue('basicPackage.price', basePrice);
+            setValue('standardPackage.price', basePrice * 2);
+            setValue('premiumPackage.price', basePrice * 3);
+        }
+    }, [adLength, setValue]);
 
     const onSubmit = (data) => {
         console.log('Final Form Data:', data);
@@ -36,7 +68,7 @@ const CreatePlacement = () => {
         let fieldsToValidate = [];
         if (currentStep === 1) fieldsToValidate = ['title', 'description', 'whatsIncluded'];
         if (currentStep === 2) fieldsToValidate = ['campaignDuration', 'displayTime', 'promotionType', 'channelType', 'slotsPerMonth'];
-        if (currentStep === 3) fieldsToValidate = ['footTraffic', 'format', 'adLength'];
+        if (currentStep === 3) fieldsToValidate = ['footTraffic', 'format', 'adLength', 'launchTime'];
         if (currentStep === 4) fieldsToValidate = ['basicPackage', 'standardPackage', 'premiumPackage'];
 
         const isValid = await trigger(fieldsToValidate);
@@ -61,8 +93,8 @@ const CreatePlacement = () => {
                     Back to My placement
                 </Link>
 
-                <div className="bg-white rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
-                    <div className="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-white">
+                <div className="bg-white rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100">
+                    <div className="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-white rounded-t-[32px]">
                         <h1 className="text-2xl font-bold text-[#1a1a1a]">Create Placement</h1>
                         <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
                     </div>
@@ -79,7 +111,7 @@ const CreatePlacement = () => {
                             <Step3Audience register={register} errors={errors} control={control} Controller={Controller} />
                         )}
                         {currentStep >= 4 && (
-                            <Step4Pricing register={register} errors={errors} control={control} />
+                            <Step4Pricing register={register} errors={errors} control={control} Controller={Controller} />
                         )}
                         {currentStep >= 5 && (
                             <Step5Upload register={register} errors={errors} control={control} />

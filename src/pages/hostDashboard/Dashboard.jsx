@@ -1,8 +1,8 @@
 import React from 'react';
-import StatsCards from '@/components/hostDashbaord/dashboard/StatsCards';
-import RevenueChart from '@/components/hostDashbaord/dashboard/RevenueChart';
-import DisputeOverview from '@/components/hostDashbaord/dashboard/DisputeOverview';
-import RecentOrders from '@/components/hostDashbaord/dashboard/RecentOrders';
+import StatsCards from '@/components/hostDashboard/dashboard/StatsCards';
+import RevenueChart from '@/components/hostDashboard/dashboard/RevenueChart';
+import DisputeOverview from '@/components/hostDashboard/dashboard/DisputeOverview';
+import RecentOrders from '@/components/hostDashboard/dashboard/RecentOrders';
 
 const Dashboard = () => {
   return (

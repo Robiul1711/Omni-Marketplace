@@ -5,28 +5,28 @@ const Stats = () => {
   const statsData = [
     {
       label: 'Active Campaigns',
-      value: '03',
+      value: '0',
       description: 'Campaigns currently running.',
       icon: <FiBox size={24} />,
       active: true,
     },
     {
       label: 'Pending Approval',
-      value: '01',
+      value: '0',
       description: 'Awaiting host confirmation.',
       icon: <FiClock size={24} />,
       active: false,
     },
     {
       label: 'Completed Campaigns',
-      value: '08',
+      value: '0',
       description: 'Campaigns successfully delivered.',
       icon: <FiCheckCircle size={24} />,
       active: false,
     },
     {
       label: 'Total Spend',
-      value: '$2,450',
+      value: '$0',
       description: 'Total amount spent on placements.',
       icon: <FiDollarSign size={24} />,
       active: false,

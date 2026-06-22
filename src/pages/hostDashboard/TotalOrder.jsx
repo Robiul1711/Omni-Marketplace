@@ -1,5 +1,5 @@
 import React from 'react'
-import AllOrders from '@/components/hostDashbaord/totalOrder/AllOrders'
+import AllOrders from '@/components/hostDashboard/totalOrder/AllOrders'
 
 
 const TotalOrder = () => {

@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { setToken } from "@/redux/slices/authSlice";
 import { setUser as setUiUser } from "@/redux/slices/uiSlice";
 import useMutationClient from "@/hooks/useMutationClient";
-import { VERIFY_OTP, FORGOT_PASSWORD_VERIFY_OTP } from "@/apiFunctions/apiEndPoints";
+import { VERIFY_OTP, FORGOT_PASSWORD_VERIFY_OTP, RESEND_OTP } from "@/apiFunctions/apiEndPoints";
 
 const VerifyOTP = () => {
   const navigate = useNavigate();
@@ -31,6 +31,17 @@ const VerifyOTP = () => {
     method: "post",
     successMessage: "OTP verified successfully!",
   });
+
+  const { mutate: resendOtpMutate, isPending: isResendPending } = useMutationClient({
+    url: RESEND_OTP,
+    method: "post",
+    successMessage: "OTP resent successfully!",
+  });
+
+  const handleResend = () => {
+    if (!email) return;
+    resendOtpMutate({ data: { email } });
+  };
 
   const handleChange = (e, index) => {
     const value = e.target.value;
@@ -172,8 +183,13 @@ const VerifyOTP = () => {
         className="mt-10 text-[#525866] text-lg font-normal font-host-grotesk"
       >
         Didn&apos;t receive code?{" "}
-        <button className="text-Primary font-medium border-b border-transparent hover:border-Primary transition-all">
-          Resend code
+        <button 
+          type="button"
+          onClick={handleResend}
+          disabled={isResendPending}
+          className="text-Primary font-medium border-b border-transparent hover:border-Primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isResendPending ? "Resending..." : "Resend code"}
         </button>
       </motion.div>
     </div>

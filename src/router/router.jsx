@@ -14,7 +14,7 @@ import { createBrowserRouter } from "react-router-dom";
 import PlacementDetails from "@/pages/sites/PlacementDetails";
 import BookingProcess from "@/pages/sites/BookingProcess";
 import UnderDevelopment from "@/pages/sites/UnderDevelopment";
-import HostDetaolsPage from "@/pages/sites/HostDetaolsPage";
+import HostDetailsPage from "@/pages/sites/HostDetailsPage";
 import ContactUs from "@/pages/sites/ContactUs";
 import AdvertisingLayout from "@/layout/AdminLayout";
 import HostLayout from "@/layout/HostLayout";
@@ -25,7 +25,7 @@ import SavedPlacements from "@/pages/advertisingSites/SavedPlacements";
 import PaymentHistory from "@/pages/advertisingSites/PaymentHistory";
 import Settings from "@/pages/advertisingSites/Settings";
 import CampaignDetails from "@/pages/advertisingSites/CampaignDetails";
-import HowItsWork from "@/pages/sites/HowItsWork";
+import HowItWorks from "@/pages/sites/HowItWorks";
 import AboutUs from "@/pages/sites/AboutUs";
 import TermsOfService from "@/pages/sites/TermsOfService";
 import PrivacyPolicy from "@/pages/sites/PrivacyPolicy";
@@ -36,7 +36,7 @@ import OrderDetails from "@/pages/hostDashboard/OrderDetails";
 import CreatePlacement from "@/pages/hostDashboard/CreatePlacement";
 import HostSettings from "@/pages/hostDashboard/Settings";
 import HostSupport from "@/pages/hostDashboard/Support";
-import Earnigns from "@/pages/hostDashboard/Earnigns";
+import Earnings from "@/pages/hostDashboard/Earnings";
 import Profile from "@/pages/hostDashboard/Profile";
 
 const router = createBrowserRouter([
@@ -89,7 +89,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/how-it-works",
-        element: <HowItsWork />,
+        element: <HowItWorks />,
       },
       {
         path: "/about-us",
@@ -105,7 +105,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/host/:id",
-        element: <HostDetaolsPage />,
+        element: <HostDetailsPage />,
       },
       {
         path: "/terms",
@@ -171,7 +171,7 @@ const router = createBrowserRouter([
       },
       {
         path: "earnings",
-        element: <Earnigns />,
+        element: <Earnings />,
       },
       {
         path: "create-placement",

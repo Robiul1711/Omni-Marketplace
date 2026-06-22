@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import useClient from '@/hooks/useClient';
 import useMutationClient from '@/hooks/useMutationClient';
-import { PROFILE, HOST_ONBOARDING, UPDATE_PASSWORD, REQUEST_VERIFICATION } from '@/apiFunctions/apiEndPoints';
+import { PROFILE, HOST_ONBOARDING, UPDATE_PASSWORD, REQUEST_VERIFICATION, HOST_ONBOARDING_OPTIONS } from '@/apiFunctions/apiEndPoints';
 
 const getFileUrl = (path) => {
   if (!path) return "";
@@ -316,9 +316,13 @@ const AccountSettings = ({ user, refetch }) => {
   );
 };
 
-const ChannelSettings = ({ onboarding, refetch }) => {
+const ChannelSettings = ({ onboarding, options, refetch }) => {
   const docInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
+
+  const establishmentTypes = options?.establishment_types || ["Restaurant", "Podcast", "Digital Screen"];
+  const responseTimes = options?.response_times || ["Within 24 hours", "Within 48 hours", "Within 1 week"];
+  const operatingHoursOptions = options?.operating_hours || ["Mon-Fri [9 AM - 5 PM]", "Sat-Sun [10 AM - 6 PM]", "Mon-Sun [24/7]"];
 
   const { register, handleSubmit, control, setValue, formState: { errors } } = useForm({
     defaultValues: {
@@ -417,10 +421,10 @@ const ChannelSettings = ({ onboarding, refetch }) => {
                     <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Restaurant">Restaurant</SelectItem>
-                      <SelectItem value="Podcast">Podcast</SelectItem>
-                      <SelectItem value="Digital Screen">Digital Screen</SelectItem>
+                    <SelectContent className="bg-white">
+                      {establishmentTypes.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -443,13 +447,22 @@ const ChannelSettings = ({ onboarding, refetch }) => {
 
             <div className="space-y-2 pt-2">
               <label className="text-sm font-medium text-[#1A1D1F]">Operating Hours</label>
-              <div className="relative">
-                <input 
-                  {...register('operatingHours')}
-                  className="w-full pl-4 pr-10 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-100 transition-all text-sm font-medium text-[#1A1D1F] outline-none"
-                />
-                <FiClock className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-              </div>
+              <Controller
+                name="operatingHours"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
+                      <SelectValue placeholder="Select operating hours" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {operatingHoursOptions.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="space-y-2">
@@ -470,10 +483,10 @@ const ChannelSettings = ({ onboarding, refetch }) => {
                     <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
                       <SelectValue placeholder="Select response time" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Within 24 hours">Within 24 hours</SelectItem>
-                      <SelectItem value="Within 48 hours">Within 48 hours</SelectItem>
-                      <SelectItem value="Within 1 week">Within 1 week</SelectItem>
+                    <SelectContent className="bg-white">
+                      {responseTimes.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}
@@ -607,7 +620,13 @@ const Settings = () => {
     isPrivate: true,
   });
 
-  if (isProfileLoading || isOnboardingLoading) {
+  const { data: onboardingOptionsData, isLoading: isOptionsLoading } = useClient({
+    queryKey: ["hostOnboardingOptions"],
+    url: HOST_ONBOARDING_OPTIONS,
+    isPrivate: true,
+  });
+
+  if (isProfileLoading || isOnboardingLoading || isOptionsLoading) {
     return <SettingsSkeleton />;
   }
 
@@ -648,7 +667,7 @@ const Settings = () => {
         {activeTab === 'Account' ? (
           <AccountSettings user={user} refetch={refetchProfile} />
         ) : (
-          <ChannelSettings onboarding={onboarding} refetch={refetchOnboarding} />
+          <ChannelSettings onboarding={onboarding} options={onboardingOptionsData?.data} refetch={refetchOnboarding} />
         )}
       </div>
     </div>

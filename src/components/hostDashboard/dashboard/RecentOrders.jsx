@@ -3,40 +3,7 @@ import { FiArrowRight } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 const RecentOrders = () => {
-  const orders = [
-    {
-      id: '12304',
-      business: 'Gamegoer pro',
-      status: 'Delivered',
-      startDate: '12/12/12',
-      endDate: '05/12/20',
-      amount: '$450',
-    },
-    {
-      id: '12304',
-      business: 'Gamegoer pro',
-      status: 'In Progress',
-      startDate: '12/12/12',
-      endDate: '05/12/20',
-      amount: '$450',
-    },
-    {
-      id: '12304',
-      business: 'Gamegoer pro',
-      status: 'Pending',
-      startDate: '12/12/12',
-      endDate: '05/12/20',
-      amount: '$450',
-    },
-    {
-      id: '12304',
-      business: 'Gamegoer pro',
-      status: 'In Progress',
-      startDate: '12/12/12',
-      endDate: '05/12/20',
-      amount: '$450',
-    },
-  ];
+  const orders = [];
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -81,34 +48,42 @@ const RecentOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, index) => (
-              <tr 
-                key={index} 
-                className="group border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
-              >
-                <td className="px-6 py-5">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#335CFF] focus:ring-[#335CFF]" />
-                </td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.id}</td>
-                <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{order.business}</td>
-                <td className="px-6 py-5">
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold ${getStatusStyle(order.status)}`}>
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.startDate}</td>
-                <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.endDate}</td>
-                <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{order.amount}</td>
-                <td className="px-6 py-5 text-right">
-                  <Link 
-                    to={`/host/dashboard/my-placements/${order.id}`}
-                    className="text-[14px] font-bold text-[#335CFF] hover:underline"
-                  >
-                    View
-                  </Link>
+            {orders.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="px-6 py-12 text-center text-[14px] text-[#6F767E] font-medium bg-white">
+                  No recent orders found
                 </td>
               </tr>
-            ))}
+            ) : (
+              orders.map((order, index) => (
+                <tr 
+                  key={index} 
+                  className="group border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-6 py-5">
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-[#335CFF] focus:ring-[#335CFF]" />
+                  </td>
+                  <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.id}</td>
+                  <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{order.business}</td>
+                  <td className="px-6 py-5">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold ${getStatusStyle(order.status)}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.startDate}</td>
+                  <td className="px-6 py-5 text-[14px] font-medium text-[#6F767E]">{order.endDate}</td>
+                  <td className="px-6 py-5 text-[14px] font-bold text-[#1A1D1F]">{order.amount}</td>
+                  <td className="px-6 py-5 text-right">
+                    <Link 
+                      to={`/host/dashboard/my-placements/${order.id}`}
+                      className="text-[14px] font-bold text-[#335CFF] hover:underline"
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

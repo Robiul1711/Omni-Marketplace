@@ -14,7 +14,7 @@ import {
 import Button from "@/components/ui/Button";
 import useClient from "@/hooks/useClient";
 import useMutationClient from "@/hooks/useMutationClient";
-import { HOST_ONBOARDING } from "@/apiFunctions/apiEndPoints";
+import { HOST_ONBOARDING, HOST_ONBOARDING_OPTIONS } from "@/apiFunctions/apiEndPoints";
 
 export const OnBoardHost = () => {
   const [step, setStep] = useState(1);
@@ -50,6 +50,16 @@ export const OnBoardHost = () => {
     url: HOST_ONBOARDING,
     isPrivate: true,
   });
+
+  const { data: onboardingOptions } = useClient({
+    queryKey: ["hostOnboardingOptions"],
+    url: HOST_ONBOARDING_OPTIONS,
+    isPrivate: true,
+  });
+
+  const establishmentTypes = onboardingOptions?.data?.establishment_types || ["Restaurant", "Podcast", "Digital Screen"];
+  const responseTimes = onboardingOptions?.data?.response_times || ["Within 24 hours", "Within 48 hours", "Within 1 week"];
+  const operatingHoursOptions = onboardingOptions?.data?.operating_hours || ["Mon-Fri [9 AM - 5 PM]", "Sat-Sun [10 AM - 6 PM]", "Mon-Sun [24/7]"];
 
   useEffect(() => {
     if (existingOnboarding?.data) {
@@ -238,9 +248,9 @@ export const OnBoardHost = () => {
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="Restaurant">Restaurant</SelectItem>
-                        <SelectItem value="Podcast">Podcast</SelectItem>
-                        <SelectItem value="Digital Screen">Digital Screen</SelectItem>
+                        {establishmentTypes.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
@@ -288,22 +298,23 @@ export const OnBoardHost = () => {
                     <span className="text-[11px] text-red-500 normal-case">{errors.operatingHours.message}</span>
                   )}
                 </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Mon–Fri [9:00 AM – 10:00 PM]"
-                    {...register("operatingHours", { required: "Hours are required" })}
-                    className={`w-full h-14 px-5 pr-12 rounded-xl border ${
-                      errors.operatingHours ? "border-red-500" : "border-gray-200"
-                    } focus:border-Primary outline-none transition-all font-host-grotesk`}
-                  />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 6v6l4 2" />
-                    </svg>
-                  </div>
-                </div>
+                <Controller
+                  name="operatingHours"
+                  control={control}
+                  rules={{ required: "Operating hours are required" }}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className={`w-full h-14! px-5 rounded-xl border ${errors.operatingHours ? "border-red-500" : "border-gray-200"} focus:border-Primary outline-none transition-all font-host-grotesk bg-white text-left shadow-none`}>
+                        <SelectValue placeholder="Select operating hours" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {operatingHoursOptions.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
 
               {/* Foot Traffic */}
@@ -330,7 +341,7 @@ export const OnBoardHost = () => {
               </div>
 
               {/* Campaign Time Select */}
-              <div className="space-y-1 ">
+              <div className="space-y-1">
                 <label className="text-sm font-medium text-[#171717] font-host-grotesk flex justify-between mb-2">
                   Typical Campaign Response Time
                   {errors.responseTime && (
@@ -347,9 +358,9 @@ export const OnBoardHost = () => {
                         <SelectValue placeholder="Select response time" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="Within 24 hours">Within 24 hours</SelectItem>
-                        <SelectItem value="Within 48 hours">Within 48 hours</SelectItem>
-                        <SelectItem value="Within 1 week">Within 1 week</SelectItem>
+                        {responseTimes.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
