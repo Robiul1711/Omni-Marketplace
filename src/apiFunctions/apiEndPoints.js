@@ -8,4 +8,6 @@ export const FORGOT_PASSWORD_VERIFY_OTP = "/forget-password/verify-otp";
 export const RESET_PASSWORD = "/reset-password";
 export const UPDATE_PASSWORD = "/auth/profile/password";
 export const REQUEST_VERIFICATION = "/auth/host-onboarding/request-verification";
+export const HOST_ONBOARDING_OPTIONS = "/host-onboarding-options";
+export const RESEND_OTP = "/resend-otp";
 

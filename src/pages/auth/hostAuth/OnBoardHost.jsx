@@ -14,7 +14,7 @@ import {
 import Button from "@/components/ui/Button";
 import useClient from "@/hooks/useClient";
 import useMutationClient from "@/hooks/useMutationClient";
-import { HOST_ONBOARDING } from "@/apiFunctions/apiEndPoints";
+import { HOST_ONBOARDING, HOST_ONBOARDING_OPTIONS } from "@/apiFunctions/apiEndPoints";
 
 export const OnBoardHost = () => {
   const [step, setStep] = useState(1);
@@ -36,27 +36,12 @@ export const OnBoardHost = () => {
       establishmentName: "",
       type: "",
       internetAccess: "yes",
-      operatingDays: "Mon–Fri",
-      operatingStart: "9:00 AM",
-      operatingEnd: "10:00 PM",
       operatingHours: "",
       footTraffic: "",
       responseTime: "",
       verificationFile: "",
     },
   });
-
-  const TIME_OPTIONS = [
-    "12:00 AM", "12:30 AM", "1:00 AM", "1:30 AM", "2:00 AM", "2:30 AM", "3:00 AM", "3:30 AM", "4:00 AM", "4:30 AM", "5:00 AM", "5:30 AM", "6:00 AM", "6:30 AM", "7:00 AM", "7:30 AM", "8:00 AM", "8:30 AM", "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
-    "12:00 PM", "12:30 PM", "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM", "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM", "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM", "9:00 PM", "9:30 PM", "10:00 PM", "10:30 PM", "11:00 PM", "11:30 PM"
-  ];
-
-  const DAY_OPTIONS = [
-    "Mon–Fri",
-    "Mon–Sat",
-    "Everyday",
-    "Mon–Sun"
-  ];
 
   const verificationFile = watch("verificationFile");
 
@@ -65,6 +50,16 @@ export const OnBoardHost = () => {
     url: HOST_ONBOARDING,
     isPrivate: true,
   });
+
+  const { data: onboardingOptions } = useClient({
+    queryKey: ["hostOnboardingOptions"],
+    url: HOST_ONBOARDING_OPTIONS,
+    isPrivate: true,
+  });
+
+  const establishmentTypes = onboardingOptions?.data?.establishment_types || ["Restaurant", "Podcast", "Digital Screen"];
+  const responseTimes = onboardingOptions?.data?.response_times || ["Within 24 hours", "Within 48 hours", "Within 1 week"];
+  const operatingHoursOptions = onboardingOptions?.data?.operating_hours || ["Mon-Fri [9 AM - 5 PM]", "Sat-Sun [10 AM - 6 PM]", "Mon-Sun [24/7]"];
 
   useEffect(() => {
     if (existingOnboarding?.data) {
@@ -77,14 +72,6 @@ export const OnBoardHost = () => {
       setValue("responseTime", onboardData.typical_campaign_response_time || "");
       if (onboardData.business_registration_file) {
         setValue("verificationFile", onboardData.business_registration_file_url || onboardData.business_registration_file);
-      }
-      if (onboardData.operating_hours) {
-        const match = onboardData.operating_hours.match(/^([^\[]+)\s*\[([^–-]+)\s*[–-]\s*([^\]]+)\]/);
-        if (match) {
-          setValue("operatingDays", match[1].trim());
-          setValue("operatingStart", match[2].trim());
-          setValue("operatingEnd", match[3].trim());
-        }
       }
     }
   }, [existingOnboarding, setValue]);
@@ -112,9 +99,7 @@ export const OnBoardHost = () => {
         "establishmentName",
         "type",
         "internetAccess",
-        "operatingDays",
-        "operatingStart",
-        "operatingEnd",
+        "operatingHours",
         "footTraffic",
         "responseTime",
       ];
@@ -138,8 +123,7 @@ export const OnBoardHost = () => {
     formData.append("establishment_name", data.establishmentName);
     formData.append("establishment_type", data.type);
     formData.append("has_internet_access", data.internetAccess === "yes" ? "1" : "0");
-    const concatenatedHours = `${data.operatingDays} [${data.operatingStart} – ${data.operatingEnd}]`;
-    formData.append("operating_hours", concatenatedHours);
+    formData.append("operating_hours", data.operatingHours);
     formData.append("estimated_monthly_foot_traffic", data.footTraffic);
     formData.append("typical_campaign_response_time", data.responseTime);
 
@@ -264,9 +248,9 @@ export const OnBoardHost = () => {
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="Restaurant">Restaurant</SelectItem>
-                        <SelectItem value="Podcast">Podcast</SelectItem>
-                        <SelectItem value="Digital Screen">Digital Screen</SelectItem>
+                        {establishmentTypes.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
@@ -307,66 +291,30 @@ export const OnBoardHost = () => {
               </div>
 
               {/* Operating Hours */}
-              <div className="space-y-3">
-                <label className="text-sm font-medium text-[#171717] font-host-grotesk flex justify-between mb-1">
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-[#171717] font-host-grotesk flex justify-between mb-2">
                   Operating Hours
-                  {(errors.operatingDays || errors.operatingStart || errors.operatingEnd) && (
-                    <span className="text-[11px] text-red-500 normal-case">Operating hours are required</span>
+                  {errors.operatingHours && (
+                    <span className="text-[11px] text-red-500 normal-case">{errors.operatingHours.message}</span>
                   )}
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <Controller
-                    name="operatingDays"
-                    control={control}
-                    rules={{ required: "Required" }}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full h-14 px-4 rounded-xl border border-gray-200 focus:border-Primary bg-white text-left font-host-grotesk text-sm shadow-none">
-                          <SelectValue placeholder="Days" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white">
-                          {DAY_OPTIONS.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  <Controller
-                    name="operatingStart"
-                    control={control}
-                    rules={{ required: "Required" }}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full h-14 px-4 rounded-xl border border-gray-200 focus:border-Primary bg-white text-left font-host-grotesk text-sm shadow-none">
-                          <SelectValue placeholder="Start Time" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white max-h-[300px]">
-                          {TIME_OPTIONS.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                  <Controller
-                    name="operatingEnd"
-                    control={control}
-                    rules={{ required: "Required" }}
-                    render={({ field }) => (
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full h-14 px-4 rounded-xl border border-gray-200 focus:border-Primary bg-white text-left font-host-grotesk text-sm shadow-none">
-                          <SelectValue placeholder="End Time" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white max-h-[300px]">
-                          {TIME_OPTIONS.map((opt) => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="operatingHours"
+                  control={control}
+                  rules={{ required: "Operating hours are required" }}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className={`w-full h-14! px-5 rounded-xl border ${errors.operatingHours ? "border-red-500" : "border-gray-200"} focus:border-Primary outline-none transition-all font-host-grotesk bg-white text-left shadow-none`}>
+                        <SelectValue placeholder="Select operating hours" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {operatingHoursOptions.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
               </div>
 
               {/* Foot Traffic */}
@@ -393,7 +341,7 @@ export const OnBoardHost = () => {
               </div>
 
               {/* Campaign Time Select */}
-              <div className="space-y-1 ">
+              <div className="space-y-1">
                 <label className="text-sm font-medium text-[#171717] font-host-grotesk flex justify-between mb-2">
                   Typical Campaign Response Time
                   {errors.responseTime && (
@@ -410,9 +358,9 @@ export const OnBoardHost = () => {
                         <SelectValue placeholder="Select response time" />
                       </SelectTrigger>
                       <SelectContent className="bg-white">
-                        <SelectItem value="Within 24 hours">Within 24 hours</SelectItem>
-                        <SelectItem value="Within 48 hours">Within 48 hours</SelectItem>
-                        <SelectItem value="Within 1 week">Within 1 week</SelectItem>
+                        {responseTimes.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   )}
