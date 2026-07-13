@@ -1,26 +1,33 @@
 import React from 'react';
 
-const Practice = () => {
-  const steps = [
-    {
-      id: 1,
-      content: "Businesses upload or design their marketing content, select a placement, and schedule a campaign.",
-      hasDashedLine: true,
-      highlight: true
-    },
-    {
-      id: 2,
-      content: "Once live, content is streamed or cast to host devices in real time or scheduled playback formats. Hosts simply keep their devices connected while the system manages delivery automatically.",
-      hasDashedLine: true,
-      highlight: false
-    },
-    {
-      id: 3,
-      content: "After completion, payments held in escrow are released to hosts based on verified campaign execution.",
-      hasDashedLine: false,
-      highlight: false
-    }
-  ];
+const Practice = ({ data }) => {
+  const steps = data && data.length > 0
+    ? data.map((step, index) => ({
+        id: index + 1,
+        content: step.description,
+        hasDashedLine: index < data.length - 1,
+        highlight: index === 0
+      }))
+    : [
+        {
+          id: 1,
+          content: "Businesses upload or design their marketing content, select a placement, and schedule a campaign.",
+          hasDashedLine: true,
+          highlight: true
+        },
+        {
+          id: 2,
+          content: "Once live, content is streamed or cast to host devices in real time or scheduled playback formats. Hosts simply keep their devices connected while the system manages delivery automatically.",
+          hasDashedLine: true,
+          highlight: false
+        },
+        {
+          id: 3,
+          content: "After completion, payments held in escrow are released to hosts based on verified campaign execution.",
+          hasDashedLine: false,
+          highlight: false
+        }
+      ];
 
   return (
 

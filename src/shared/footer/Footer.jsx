@@ -3,8 +3,18 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import FooterLogo from "@/assets/images/logo.png";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
+import useClient from "@/hooks/useClient";
 
 const Footer = () => {
+  const { data: footerCmsData } = useClient({
+    queryKey: ["footerCms"],
+    url: "/cms-pages/footer",
+  });
+
+  const content = footerCmsData?.data?.content;
+  const footerText = content?.footer_text || "The structured advertising placement marketplace.";
+  const rightsReserved = content?.rights_reserved || "© 2026 Omni Marketplace. All rights reserved.";
+
   const footerLinks = [
     {
       title: "For Advertisers",
@@ -58,8 +68,7 @@ const Footer = () => {
               </span>
             </Link>
             <p className="text-[#525866] text-base font-normal font-host-grotesk leading-relaxed">
-              The structured advertising <br className="hidden lg:block" />{" "}
-              placement marketplace.
+              {footerText}
             </p>
           </motion.div>
 
@@ -98,7 +107,7 @@ const Footer = () => {
           className="pt-5 border-t border-[#E5E7EB] flex flex-col items-center"
         >
           <p className="text-[#525866] text-sm font-normal font-host-grotesk text-center">
-            © 2026 Omni Marketplace. All rights reserved.
+            {rightsReserved}
           </p>
         </motion.div>
       </div>

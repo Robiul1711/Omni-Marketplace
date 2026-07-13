@@ -1,24 +1,29 @@
 import React from 'react';
 
-const CoreValues = () => {
-  const values = [
-    {
-      title: 'Simplicity',
-      desc: 'Easy creation and execution of campaigns',
-    },
-    {
-      title: 'Access',
-      desc: 'Open opportunities for both advertisers and hosts',
-    },
-    {
-      title: 'Scalability',
-      desc: 'A system designed to grow across devices and markets',
-    },
-    {
-      title: 'Fair Exchange',
-      desc: 'Transparent pricing, escrow protection, and verified delivery',
-    },
-  ];
+const CoreValues = ({ data, bottomText }) => {
+  const values = data && data.length > 0
+    ? data.map(item => ({ title: item.title, desc: item.description }))
+    : [
+        {
+          title: 'Simplicity',
+          desc: 'Easy creation and execution of campaigns',
+        },
+        {
+          title: 'Access',
+          desc: 'Open opportunities for both advertisers and hosts',
+        },
+        {
+          title: 'Scalability',
+          desc: 'A system designed to grow across devices and markets',
+        },
+        {
+          title: 'Fair Exchange',
+          desc: 'Transparent pricing, escrow protection, and verified delivery',
+        },
+      ];
+
+  const summaryText = bottomText || "Omni Marketplace transforms everyday screens into a global advertising network, connecting opportunity with execution through a simple and scalable marketplace system.";
+
   return (
       <div className="">
         
@@ -55,8 +60,7 @@ const CoreValues = () => {
         {/* Footer Summary Statement */}
         <div className="text-center ">
           <p className="text-lg md:text-xl text-slate-500 leading-relaxed max-w-5xl mx-auto italic">
-            Omni Marketplace transforms everyday screens into a global advertising network, 
-            connecting opportunity with execution through a simple and scalable marketplace system.
+            {summaryText}
           </p>
         </div>
 

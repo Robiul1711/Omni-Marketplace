@@ -1,6 +1,10 @@
 import React from 'react';
 
-const OurVision = () => {
+const OurVision = ({ data }) => {
+  const title = data?.title || "Our Vision";
+  const subTitle = data?.sub_title || "We believe the future of advertising is decentralized, dynamic, and screen-based.";
+  const description = data?.description || "Omni Marketplace is building the infrastructure that turns idle screens into active digital assets, creating a global network where attention, space, and opportunity are efficiently exchanged.";
+
   return (
     <section className="relative overflow-hidden bg-white py-10 md:py-24 px-6 rounded-2xl">
       {/* Background Decorative Blobs */}
@@ -10,20 +14,17 @@ const OurVision = () => {
       <div className="relative z-10 max-w-4xl mx-auto text-center">
         {/* Header */}
         <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#111827] mb-8">
-          Our Vision
+          {title}
         </h2>
 
         {/* Lead Statement */}
         <p className="text-xl md:text-3xl font-semibold text-slate-800 leading-snug mb-8">
-          We believe the future of advertising is decentralized, dynamic, <br className="hidden md:block" /> and screen-based.
+          {subTitle}
         </p>
 
         {/* Detailed Description */}
         <p className="text-base md:text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto">
-          Omni Marketplace is building the infrastructure that turns idle screens into 
-          <span className="text-indigo-600/80 font-medium"> active digital assets</span>, 
-          creating a global network where attention, space, and opportunity 
-          are efficiently exchanged.
+          {description}
         </p>
       </div>
     </section>

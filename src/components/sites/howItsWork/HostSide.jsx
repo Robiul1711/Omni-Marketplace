@@ -33,18 +33,37 @@ const HOST_FEATURES = [
   },
 ];
 
-const HostSide = () => {
+const HostSide = ({ data, title, subtitle, bottomText }) => {
+  const hostTitle = title || "Host Side";
+  const hostSubtitle = subtitle || "Hosts earn income by";
+  const hostBottomText = bottomText || "Their screen becomes part of a distributed advertising network.";
+
+  const features = data && data.length > 0
+    ? data.map((item, index) => {
+        const originalFeature = HOST_FEATURES[index] || {};
+        return {
+          id: index + 1,
+          title: item.description,
+          icon: originalFeature.icon || (
+            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          ),
+        };
+      })
+    : HOST_FEATURES;
+
   return (
     <section className="section-padding-y">
       {/* Header */}
       <div className="text-center mb-8 md:mb-12 mt-10 sm:mt-0">
-        <h2 className="md:text-4xl text-2xl font-bold text-slate-900 mb-2">Host Side</h2>
-        <p className="text-slate-500 md:text-lg text-base">Hosts earn income by</p>
+        <h2 className="md:text-4xl text-2xl font-bold text-slate-900 mb-2">{hostTitle}</h2>
+        <p className="text-slate-500 md:text-lg text-base">{hostSubtitle}</p>
       </div>
 
       {/* Cards Container */}
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        {HOST_FEATURES.map((feature) => (
+        {features.map((feature) => (
           <div
             key={feature.id}
             className={`flex flex-col items-center justify-center p-10 rounded-3xl transition-all duration-300 min-h-[280px] text-center bg-white border border-slate-200 hover:border-blue-500 shadow-sm`}
@@ -65,7 +84,7 @@ const HostSide = () => {
       {/* Footer Text */}
       <div className="text-center mt-12">
         <p className="text-slate-500 text-lg md:text-xl ">
-          Their screen becomes part of a distributed advertising network.
+          {hostBottomText}
         </p>
       </div>
     </section>

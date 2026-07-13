@@ -76,16 +76,81 @@ const getColorStyles = (color) => {
 
 // --- Main Component ---
 
-const ForAdvertisers = () => {
+const ForAdvertisers = ({ title, subtitle, sections }) => {
+  const parseCmsStep = (apiStep, originalStep) => {
+    if (!apiStep) return originalStep;
+    const desc = apiStep.description || "";
+    const lines = desc.split("\n").map(l => l.trim()).filter(Boolean);
+    
+    if (lines.length === 0) return originalStep;
+
+    const parsed = {
+      title: apiStep.title || originalStep.title,
+      colorClass: originalStep.colorClass,
+      icon: originalStep.icon,
+    };
+
+    parsed.description = lines[0];
+
+    const subSections = [];
+    let currentGroup = null;
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.endsWith(":") || line.endsWith("?")) {
+        if (currentGroup) {
+          subSections.push(currentGroup);
+        }
+        currentGroup = { label: line, items: [] };
+      } else {
+        if (currentGroup) {
+          if (i === lines.length - 1 && !line.includes(":") && (line.startsWith("Users choose") || line.startsWith("Then"))) {
+            parsed.footer = line;
+          } else {
+            currentGroup.items.push(line);
+          }
+        } else {
+          if (i === lines.length - 1) {
+            parsed.footer = line;
+          } else {
+            parsed.description += " " + line;
+          }
+        }
+      }
+    }
+    if (currentGroup) {
+      subSections.push(currentGroup);
+    }
+
+    if (subSections.length === 1 && !originalStep.subSections) {
+      parsed.listLabel = subSections[0].label;
+      parsed.items = subSections[0].items;
+    } else if (subSections.length > 0) {
+      parsed.subSections = subSections;
+    }
+
+    return parsed;
+  };
+
+  const steps = sections && sections.length > 0
+    ? ADVERTISER_STEPS.map((originalStep, index) => {
+        const apiStep = sections.find(s => s.sort_order === index + 1) || sections[index];
+        return parseCmsStep(apiStep, originalStep);
+      })
+    : ADVERTISER_STEPS;
+
+  const headerTitle = title || "For Advertisers";
+  const headerSubtitle = subtitle || "Launch your advertising campaigns in five simple steps";
+
   return (
     <section className="section-padding-x">
       <div className="text-center mb-8 md:mb-16 mt-10 sm:mt-0">
-        <h2 className="md:text-4xl text-2xl font-bold mb-2">For Advertisers</h2>
-        <p className="text-slate-500 md:text-lg text-base">Launch your advertising campaigns in five simple steps</p>
+        <h2 className="md:text-4xl text-2xl font-bold mb-2">{headerTitle}</h2>
+        <p className="text-slate-500 md:text-lg text-base">{headerSubtitle}</p>
       </div>
 
       <div className="xl:space-y-12 space-y-6 sm:space-y-8 md:space-y-10">
-        {ADVERTISER_STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const isEven = index % 2 === 0;
           const colors = getColorStyles(step.colorClass);
 

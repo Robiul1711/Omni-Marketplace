@@ -1,8 +1,11 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react'; // Optional: Install lucide-react for icons
 
-const OurMission = () => {
-  const objectives = [
+const OurMission = ({ data }) => {
+  const title = data?.title || "Our Mission";
+  const description = data?.description || "Our mission is to simplify and modernize digital advertising by removing unnecessary complexity and creating a direct, structured connection between advertising demand and available screen-based supply.";
+
+  const objectives = data?.aims || [
     "Make advertising more accessible to businesses of all sizes",
     "Enable hosts to generate passive income from everyday devices",
     "Build a scalable infrastructure for real-time digital placement distribution",
@@ -15,12 +18,10 @@ const OurMission = () => {
         {/* Left Content: The Mission Text */}
         <div className="flex-1 text-left">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#111827] mb-8">
-            Our Mission
+            {title}
           </h2>
           <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl">
-            Our mission is to simplify and modernize digital advertising by removing 
-            unnecessary complexity and creating a direct, structured connection 
-            between advertising demand and available screen-based supply.
+            {description}
           </p>
         </div>
 
