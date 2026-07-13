@@ -1,6 +1,9 @@
 import React from "react";
 
-const HowOmniWork = () => {
+const HowOmniWork = ({ title, description }) => {
+  const mainTitle = title || "How Omni Marketplace Works";
+  const desc = description || "A marketplace for screen-based advertising that connects advertisers with real screens worldwide, allowing hosts to monetize unused screen time through a secure, automated streaming system.";
+
   return (
     <section className="px-4 section-padding-y w-full flex justify-center mt-24 md:mt-10">
 
@@ -10,14 +13,12 @@ const HowOmniWork = () => {
         <div className="relative z-10 flex flex-col items-center justify-center text-center">
  
           <h2 className="mb-4 text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight text-[#111827] leading-tight">
-            How Omni Marketplace Works
+            {mainTitle}
           </h2>
 
 
           <p className="max-w-4xl text-base sm:text-lg md:text-xl leading-relaxed text-[#4B5563] opacity-90">
-            A marketplace for screen-based advertising that connects advertisers
-            with real screens worldwide, allowing hosts to monetize unused
-            screen time through a secure, automated streaming system.
+            {desc}
           </p>
         </div>
 

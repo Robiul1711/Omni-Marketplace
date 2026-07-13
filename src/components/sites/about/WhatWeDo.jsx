@@ -12,8 +12,20 @@ const CheckItem = ({ text }) => (
   </li>
 );
 
-const WhatWeDo = () => {
-  const platformFeatures = [
+const WhatWeDo = ({ data }) => {
+  const title = data?.title || "What We Do";
+  const description = data?.description || "Omni Marketplace operates as a two-sided system:";
+  
+  const items = data?.items || [
+    {
+      description: "Advertisers can create, schedule, and launch advertising campaigns using simple tools and third-party design platforms such as Canva."
+    },
+    {
+      description: "Hosts provide access to screens (TVs, monitors, tablets, or connected devices) that display or stream these campaigns during booked time slots."
+    }
+  ];
+
+  const platformFeatures = data?.platform_handles || [
     "Placement discovery and booking",
     "Campaign scheduling",
     "Content delivery to host screens",
@@ -30,33 +42,22 @@ const WhatWeDo = () => {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#111827] mb-6">
-                What We Do
+                {title}
               </h2>
               <p className="text-lg md:text-xl text-slate-500 font-medium">
-                Omni Marketplace operates as a two-sided system:
+                {description}
               </p>
             </div>
 
             <div className="space-y-10">
-              {/* Point 1 */}
-              <div className="flex gap-6">
-                <span className="text-5xl md:text-6xl font-bold text-blue-100 leading-none">1</span>
-                <p className="text-slate-600 text-sm md:text-base leading-relaxed pt-2">
-                  Advertisers can create, schedule, and launch advertising 
-                  campaigns using simple tools and third-party design 
-                  platforms such as Canva.
-                </p>
-              </div>
-
-              {/* Point 2 */}
-              <div className="flex gap-6">
-                <span className="text-5xl md:text-6xl font-bold text-blue-100 leading-none">2</span>
-                <p className="text-slate-600 text-sm md:text-base leading-relaxed pt-2">
-                  Hosts provide access to screens (TVs, monitors, tablets, 
-                  or connected devices) that display or stream these 
-                  campaigns during booked time slots.
-                </p>
-              </div>
+              {items.map((item, index) => (
+                <div key={index} className="flex gap-6">
+                  <span className="text-5xl md:text-6xl font-bold text-blue-100 leading-none">{index + 1}</span>
+                  <p className="text-slate-600 text-sm md:text-base leading-relaxed pt-2">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
 
