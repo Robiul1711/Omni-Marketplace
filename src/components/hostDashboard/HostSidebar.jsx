@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
-import Logo from "@/assets/images/logo.png";
+import Logo from "@/assets/images/logoNew.png";
 import { useDispatch } from "react-redux";
 import { clearAuth } from "@/redux/slices/authSlice";
 import { clearUiState } from "@/redux/slices/uiSlice";
@@ -73,12 +73,9 @@ const HostSidebar = ({ sidebar, open, setOpen }) => {
           }`}
       >
         {/* Logo */}
-        <div className="p-8 flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={Logo} alt="Logo" className="w-8 h-8 object-contain" />
-            <span className="text-[#1A1D1F] font-bold text-xl tracking-tight">
-              Omni Marketplace
-            </span>
+        <div className="p-8 flex items-center">
+          <Link to="/" className="flex items-center">
+            <img src={Logo} alt="Logo" className="h-12 md:h-14 w-auto object-contain max-w-[200px]" />
           </Link>
         </div>
 

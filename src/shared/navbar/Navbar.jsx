@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "../../components/ui/Button";
 import { ArrowRight, Menu } from "lucide-react";
 import MobileOptions from "./MobileOptions";
-import Logo from "@/assets/images/logo.png";
+import Logo from "@/assets/images/logoNew.png";
 import { useSelector } from "react-redux";
 import { selectIsAuthenticated } from "@/redux/slices/authSlice";
 import UserDropdown from "@/components/layout/UserDropdown";
@@ -43,12 +43,12 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Update solid background state
       setScrolled(currentScrollY > 50);
 
       // Handle navbar visibility (hide on scroll down, show on scroll up)
-      if (currentScrollY > 100) { 
+      if (currentScrollY > 100) {
         if (currentScrollY > lastScrollY && isVisible) {
           setIsVisible(false);
         } else if (currentScrollY < lastScrollY && !isVisible) {
@@ -57,7 +57,7 @@ const Navbar = () => {
       } else {
         setIsVisible(true);
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -72,28 +72,25 @@ const Navbar = () => {
     <>
       <motion.header
         initial={{ y: -100, opacity: 0 }}
-        animate={{ 
+        animate={{
           y: isVisible ? 0 : -120, // Move it off-screen when not visible
-          opacity: isVisible ? 1 : 0 
+          opacity: isVisible ? 1 : 0
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="fixed top-6 left-0 right-0 z-50 px-4 md:px-8 section-padding-x lg:top-6"
+        className="fixed top-6 left-0 right-0 z-50 px-4 md:px-8 section-padding-x lg:top-3"
       >
         <div
           className="flex items-center justify-between p-2.5 rounded-[16px] backdrop-blur-[16.4px] shadow-2xl shadow-blue-900/10 transition-all duration-300 "
           style={{
             borderRadius: "16px",
-            background: showSolidBg ? "#304AAF" : "rgba(48, 74, 175, 0.32)",
+            background: showSolidBg ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.85)",
             backgroundBlendMode: showSolidBg ? "normal" : "color-burn",
             backdropFilter: "blur(16.399999618530273px)",
           }}
         >
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 px-4">
-            <img src={Logo} alt="Logo" className="w-10 h-10" />
-            <span className="text-white font-host-grotesk font-semibold text-xl tracking-tight hidden md:block">
-              Omni Marketplace
-            </span>
+          <Link to="/" className="flex items-center px-4">
+            <img src={Logo} alt="Omni Logo" className="h-14 md:h-24 w-auto object-contain max-w-[200px]" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -103,10 +100,9 @@ const Navbar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `text-white hover:text-white font-host-grotesk xl:text-base text-sm tracking-wider transition-all duration-300 hover:scale-105 ${
-                    isActive
-                      ? "font-bold underline underline-offset-4"
-                      : "font-normal"
+                  `text-black font-host-grotesk xl:text-base text-sm tracking-wider transition-all duration-300 hover:scale-105 ${isActive
+                    ? "font-bold underline underline-offset-4"
+                    : "font-normal"
                   }`
                 }
               >
@@ -116,7 +112,7 @@ const Navbar = () => {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="flex items-center gap-2 md:gap-4 ">
+          <div className="flex items-center gap-2 md:gap-4 lg:mr-5 ">
             {isAuthenticated ? (
               <div className="bg-white/95 px-3 py-1.5 rounded-2xl shadow-sm">
                 <UserDropdown />
@@ -139,7 +135,7 @@ const Navbar = () => {
             {/* Mobile Hamburger */}
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="xlg:hidden p-2 text-white/90 hover:text-white transition-colors"
+              className="xlg:hidden p-2 text-black/90 hover:text-black transition-colors"
             >
               <Menu size={28} />
             </button>
