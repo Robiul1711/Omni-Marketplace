@@ -100,9 +100,10 @@ const Navbar = () => {
                 key={item.id}
                 to={item.path}
                 className={({ isActive }) =>
-                  `text-black font-host-grotesk xl:text-base text-sm tracking-wider transition-all duration-300 hover:scale-105 ${isActive
-                    ? "font-bold underline underline-offset-4"
-                    : "font-normal"
+                  `text-[#2849cc] font-host-grotesk xl:text-base text-sm tracking-wider transition-all duration-300 py-1 border-b-2 ${
+                    isActive
+                      ? "font-bold border-[#2849cc]"
+                      : "font-normal border-transparent hover:border-[#2849cc]"
                   }`
                 }
               >
