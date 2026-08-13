@@ -38,7 +38,7 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
           <Input
             {...register('campaign_duration', { required: 'Campaign duration is required' })}
             placeholder="E.g., 30 days"
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
           {errors.campaign_duration && <span className="text-xs text-red-500">{errors.campaign_duration.message}</span>}
         </div>
@@ -49,7 +49,7 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
           <Input
             {...register('campaign_info.duration', { required: 'Info duration is required' })}
             placeholder="E.g., 30 Days continuous"
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
           {errors.campaign_info?.duration && (
             <span className="text-xs text-red-500">{errors.campaign_info.duration.message}</span>
@@ -62,7 +62,7 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
           <Input
             type="date"
             {...register('start_date', { required: 'Start date is required' })}
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
           {errors.start_date && <span className="text-xs text-red-500">{errors.start_date.message}</span>}
         </div>
@@ -73,7 +73,7 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
           <Input
             type="date"
             {...register('end_date', { required: 'End date is required' })}
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
           {errors.end_date && <span className="text-xs text-red-500">{errors.end_date.message}</span>}
         </div>
@@ -84,7 +84,7 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
           <Input
             type="date"
             {...register('next_campaign_start_date')}
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
         </div>
 
@@ -96,7 +96,7 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
             min="1"
             {...register('campaign_info.slot', { required: 'Slot count is required', min: 1 })}
             placeholder="E.g., 10"
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
           {errors.campaign_info?.slot && (
             <span className="text-xs text-red-500">{errors.campaign_info.slot.message}</span>
@@ -112,10 +112,10 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
             rules={{ required: 'Promotion type is required' }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ''}>
-                <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                <SelectTrigger className="w-full h-11 bg-white text-left focus:ring-Primary">
                   <SelectValue placeholder="Select Promotion Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-30">
+                <SelectContent className="bg-white z-50">
                   {promotionTypes.map((item) => (
                     <SelectItem key={item.id} value={String(item.id)}>
                       {item.name}
@@ -139,10 +139,10 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
             rules={{ required: 'Channel type is required' }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ''}>
-                <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                <SelectTrigger className="w-full h-11 bg-white text-left focus:ring-Primary">
                   <SelectValue placeholder="Select Channel Type" />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-30">
+                <SelectContent className="bg-white z-50">
                   {channelTypes.map((item) => (
                     <SelectItem key={item.id} value={String(item.id)}>
                       {item.name}
@@ -159,17 +159,17 @@ const Step2Campaign = ({ register, errors, control, Controller, options = {} }) 
 
         {/* Display Time */}
         <div className="flex flex-col gap-2 md:col-span-2">
-          <label className="text-sm font-medium text-gray-700">Display Time</label>
+          <label className="text-sm font-medium text-gray-700">Display Time Schedule</label>
           <Controller
             name="campaign_info.display_time"
             control={control}
             rules={{ required: 'Display time is required' }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ''}>
-                <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                <SelectTrigger className="w-full h-11 bg-white text-left focus:ring-Primary">
                   <SelectValue placeholder="Select Display Time Schedule" />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-30">
+                <SelectContent className="bg-white z-50">
                   {displayTimes.map((item) => (
                     <SelectItem key={item.id} value={String(item.id)}>
                       {item.name}

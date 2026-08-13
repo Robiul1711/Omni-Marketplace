@@ -34,7 +34,7 @@ const Step3Audience = ({ register, errors, control, Controller, options = {} }) 
           <Input
             {...register('audience_overview.monthly_foottraffic', { required: 'Foot traffic is required' })}
             placeholder="E.g., 100K traffic"
-            className="h-12 bg-white focus-visible:ring-Primary"
+            className="h-11 bg-white focus-visible:ring-Primary"
           />
           {errors.audience_overview?.monthly_foottraffic && (
             <span className="text-xs text-red-500">{errors.audience_overview.monthly_foottraffic.message}</span>
@@ -53,7 +53,7 @@ const Step3Audience = ({ register, errors, control, Controller, options = {} }) 
                 max="100"
                 placeholder="60.50"
                 {...register('audience_overview.male_aud', { required: 'Male % is required' })}
-                className="h-12 bg-white focus-visible:ring-Primary"
+                className="h-11 bg-white focus-visible:ring-Primary"
               />
               <span className="text-xs font-semibold text-gray-500">% Male</span>
             </div>
@@ -65,7 +65,7 @@ const Step3Audience = ({ register, errors, control, Controller, options = {} }) 
                 max="100"
                 placeholder="39.50"
                 {...register('audience_overview.female_aud', { required: 'Female % is required' })}
-                className="h-12 bg-white focus-visible:ring-Primary"
+                className="h-11 bg-white focus-visible:ring-Primary"
               />
               <span className="text-xs font-semibold text-gray-500">% Female</span>
             </div>
@@ -86,10 +86,10 @@ const Step3Audience = ({ register, errors, control, Controller, options = {} }) 
             rules={{ required: 'Format is required' }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ''}>
-                <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                <SelectTrigger className="w-full h-11 bg-white text-left focus:ring-Primary">
                   <SelectValue placeholder="Select advertisement format" />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-30">
+                <SelectContent className="bg-white z-50">
                   {formats.map((item) => (
                     <SelectItem key={item.id} value={String(item.id)}>
                       {item.name}
@@ -113,10 +113,10 @@ const Step3Audience = ({ register, errors, control, Controller, options = {} }) 
             rules={{ required: 'Ad length is required' }}
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value ? String(field.value) : ''}>
-                <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
+                <SelectTrigger className="w-full h-11 bg-white text-left focus:ring-Primary">
                   <SelectValue placeholder="Select Ad Length" />
                 </SelectTrigger>
-                <SelectContent className="bg-white z-30">
+                <SelectContent className="bg-white z-50">
                   {adLengths.map((item) => (
                     <SelectItem key={item.id} value={String(item.id)}>
                       {item.name}
@@ -137,7 +137,7 @@ const Step3Audience = ({ register, errors, control, Controller, options = {} }) 
           <Input
             {...register('audience_overview.launch_time', { required: 'Launch time is required' })}
             placeholder="E.g., Launch in 24 hours"
-            className="h-12 bg-white border-gray-200 focus-visible:ring-Primary"
+            className="h-11 bg-white border-gray-200 focus-visible:ring-Primary"
           />
           {errors.audience_overview?.launch_time && (
             <span className="text-xs text-red-500">{errors.audience_overview.launch_time.message}</span>
