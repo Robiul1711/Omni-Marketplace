@@ -95,6 +95,7 @@ const Step1About = ({ register, errors, control, Controller }) => {
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-gray-700">Zip Code</label>
               <Input
+                type="number"
                 {...register('zip_code', { required: 'Zip code is required' })}
                 placeholder="E.g., 10001"
                 className="h-12 bg-white focus-visible:ring-Primary"
@@ -114,7 +115,7 @@ const Step1About = ({ register, errors, control, Controller }) => {
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value || 'draft'}>
                 <SelectTrigger className="w-full h-12 bg-white text-left focus:ring-Primary">
-                  <SelectValue placeholder="Select Status" />
+                  <SelectValue placeholder="Select Status (Draft or Publish)" />
                 </SelectTrigger>
                 <SelectContent className="bg-white z-30">
                   <SelectItem value="draft">Draft</SelectItem>

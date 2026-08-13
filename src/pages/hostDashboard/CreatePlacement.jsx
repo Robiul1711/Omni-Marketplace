@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -20,6 +20,12 @@ const CreatePlacement = () => {
 
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
+
+  // Refs for scrolling smoothly to specific step sections
+  const step2Ref = useRef(null);
+  const step3Ref = useRef(null);
+  const step4Ref = useRef(null);
+  const step5Ref = useRef(null);
 
   const [options, setOptions] = useState({
     promotion_types: [],
@@ -49,7 +55,7 @@ const CreatePlacement = () => {
       country: '',
       zip_code: '',
       status: 'draft',
-      campaign_duration: '30 days',
+      campaign_duration: '',
       start_date: '',
       end_date: '',
       next_campaign_start_date: '',
@@ -58,31 +64,25 @@ const CreatePlacement = () => {
         channel_id: '',
         pl_bus_name: '',
         pl_bus_description: '',
-        pl_feature: ['Indoor Audio'],
-        duration: '30 Days continuous',
+        pl_feature: [],
+        duration: '',
         display_time: '',
-        slot: 10,
+        slot: '',
       },
       audience_overview: {
-        monthly_foottraffic: '100K traffic',
-        male_aud: '50.00',
-        female_aud: '50.00',
+        monthly_foottraffic: '',
+        male_aud: '',
+        female_aud: '',
         format: '',
         ad_length: '',
-        launch_time: 'Launch in 24 hours',
+        launch_time: '',
       },
       packages: [
         {
-          name: 'Basic Package',
-          price: 150,
+          name: '',
+          price: '',
           is_recommended: false,
-          feature: ['1 ad play per hour'],
-        },
-        {
-          name: 'Premium Package',
-          price: 350,
-          is_recommended: true,
-          feature: ['10 ad play per hour'],
+          feature: [],
         },
       ],
       cover_image: null,
@@ -196,9 +196,20 @@ const CreatePlacement = () => {
 
     const isValid = await trigger(fieldsToValidate);
     if (isValid && currentStep < totalSteps) {
-      setCurrentStep((prev) => prev + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+
+      // Scroll smoothly to the newly opened step section
       setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        let targetRef = null;
+        if (nextStep === 2) targetRef = step2Ref;
+        if (nextStep === 3) targetRef = step3Ref;
+        if (nextStep === 4) targetRef = step4Ref;
+        if (nextStep === 5) targetRef = step5Ref;
+
+        if (targetRef?.current) {
+          targetRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }, 100);
     }
   };
@@ -216,7 +227,7 @@ const CreatePlacement = () => {
 
   return (
     <div className="min-h-screen bg-gray-50/30 pb-20">
-      <div className="px-4 py-8 max-w-5xl mx-auto">
+      <div className="px-4 py-8 ">
         {/* Header */}
         <Link
           to="/host/dashboard/my-placements"
@@ -243,40 +254,54 @@ const CreatePlacement = () => {
               Controller={Controller}
             />
 
-            {/* Appending steps based on currentStep */}
+            {/* Step 2 */}
             {currentStep >= 2 && (
-              <Step2Campaign
-                register={register}
-                errors={errors}
-                control={control}
-                Controller={Controller}
-                options={options}
-              />
+              <div ref={step2Ref} className="pt-4 scroll-mt-6">
+                <Step2Campaign
+                  register={register}
+                  errors={errors}
+                  control={control}
+                  Controller={Controller}
+                  options={options}
+                />
+              </div>
             )}
+
+            {/* Step 3 */}
             {currentStep >= 3 && (
-              <Step3Audience
-                register={register}
-                errors={errors}
-                control={control}
-                Controller={Controller}
-                options={options}
-              />
+              <div ref={step3Ref} className="pt-4 scroll-mt-6">
+                <Step3Audience
+                  register={register}
+                  errors={errors}
+                  control={control}
+                  Controller={Controller}
+                  options={options}
+                />
+              </div>
             )}
+
+            {/* Step 4 */}
             {currentStep >= 4 && (
-              <Step4Pricing
-                register={register}
-                errors={errors}
-                control={control}
-                Controller={Controller}
-                watch={watch}
-                setValue={setValue}
-              />
+              <div ref={step4Ref} className="pt-4 scroll-mt-6">
+                <Step4Pricing
+                  register={register}
+                  errors={errors}
+                  control={control}
+                  Controller={Controller}
+                  watch={watch}
+                  setValue={setValue}
+                />
+              </div>
             )}
+
+            {/* Step 5 */}
             {currentStep >= 5 && (
-              <Step5Upload
-                watch={watch}
-                setValue={setValue}
-              />
+              <div ref={step5Ref} className="pt-4 scroll-mt-6">
+                <Step5Upload
+                  watch={watch}
+                  setValue={setValue}
+                />
+              </div>
             )}
 
             {/* Action Buttons */}

@@ -30,7 +30,7 @@ const MyPlaceMents = () => {
         url += `?status=${statusFilter}`;
       }
       const res = await axiosSecure.get(url);
-      
+
       let list = [];
       if (Array.isArray(res.data)) {
         list = res.data;
@@ -81,8 +81,8 @@ const MyPlaceMents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] p-6 md:p-8 space-y-8">
-      <div className="max-w-[1600px] mx-auto space-y-8">
+    <div className="min-h-screen bg-[#F9FAFB] 8 space-y-8">
+      <div className=" space-y-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 rounded-2xl bg-white px-8 border border-gray-100 shadow-sm">
           <div>
@@ -111,25 +111,22 @@ const MyPlaceMents = () => {
               <div className="hidden sm:flex bg-gray-100 p-1 rounded-xl gap-1">
                 <button
                   onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setStatusFilter('publish')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Published
                 </button>
                 <button
                   onClick={() => setStatusFilter('draft')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                    }`}
                 >
                   Draft
                 </button>
@@ -165,7 +162,7 @@ const MyPlaceMents = () => {
                 <div>
                   <h3 className="text-lg font-bold text-gray-900">No placements found</h3>
                   <p className="text-sm text-gray-500 max-w-sm mt-1">
-                    {statusFilter !== 'all' 
+                    {statusFilter !== 'all'
                       ? `No placements found with status "${statusFilter}". Try changing the filter or create a new placement.`
                       : 'You have not created any advertising placements yet.'}
                   </p>
@@ -205,7 +202,7 @@ const MyPlaceMents = () => {
               </div>
               <h3 className="text-lg font-bold text-gray-900">Delete Placement</h3>
             </div>
-            
+
             <p className="text-sm text-gray-600">
               Are you sure you want to delete <span className="font-bold text-gray-900">"{deleteModalItem.campaign_info?.pl_bus_name || deleteModalItem.title || 'this placement'}"</span>? This action cannot be undone.
             </p>
