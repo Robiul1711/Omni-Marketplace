@@ -35,7 +35,19 @@ const PlacementCard = ({ item, isHostView = false, onEdit, onDelete }) => {
   const availableSlots = item.slot_available ?? totalSlots;
   const slotsPercentage = Math.round(((totalSlots - availableSlots) / totalSlots) * 100);
 
-  const status = item.status || "draft";
+  const rawStatus = (item.status || "draft").toLowerCase();
+
+  const getStatusBadge = (s) => {
+    if (s === 'publish' || s === 'active' || s === 'published') {
+      return { label: 'Published', style: 'bg-emerald-600 text-white' };
+    }
+    if (s === 'pending') {
+      return { label: 'Pending', style: 'bg-amber-500 text-white' };
+    }
+    return { label: 'Draft', style: 'bg-gray-600 text-white' };
+  };
+
+  const badgeInfo = getStatusBadge(rawStatus);
 
   return (
     <motion.div
@@ -55,12 +67,8 @@ const PlacementCard = ({ item, isHostView = false, onEdit, onDelete }) => {
           {/* Overlay Badges */}
           <div className="absolute top-3.5 right-3.5 flex items-center gap-2">
             {isHostView ? (
-              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase backdrop-blur-md text-white shadow-sm ${
-                status === 'publish' || status === 'active' 
-                  ? 'bg-emerald-600/90' 
-                  : 'bg-amber-600/90'
-              }`}>
-                {status}
+              <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase backdrop-blur-md shadow-sm ${badgeInfo.style}`}>
+                {badgeInfo.label}
               </span>
             ) : (
               <button className="bg-white/20 backdrop-blur-md p-1.5 rounded-full text-white hover:bg-white/30 transition-all border border-white/20 flex items-center justify-center">
@@ -143,6 +151,7 @@ const PlacementCard = ({ item, isHostView = false, onEdit, onDelete }) => {
             {isHostView ? (
               <div className="flex items-center gap-2">
                 <button
+                  type="button"
                   onClick={() => onEdit && onEdit(item)}
                   className="p-2 text-gray-600 hover:text-Primary bg-gray-50 hover:bg-Primary/10 rounded-lg transition-colors"
                   title="Edit Placement"
@@ -150,6 +159,7 @@ const PlacementCard = ({ item, isHostView = false, onEdit, onDelete }) => {
                   <Edit size={16} />
                 </button>
                 <button
+                  type="button"
                   onClick={() => onDelete && onDelete(item)}
                   className="p-2 text-gray-600 hover:text-red-600 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete Placement"

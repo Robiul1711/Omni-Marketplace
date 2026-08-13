@@ -25,12 +25,8 @@ const MyPlaceMents = () => {
   const fetchPlacements = useCallback(async () => {
     setLoading(true);
     try {
-      let url = '/auth/placements';
-      if (statusFilter !== 'all') {
-        url += `?status=${statusFilter}`;
-      }
-      const res = await axiosSecure.get(url);
-
+      const res = await axiosSecure.get('/auth/placements');
+      
       let list = [];
       if (Array.isArray(res.data)) {
         list = res.data;
@@ -46,11 +42,27 @@ const MyPlaceMents = () => {
     } finally {
       setLoading(false);
     }
-  }, [axiosSecure, statusFilter]);
+  }, [axiosSecure]);
 
   useEffect(() => {
     fetchPlacements();
   }, [fetchPlacements]);
+
+  // Robust client side filtering based on selected status filter
+  const displayedPlacements = placements.filter((item) => {
+    if (statusFilter === 'all') return true;
+    const s = (item.status || '').toLowerCase();
+    if (statusFilter === 'publish') {
+      return s === 'publish' || s === 'active' || s === 'published';
+    }
+    if (statusFilter === 'pending') {
+      return s === 'pending';
+    }
+    if (statusFilter === 'draft') {
+      return s === 'draft';
+    }
+    return s === statusFilter.toLowerCase();
+  });
 
   const handleEdit = (item) => {
     navigate(`/host/dashboard/edit-placement/${item.id}`);
@@ -81,8 +93,8 @@ const MyPlaceMents = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] 8 space-y-8">
-      <div className=" space-y-8">
+    <div className="min-h-screen bg-[#F9FAFB] space-y-8">
+      <div className="space-y-8">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-6 rounded-2xl bg-white px-8 border border-gray-100 shadow-sm">
           <div>
@@ -104,29 +116,44 @@ const MyPlaceMents = () => {
           <div className="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100">
             <div className="flex items-center gap-6">
               <h2 className="text-lg font-bold text-[#101828]">
-                Total Placements : <span className="ml-1.5 text-[#667085] font-semibold">{placements.length}</span>
+                Total Placements : <span className="ml-1.5 text-[#667085] font-semibold">{displayedPlacements.length}</span>
               </h2>
 
               {/* Status Tabs */}
               <div className="hidden sm:flex bg-gray-100 p-1 rounded-xl gap-1">
                 <button
+                  type="button"
                   onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   All
                 </button>
                 <button
+                  type="button"
                   onClick={() => setStatusFilter('publish')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   Published
                 </button>
                 <button
+                  type="button"
+                  onClick={() => setStatusFilter('pending')}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    statusFilter === 'pending' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  Pending
+                </button>
+                <button
+                  type="button"
                   onClick={() => setStatusFilter('draft')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                    }`}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                  }`}
                 >
                   Draft
                 </button>
@@ -138,9 +165,10 @@ const MyPlaceMents = () => {
                 <SelectTrigger className="w-[180px] font-semibold text-[#344054] border-[#D0D5DD] rounded-lg h-10">
                   <SelectValue placeholder="Filter by Status" />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-white z-50">
                   <SelectItem value="all">All Placements</SelectItem>
                   <SelectItem value="publish">Published Only</SelectItem>
+                  <SelectItem value="pending">Pending Only</SelectItem>
                   <SelectItem value="draft">Drafts Only</SelectItem>
                 </SelectContent>
               </Select>
@@ -154,7 +182,7 @@ const MyPlaceMents = () => {
                 <Loader2 className="animate-spin size-8 text-Primary" />
                 Fetching placements...
               </div>
-            ) : placements.length === 0 ? (
+            ) : displayedPlacements.length === 0 ? (
               <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
                 <div className="p-4 bg-gray-50 rounded-full text-gray-400">
                   <AlertCircle size={32} />
@@ -177,7 +205,7 @@ const MyPlaceMents = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-8">
-                {placements.map((item) => (
+                {displayedPlacements.map((item) => (
                   <PlacementCard
                     key={item.id}
                     item={item}
@@ -202,7 +230,7 @@ const MyPlaceMents = () => {
               </div>
               <h3 className="text-lg font-bold text-gray-900">Delete Placement</h3>
             </div>
-
+            
             <p className="text-sm text-gray-600">
               Are you sure you want to delete <span className="font-bold text-gray-900">"{deleteModalItem.campaign_info?.pl_bus_name || deleteModalItem.title || 'this placement'}"</span>? This action cannot be undone.
             </p>

@@ -154,7 +154,8 @@ const CreatePlacement = () => {
     }
   };
 
-  const handleNext = async () => {
+  const handleNext = async (e) => {
+    if (e) e.preventDefault();
     let fieldsToValidate = [];
     if (currentStep === 1) {
       fieldsToValidate = [
@@ -214,6 +215,11 @@ const CreatePlacement = () => {
     }
   };
 
+  const handleFinalPublish = (e) => {
+    if (e) e.preventDefault();
+    handleSubmit(onSubmit)(e);
+  };
+
   if (loadingData) {
     return (
       <div className="min-h-[400px] flex items-center justify-center">
@@ -245,7 +251,7 @@ const CreatePlacement = () => {
             <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-12">
+          <div className="p-10 space-y-12">
             {/* Step 1 */}
             <Step1About
               register={register}
@@ -319,6 +325,7 @@ const CreatePlacement = () => {
               {currentStep < totalSteps ? (
                 <button
                   type="button"
+                  key="btn-next"
                   onClick={handleNext}
                   className="flex-1 bg-[#1a1a1a] text-white h-[56px] rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-[0.99]"
                 >
@@ -327,8 +334,10 @@ const CreatePlacement = () => {
                 </button>
               ) : (
                 <button
-                  type="submit"
+                  type="button"
+                  key="btn-publish"
                   disabled={isSubmitting}
+                  onClick={handleFinalPublish}
                   className="flex-1 bg-Primary text-white h-[56px] rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-95 transition-all active:scale-[0.99] shadow-lg shadow-Primary/20 disabled:opacity-50"
                 >
                   {isSubmitting ? (
@@ -342,7 +351,7 @@ const CreatePlacement = () => {
                 </button>
               )}
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

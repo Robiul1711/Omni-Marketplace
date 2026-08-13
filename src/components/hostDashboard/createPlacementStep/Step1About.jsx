@@ -2,21 +2,9 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 
 const Step1About = ({ register, errors, control, Controller }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const featureOptions = [
-    'Indoor Audio',
-    'Indoor Video',
-    'High Traffic Location',
-    'Premium Audience',
-    'LED Display',
-    'Audio Enabled',
-    '24/7 Visibility'
-  ];
-
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-4">
@@ -127,11 +115,11 @@ const Step1About = ({ register, errors, control, Controller }) => {
         </div>
       </div>
 
-      {/* Included Features */}
-      <div className="space-y-4 pt-2">
+      {/* Included Features & Highlights as Input Box */}
+      <div className="space-y-4 pt-2 border-t border-gray-100">
         <h2 className="text-xl font-semibold text-[#1a1a1a]">Features & Highlights</h2>
         <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium text-gray-700">Included Features</label>
+          <label className="text-sm font-medium text-gray-700">Add Features & Highlights</label>
           
           <Controller
             name="campaign_info.pl_feature"
@@ -139,71 +127,61 @@ const Step1About = ({ register, errors, control, Controller }) => {
             rules={{ required: "At least one feature is required" }}
             render={({ field }) => {
               const selectedValues = Array.isArray(field.value) ? field.value : [];
-              const toggleOption = (opt) => {
-                let newVal;
-                if (selectedValues.includes(opt)) {
-                  newVal = selectedValues.filter(val => val !== opt);
-                } else {
-                  newVal = [...selectedValues, opt];
+              const [inputValue, setInputValue] = useState('');
+
+              const handleAdd = () => {
+                if (!inputValue.trim()) return;
+                if (!selectedValues.includes(inputValue.trim())) {
+                  field.onChange([...selectedValues, inputValue.trim()]);
                 }
-                field.onChange(newVal);
+                setInputValue('');
+              };
+
+              const handleRemove = (valToRemove) => {
+                field.onChange(selectedValues.filter(val => val !== valToRemove));
               };
 
               return (
-                <div className="relative z-30">
-                  <button
-                    type="button"
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="w-full min-h-[44px] bg-white border border-gray-200 rounded-xl px-4 py-2 flex items-center justify-between hover:border-gray-300 transition-colors text-left shadow-sm"
-                  >
-                    {selectedValues.length === 0 ? (
-                      <span className="text-gray-400 text-sm">Select placement features...</span>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedValues.map(val => (
-                          <span
-                            key={val}
-                            className="inline-flex items-center gap-1 bg-Primary/5 text-Primary text-xs font-semibold px-2.5 py-0.5 rounded-lg border border-Primary/10"
-                          >
-                            {val}
-                            <X
-                              className="size-3.5 cursor-pointer hover:text-red-500"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleOption(val);
-                              }}
-                            />
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <span className="text-gray-400 text-xs ml-2">▼</span>
-                  </button>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={inputValue}
+                      onChange={(e) => setInputValue(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAdd();
+                        }
+                      }}
+                      placeholder="Type a feature and press Enter or click Add (e.g. Indoor Audio)"
+                      className="h-11 bg-white focus-visible:ring-Primary flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAdd}
+                      className="px-5 py-2 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors flex items-center gap-1 shrink-0"
+                    >
+                      <Plus size={16} /> Add Feature
+                    </button>
+                  </div>
 
-                  {isOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 py-2 max-h-[250px] overflow-y-auto">
-                        {featureOptions.map(opt => {
-                          const isSelected = selectedValues.includes(opt);
-                          return (
-                            <div
-                              key={opt}
-                              onClick={() => toggleOption(opt)}
-                              className="px-4 py-2.5 hover:bg-gray-50 flex items-center justify-between cursor-pointer transition-colors"
-                            >
-                              <span className={`text-sm ${isSelected ? 'font-semibold text-Primary' : 'text-gray-700'}`}>
-                                {opt}
-                              </span>
-                              {isSelected && (
-                                <span className="text-Primary font-bold text-sm">✓</span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </>
-                  )}
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {selectedValues.map((val) => (
+                      <span
+                        key={val}
+                        className="inline-flex items-center gap-1.5 bg-Primary/10 text-Primary text-xs font-semibold px-3 py-1.5 rounded-lg border border-Primary/20"
+                      >
+                        {val}
+                        <X
+                          className="size-3.5 cursor-pointer hover:text-red-500 transition-colors"
+                          onClick={() => handleRemove(val)}
+                        />
+                      </span>
+                    ))}
+                    {selectedValues.length === 0 && (
+                      <span className="text-xs text-gray-400 italic">No features added yet. Type above and click Add Feature.</span>
+                    )}
+                  </div>
                 </div>
               );
             }}

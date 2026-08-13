@@ -46,7 +46,7 @@ const PackageCard = ({ index, register, control, errors, setValue, watch, Contro
           <Input
             {...register(`packages.${index}.name`, { required: 'Package name is required' })}
             placeholder="E.g., Basic Package, Premium Package"
-            className="h-12 focus-visible:ring-Primary"
+            className="h-11 focus-visible:ring-Primary"
           />
           {errors.packages?.[index]?.name && (
             <span className="text-xs text-red-500">{errors.packages[index].name.message}</span>
@@ -62,7 +62,7 @@ const PackageCard = ({ index, register, control, errors, setValue, watch, Contro
             min="0"
             {...register(`packages.${index}.price`, { required: 'Price is required', min: 0 })}
             placeholder="E.g., 150"
-            className="h-12 focus-visible:ring-Primary"
+            className="h-11 focus-visible:ring-Primary"
           />
           {errors.packages?.[index]?.price && (
             <span className="text-xs text-red-500">{errors.packages[index].price.message}</span>
@@ -140,7 +140,7 @@ const Step4Pricing = ({ register, errors, control, Controller, watch, setValue }
   const addPackage = () => {
     setValue('packages', [
       ...packages,
-      { name: '', price: 100, is_recommended: false, feature: [] }
+      { name: '', price: '', is_recommended: false, feature: [] }
     ]);
   };
 
