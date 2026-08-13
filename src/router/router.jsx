@@ -178,6 +178,10 @@ const router = createBrowserRouter([
         element: <CreatePlacement />,
       },
       {
+        path: "edit-placement/:id",
+        element: <CreatePlacement />,
+      },
+      {
         path: "order/:id",
         element: <OrderDetails />,
       },

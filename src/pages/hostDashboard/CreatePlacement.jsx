@@ -1,147 +1,327 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import useAxiosSecure from '@/hooks/useAxiosSecure';
 import ProgressBar from '@/components/hostDashboard/createPlacementStep/ProgressBar';
 import Step1About from '@/components/hostDashboard/createPlacementStep/Step1About';
 import Step2Campaign from '@/components/hostDashboard/createPlacementStep/Step2Campaign';
 import Step3Audience from '@/components/hostDashboard/createPlacementStep/Step3Audience';
 import Step4Pricing from '@/components/hostDashboard/createPlacementStep/Step4Pricing';
 import Step5Upload from '@/components/hostDashboard/createPlacementStep/Step5Upload';
+import { buildPlacementFormData, mapPlacementToFormValues } from '@/services/placementService';
 
 const CreatePlacement = () => {
-    const [currentStep, setCurrentStep] = useState(1);
-    const totalSteps = 5;
+  const { id } = useParams();
+  const isEdit = Boolean(id);
+  const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
 
-    const {
-        register,
-        handleSubmit,
-        control,
-        trigger,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {
-            title: '',
-            description: '',
-            whatsIncluded: [],
-            campaignDuration: '',
-            displayTime: 'operating_hours',
-            promotionType: '',
-            channelType: '',
-            slotsPerMonth: '1',
-            customSlots: '',
-            footTraffic: '',
-            format: '',
-            adLength: '15',
-            launchTime: '',
-            basicPackage: { price: 20, features: [] },
-            standardPackage: { price: 40, features: [] },
-            premiumPackage: { price: 60, features: [] },
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 5;
+
+  const [options, setOptions] = useState({
+    promotion_types: [],
+    channel_types: [],
+    formats: [],
+    ad_lengths: [],
+    display_times: [],
+  });
+
+  const [loadingData, setLoadingData] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    trigger,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      location: '',
+      city: '',
+      state: '',
+      country: '',
+      zip_code: '',
+      status: 'draft',
+      campaign_duration: '30 days',
+      start_date: '',
+      end_date: '',
+      next_campaign_start_date: '',
+      campaign_info: {
+        prom_id: '',
+        channel_id: '',
+        pl_bus_name: '',
+        pl_bus_description: '',
+        pl_feature: ['Indoor Audio'],
+        duration: '30 Days continuous',
+        display_time: '',
+        slot: 10,
+      },
+      audience_overview: {
+        monthly_foottraffic: '100K traffic',
+        male_aud: '50.00',
+        female_aud: '50.00',
+        format: '',
+        ad_length: '',
+        launch_time: 'Launch in 24 hours',
+      },
+      packages: [
+        {
+          name: 'Basic Package',
+          price: 150,
+          is_recommended: false,
+          feature: ['1 ad play per hour'],
         },
-    });
+        {
+          name: 'Premium Package',
+          price: 350,
+          is_recommended: true,
+          feature: ['10 ad play per hour'],
+        },
+      ],
+      cover_image: null,
+      photos: [],
+      videos: [],
+      panaromas: [],
+    },
+  });
 
-    const adLength = watch('adLength');
-
-    useEffect(() => {
-        if (adLength) {
-            const length = parseInt(adLength, 10);
-            let basePrice = 20;
-            if (length === 15) basePrice = 20;
-            else if (length === 30) basePrice = 40;
-            else if (length === 45) basePrice = 60;
-            else if (length === 60) basePrice = 80;
-            else if (length === 90) basePrice = 120;
-
-            setValue('basicPackage.price', basePrice);
-            setValue('standardPackage.price', basePrice * 2);
-            setValue('premiumPackage.price', basePrice * 3);
+  // Fetch placement options dynamically
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const res = await axiosSecure.get('/auth/placements/options');
+        if (res.data?.data) {
+          setOptions(res.data.data);
         }
-    }, [adLength, setValue]);
-
-    const onSubmit = (data) => {
-        console.log('Final Form Data:', data);
+      } catch (err) {
+        console.error('Failed to fetch placement options:', err);
+      }
     };
+    fetchOptions();
+  }, [axiosSecure]);
 
-    const handleNext = async () => {
-        let fieldsToValidate = [];
-        if (currentStep === 1) fieldsToValidate = ['title', 'description', 'whatsIncluded'];
-        if (currentStep === 2) fieldsToValidate = ['campaignDuration', 'displayTime', 'promotionType', 'channelType', 'slotsPerMonth'];
-        if (currentStep === 3) fieldsToValidate = ['footTraffic', 'format', 'adLength', 'launchTime'];
-        if (currentStep === 4) fieldsToValidate = ['basicPackage', 'standardPackage', 'premiumPackage'];
-
-        const isValid = await trigger(fieldsToValidate);
-        if (isValid && currentStep < totalSteps) {
-            setCurrentStep((prev) => prev + 1);
-            // Optional: Scroll to the new step
-            setTimeout(() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }, 100);
+  // Fetch existing placement details if in edit mode
+  useEffect(() => {
+    if (!id) return;
+    const fetchDetails = async () => {
+      setLoadingData(true);
+      try {
+        const res = await axiosSecure.get(`/auth/placements/${id}`);
+        const placement = res.data?.data;
+        if (placement) {
+          const mapped = mapPlacementToFormValues(placement);
+          reset(mapped);
         }
+      } catch (err) {
+        toast.error('Failed to load placement details.');
+        console.error(err);
+      } finally {
+        setLoadingData(false);
+      }
     };
+    fetchDetails();
+  }, [id, axiosSecure, reset]);
 
+  const onSubmit = async (formValues) => {
+    setIsSubmitting(true);
+    try {
+      const formData = buildPlacementFormData(formValues, isEdit);
+      const url = isEdit ? `/auth/placements/${id}` : '/auth/placements';
+
+      const res = await axiosSecure.post(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      if (res.data?.status || res.status === 200 || res.status === 201) {
+        toast.success(res.data?.message || (isEdit ? 'Placement updated successfully!' : 'Placement created successfully!'));
+        navigate('/host/dashboard/my-placements');
+      } else {
+        toast.error(res.data?.message || 'Failed to submit placement');
+      }
+    } catch (err) {
+      console.error('Placement submission error:', err);
+      const msg = err?.response?.data?.message || 'Error submitting placement';
+      toast.error(msg);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleNext = async () => {
+    let fieldsToValidate = [];
+    if (currentStep === 1) {
+      fieldsToValidate = [
+        'campaign_info.pl_bus_name',
+        'campaign_info.pl_bus_description',
+        'location',
+        'city',
+        'state',
+        'country',
+        'zip_code',
+        'campaign_info.pl_feature',
+      ];
+    }
+    if (currentStep === 2) {
+      fieldsToValidate = [
+        'campaign_duration',
+        'start_date',
+        'end_date',
+        'campaign_info.prom_id',
+        'campaign_info.channel_id',
+        'campaign_info.duration',
+        'campaign_info.display_time',
+        'campaign_info.slot',
+      ];
+    }
+    if (currentStep === 3) {
+      fieldsToValidate = [
+        'audience_overview.monthly_foottraffic',
+        'audience_overview.male_aud',
+        'audience_overview.female_aud',
+        'audience_overview.format',
+        'audience_overview.ad_length',
+        'audience_overview.launch_time',
+      ];
+    }
+    if (currentStep === 4) {
+      fieldsToValidate = ['packages'];
+    }
+
+    const isValid = await trigger(fieldsToValidate);
+    if (isValid && currentStep < totalSteps) {
+      setCurrentStep((prev) => prev + 1);
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
+    }
+  };
+
+  if (loadingData) {
     return (
-        <div className="min-h-screen bg-gray-50/30 pb-20">
-            <div className=" px-4 py-8">
-                {/* Header */}
-                <Link
-                    to="/host/dashboard/my-placements"
-                    className="flex items-center gap-2 text-base font-medium text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-                >
-                    <ArrowLeft className="size-4" />
-                    Back to My placement
-                </Link>
-
-                <div className="bg-white rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100">
-                    <div className="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-white rounded-t-[32px]">
-                        <h1 className="text-2xl font-bold text-[#1a1a1a]">Create Placement</h1>
-                        <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-12">
-                        {/* Step 1 is always visible */}
-                        <Step1About register={register} errors={errors} control={control} Controller={Controller} />
-
-                        {/* Appending steps based on currentStep */}
-                        {currentStep >= 2 && (
-                            <Step2Campaign register={register} errors={errors} control={control} Controller={Controller} />
-                        )}
-                        {currentStep >= 3 && (
-                            <Step3Audience register={register} errors={errors} control={control} Controller={Controller} />
-                        )}
-                        {currentStep >= 4 && (
-                            <Step4Pricing register={register} errors={errors} control={control} Controller={Controller} />
-                        )}
-                        {currentStep >= 5 && (
-                            <Step5Upload register={register} errors={errors} control={control} />
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="pt-4">
-                            {currentStep < totalSteps ? (
-                                <button
-                                    type="button"
-                                    onClick={handleNext}
-                                    className="w-full bg-[#1a1a1a] text-white h-[56px] rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-[#000] transition-all active:scale-[0.99]"
-                                >
-                                    Next
-                                    <ArrowRight className="size-5" />
-                                </button>
-                            ) : (
-                                <button
-                                    type="submit"
-                                    className="w-full bg-Primary text-white h-[56px] rounded-xl font-medium flex items-center justify-center hover:opacity-95 transition-all active:scale-[0.99] shadow-lg shadow-Primary/20"
-                                >
-                                    Create Service
-                                </button>
-                            )}
-                        </div>
-                    </form>
-                </div>
-            </div>
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="flex items-center gap-3 text-gray-500 font-medium">
+          <Loader2 className="animate-spin size-6 text-Primary" />
+          Loading placement details...
         </div>
+      </div>
     );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50/30 pb-20">
+      <div className="px-4 py-8 max-w-5xl mx-auto">
+        {/* Header */}
+        <Link
+          to="/host/dashboard/my-placements"
+          className="flex items-center gap-2 text-base font-medium text-gray-600 hover:text-gray-900 mb-6 transition-colors"
+        >
+          <ArrowLeft className="size-4" />
+          Back to My placement
+        </Link>
+
+        <div className="bg-white rounded-[32px] shadow-[0px_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
+          <div className="px-10 py-8 border-b border-gray-50 flex justify-between items-center bg-white rounded-t-[32px]">
+            <h1 className="text-2xl font-bold text-[#1a1a1a]">
+              {isEdit ? 'Edit Placement' : 'Create Placement'}
+            </h1>
+            <ProgressBar currentStep={currentStep} totalSteps={totalSteps} />
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="p-10 space-y-12">
+            {/* Step 1 */}
+            <Step1About
+              register={register}
+              errors={errors}
+              control={control}
+              Controller={Controller}
+            />
+
+            {/* Appending steps based on currentStep */}
+            {currentStep >= 2 && (
+              <Step2Campaign
+                register={register}
+                errors={errors}
+                control={control}
+                Controller={Controller}
+                options={options}
+              />
+            )}
+            {currentStep >= 3 && (
+              <Step3Audience
+                register={register}
+                errors={errors}
+                control={control}
+                Controller={Controller}
+                options={options}
+              />
+            )}
+            {currentStep >= 4 && (
+              <Step4Pricing
+                register={register}
+                errors={errors}
+                control={control}
+                Controller={Controller}
+                watch={watch}
+                setValue={setValue}
+              />
+            )}
+            {currentStep >= 5 && (
+              <Step5Upload
+                watch={watch}
+                setValue={setValue}
+              />
+            )}
+
+            {/* Action Buttons */}
+            <div className="pt-4 flex gap-4">
+              {currentStep > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
+                  className="px-6 h-[56px] rounded-xl border border-gray-300 font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  Previous
+                </button>
+              )}
+
+              {currentStep < totalSteps ? (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="flex-1 bg-[#1a1a1a] text-white h-[56px] rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-[0.99]"
+                >
+                  Next
+                  <ArrowRight className="size-5" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-Primary text-white h-[56px] rounded-xl font-medium flex items-center justify-center gap-2 hover:opacity-95 transition-all active:scale-[0.99] shadow-lg shadow-Primary/20 disabled:opacity-50"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin size-5" />
+                      {isEdit ? 'Updating Placement...' : 'Creating Placement...'}
+                    </>
+                  ) : (
+                    <>{isEdit ? 'Update Placement' : 'Publish Placement'}</>
+                  )}
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default CreatePlacement;
