@@ -2,58 +2,121 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
 
-const MarketPlaceworks = () => {
+const MarketPlaceWorksSkeleton = () => {
+  return (
+    <section className="section-padding-x bg-[#F9FAFB] py-20 animate-pulse">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header Skeleton */}
+        <div className="flex flex-col items-center text-center mb-12">
+          <div className="h-10 bg-gray-200 rounded-xl w-80 max-w-full mb-4" />
+          <div className="h-5 bg-gray-200 rounded-lg w-96 max-w-full" />
+        </div>
+
+        {/* Tab Toggle Skeleton */}
+        <div className="flex justify-center mb-20">
+          <div className="h-12 bg-gray-200 rounded-xl w-64" />
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="flex flex-col items-center text-center p-6 bg-white rounded-2xl border border-gray-100 shadow-sm"
+            >
+              <div className="w-12 h-12 bg-gray-200 rounded-lg mb-8" />
+              <div className="h-5 bg-gray-200 rounded-md w-3/4 mb-3" />
+              <div className="h-4 bg-gray-200 rounded-md w-full mb-2" />
+              <div className="h-4 bg-gray-200 rounded-md w-2/3" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const fallbackContent = {
+  advertisers: [
+    {
+      number: 1,
+      title: "Discover Global Advertising Opportunities",
+      description:
+        "Browse advertising placements from hosts around the world.",
+    },
+    {
+      number: 2,
+      title: "View Listing Details",
+      description:
+        "Review audience reach, pricing packages, and placement details.",
+    },
+    {
+      number: 3,
+      title: "Book Placement",
+      description: "Select a placement and confirm your campaign",
+    },
+    {
+      number: 4,
+      title: "Secure Payment",
+      description: "Complete checkout and receive booking confirmation",
+    },
+  ],
+  sellers: [
+    {
+      number: 1,
+      title: "Create Your Profile",
+      description: "Sign up and share details about your media channel",
+    },
+    {
+      number: 2,
+      title: "List Your Placements",
+      description:
+        "Create structured listings with pricing and audience data",
+    },
+    {
+      number: 3,
+      title: "Receive Bookings",
+      description: "Get notified when businesses book your placements",
+    },
+    {
+      number: 4,
+      title: "Get Paid",
+      description: "Receive secure payments after campaign delivery",
+    },
+  ],
+};
+
+const MarketPlaceworks = ({ data, isLoading }) => {
   const [activeTab, setActiveTab] = useState("advertisers");
 
-  const content = {
-    advertisers: [
-      {
-        number: 1,
-        title: "Discover Global Advertising Opportunities",
-        description:
-          "Browse advertising placements from hosts around the world.",
-      },
-      {
-        number: 2,
-        title: "View Listing Details",
-        description:
-          "Review audience reach, pricing packages, and placement details.",
-      },
-      {
-        number: 3,
-        title: "Book Placement",
-        description: "Select a placement and confirm your campaign",
-      },
-      {
-        number: 4,
-        title: "Secure Payment",
-        description: "Complete checkout and receive booking confirmation",
-      },
-    ],
-    sellers: [
-      {
-        number: 1,
-        title: "Create Your Profile",
-        description: "Sign up and share details about your media channel",
-      },
-      {
-        number: 2,
-        title: "List Your Placements",
-        description:
-          "Create structured listings with pricing and audience data",
-      },
-      {
-        number: 3,
-        title: "Receive Bookings",
-        description: "Get notified when businesses book your placements",
-      },
-      {
-        number: 4,
-        title: "Get Paid",
-        description: "Receive secure payments after campaign delivery",
-      },
-    ],
-  };
+  if (isLoading) {
+    return <MarketPlaceWorksSkeleton />;
+  }
+
+  const advertisersList =
+    Array.isArray(data?.advertisers) && data.advertisers.length > 0
+      ? [...data.advertisers]
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+          .map((item, idx) => ({
+            number: item.sort_order ?? item.number ?? idx + 1,
+            title: item.title,
+            description: item.description,
+          }))
+      : fallbackContent.advertisers;
+
+  const sellersList =
+    Array.isArray(data?.sellers) && data.sellers.length > 0
+      ? [...data.sellers]
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+          .map((item, idx) => ({
+            number: item.sort_order ?? item.number ?? idx + 1,
+            title: item.title,
+            description: item.description,
+          }))
+      : fallbackContent.sellers;
+
+  const currentSteps =
+    activeTab === "advertisers" ? advertisersList : sellersList;
 
   return (
     <section className="section-padding-x  bg-[#F9FAFB] py-20">
@@ -124,7 +187,7 @@ const MarketPlaceworks = () => {
             exit="initial"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
           >
-            {content[activeTab].map((step) => (
+            {currentSteps.map((step) => (
               <motion.div
                 key={step.number}
                 variants={fadeInUp}
@@ -152,3 +215,4 @@ const MarketPlaceworks = () => {
 };
 
 export default MarketPlaceworks;
+

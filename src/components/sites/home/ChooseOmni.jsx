@@ -1,31 +1,114 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Megaphone, DollarSign, CheckCircle2 } from "lucide-react";
+import { Megaphone, DollarSign } from "lucide-react";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
 
-const ChooseOmni = () => {
+const ChooseOmniSkeleton = () => {
+  return (
+    <section className="section-padding-x py-20 bg-[#EFF6FF] animate-pulse">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header Skeleton */}
+        <div className="flex justify-center mb-16">
+          <div className="h-10 bg-blue-200/60 rounded-xl w-96 max-w-full" />
+        </div>
+
+        {/* Grid Content Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="bg-white p-6 md:p-12 rounded-[32px] shadow-sm flex flex-col"
+            >
+              {/* Badge Skeleton */}
+              <div className="flex justify-center items-center w-full mb-8">
+                <div className="h-8 bg-blue-100/70 rounded-full w-36" />
+              </div>
+
+              {/* Title Skeleton */}
+              <div className="h-8 bg-gray-200 rounded-lg w-4/5 mb-8" />
+
+              {/* Items Skeleton */}
+              <div className="space-y-4 w-full">
+                {[1, 2, 3, 4].map((j) => (
+                  <div key={j} className="flex items-center gap-3">
+                    <div className="w-5 h-5 bg-green-100 rounded-full shrink-0" />
+                    <div className="h-4 bg-gray-200 rounded-md w-5/6" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer Text Skeleton */}
+        <div className="flex justify-center">
+          <div className="h-6 bg-blue-200/60 rounded-md w-80 max-w-full" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const fallbackSections = [
+  {
+    badge: "For Advertisers",
+    badgeIcon: <Megaphone size={14} className="text-Primary" />,
+    title: "Built for Brands That Want Real Visibility",
+    items: [
+      "Browse verified real-world advertising placements",
+      "See actual placement previews before booking",
+      "Secure escrow-protected transactions",
+      "Structured pricing with transparent campaign flow",
+    ],
+  },
+  {
+    badge: "For Hosts",
+    badgeIcon: <DollarSign size={14} className="text-Primary" />,
+    title: "Turn Your Audience Into Scalable Revenue",
+    items: [
+      "Monetize podcasts, newsletters, screens, and digital channels",
+      "Earn consistent monthly income through structured campaigns",
+      "Receive secure 80% earnings per placement",
+      "Manage bookings, delivery, and payments in one place",
+    ],
+  },
+];
+
+const ChooseOmni = ({ data, isLoading }) => {
+  if (isLoading) {
+    return <ChooseOmniSkeleton />;
+  }
+
+  const advertiserTitle =
+    data?.advertisers?.title || "Built for Brands That Want Real Visibility";
+  const advertiserItems =
+    Array.isArray(data?.advertisers?.features) &&
+    data.advertisers.features.length > 0
+      ? data.advertisers.features
+      : fallbackSections[0].items;
+
+  const hostTitle =
+    data?.hosts?.title || "Turn Your Audience Into Scalable Revenue";
+  const hostItems =
+    Array.isArray(data?.hosts?.features) && data.hosts.features.length > 0
+      ? data.hosts.features
+      : fallbackSections[1].items;
+
+  const bottomText =
+    data?.bottom_text || "Get started with Omni today.";
+
   const sections = [
     {
       badge: "For Advertisers",
       badgeIcon: <Megaphone size={14} className="text-Primary" />,
-      title: "Built for Brands That Want Real Visibility",
-      items: [
-        "Browse verified real-world advertising placements",
-        "See actual placement previews before booking",
-        "Secure escrow-protected transactions",
-        "Structured pricing with transparent campaign flow",
-      ],
+      title: advertiserTitle,
+      items: advertiserItems,
     },
     {
       badge: "For Hosts",
       badgeIcon: <DollarSign size={14} className="text-Primary" />,
-      title: "Turn Your Audience Into Scalable Revenue",
-      items: [
-        "Monetize podcasts, newsletters, screens, and digital channels",
-        "Earn consistent monthly income through structured campaigns",
-        "Receive secure 80% earnings per placement",
-        "Manage bookings, delivery, and payments in one place",
-      ],
+      title: hostTitle,
+      items: hostItems,
     },
   ];
 
@@ -57,7 +140,7 @@ const ChooseOmni = () => {
             <motion.div
               key={idx}
               variants={fadeInUp}
-              className="bg-white p-4 md:p-12 rounded-[32px] shadow-sm flex flex-col "
+              className="bg-white p-6 md:p-12 rounded-[32px] shadow-sm flex flex-col "
             >
               {/* Badge */}
               <div className=" flex justify-center items-center w-full">
@@ -84,16 +167,17 @@ const ChooseOmni = () => {
                       height="24"
                       viewBox="0 0 24 24"
                       fill="none"
+                      className="shrink-0 mt-0.5"
                     >
                       <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
                         d="M12 21C13.1819 21 14.3522 20.7672 15.4442 20.3149C16.5361 19.8626 17.5282 19.1997 18.364 18.364C19.1997 17.5282 19.8626 16.5361 20.3149 15.4442C20.7672 14.3522 21 13.1819 21 12C21 10.8181 20.7672 9.64778 20.3149 8.55585C19.8626 7.46392 19.1997 6.47177 18.364 5.63604C17.5282 4.80031 16.5361 4.13738 15.4442 3.68508C14.3522 3.23279 13.1819 3 12 3C9.61305 3 7.32387 3.94821 5.63604 5.63604C3.94821 7.32387 3 9.61305 3 12C3 14.3869 3.94821 16.6761 5.63604 18.364C7.32387 20.0518 9.61305 21 12 21ZM11.768 15.64L16.768 9.64L15.232 8.36L10.932 13.519L8.707 11.293L7.293 12.707L10.293 15.707L11.067 16.481L11.768 15.64Z"
                         fill="#1FC16B"
                       />
                     </svg>
                     <span className="text-[#525866] text-base md:text-[17px] font-normal font-host-grotesk leading-snug">
-                      {item}
+                      {typeof item === "string" ? item : item?.text || item?.title}
                     </span>
                   </li>
                 ))}
@@ -111,10 +195,7 @@ const ChooseOmni = () => {
           className="text-center"
         >
           <p className="text-[#525866] text-lg md:text-[20px] italic font-normal font-host-grotesk">
-            Ever wanted to see your brand featured nationally?{" "}
-            <span className="font-medium text-[#171717]">
-              Omni makes it possible.
-            </span>
+            {bottomText}
           </p>
         </motion.div>
       </div>
@@ -123,3 +204,4 @@ const ChooseOmni = () => {
 };
 
 export default ChooseOmni;
+
