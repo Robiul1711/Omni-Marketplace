@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '@/redux/slices/authSlice';
+import { getFileUrl } from '@/utils/fileUrl';
 import {
   AreaChart,
   Area,
@@ -101,7 +102,7 @@ const Profile = () => {
           {/* Floating Profile Avatar overlapping the banner */}
           <div className="absolute -top-12 left-8 sm:left-12 w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-[6px] border-white shadow-md bg-white z-10">
             <img 
-              src={user?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"} 
+              src={getFileUrl(user?.avatar) || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"} 
               alt={user?.name || "User Avatar"} 
               className="w-full h-full object-cover"
             />
@@ -109,11 +110,15 @@ const Profile = () => {
 
           {/* Info Details */}
           <div className="space-y-2 mt-2 md:mt-0">
-            <h2 className="text-[24px] font-bold text-[#1A1D1F]">{user?.name || "Softech Agency"}</h2>
-            <div className="flex items-center gap-2 text-[#6F767E] text-[14px]">
-              <FiMail className="text-gray-400" size={18} />
-              <span className="font-semibold">{user?.email || "example@gmail.com"}</span>
-            </div>
+            <h2 className="text-[24px] font-bold text-[#1A1D1F]">
+              {user?.name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : (user?.email ? user.email.split("@")[0] : "User Profile"))}
+            </h2>
+            {user?.email && (
+              <div className="flex items-center gap-2 text-[#6F767E] text-[14px]">
+                <FiMail className="text-gray-400" size={18} />
+                <span className="font-semibold">{user.email}</span>
+              </div>
+            )}
           </div>
 
           {/* Actions on Right */}

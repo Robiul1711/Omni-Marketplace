@@ -1,22 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MdKeyboardArrowDown, MdDashboard } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import { CgProfile } from "react-icons/cg";
-import { useDispatch, useSelector } from "react-redux";
-import { clearAuth } from "@/redux/slices/authSlice";
-import { clearUiState } from "@/redux/slices/uiSlice";
-
-import { useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import useLogout from "@/hooks/useLogout";
+import { getFileUrl } from "@/utils/fileUrl";
 
 const UserDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const dropdownRef = useRef(null);
   const user = useSelector((state) => state.auth.user || state.ui.user);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryClient = useQueryClient();
+  const { logout, isLoggingOut } = useLogout();
+
+  // Reset imgError if user avatar changes
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatar]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,17 +29,18 @@ const UserDropdown = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
-    dispatch(clearAuth());
-    dispatch(clearUiState());
-    queryClient.clear();
-    navigate("/auth/login");
+  const handleLogout = async () => {
     setIsOpen(false);
+    await logout();
   };
 
   const isHost = user?.role === "Host";
   const profilePath = isHost ? "/host/dashboard/settings" : "/advertising/dashboard/settings";
   const dashboardPath = isHost ? "/host/dashboard" : "/advertising/dashboard";
+
+  const displayName = user?.name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}`.trim() : (user?.email ? user.email.split("@")[0] : "User"));
+  const displayEmail = user?.email || "";
+  const avatarUrl = getFileUrl(user?.avatar);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -46,9 +48,14 @@ const UserDropdown = () => {
         className="flex items-center gap-3 cursor-pointer select-none group"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border-2 border-transparent group-hover:border-blue-100 transition-all">
-          {user?.avatar ? (
-            <img src={user.avatar} alt="User" className="w-full h-full object-cover" />
+        <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border-2 border-transparent group-hover:border-blue-100 transition-all flex items-center justify-center shrink-0">
+          {avatarUrl && !imgError ? (
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-500">
               <CgProfile size={24} />
@@ -57,11 +64,13 @@ const UserDropdown = () => {
         </div>
         <div className="hidden sm:block text-left">
           <p className="text-sm font-bold text-[#1A1D1F] truncate max-w-[120px]">
-            {user?.name || (user?.first_name ? `${user.first_name} ${user.last_name || ""}` : "Kabir Nishat")}
+            {displayName}
           </p>
-          <p className="text-xs text-[#6F767E] truncate max-w-[120px]">
-            {user?.email || "example@gmail.com"}
-          </p>
+          {displayEmail && (
+            <p className="text-xs text-[#6F767E] truncate max-w-[120px]">
+              {displayEmail}
+            </p>
+          )}
         </div>
         <MdKeyboardArrowDown
           className={`text-gray-400 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}

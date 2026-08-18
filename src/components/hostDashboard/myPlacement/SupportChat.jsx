@@ -1,10 +1,14 @@
 import React, { useState } from "react";
+import { useSelector } from "react-redux";
 import { HiOutlineChatAlt2, HiOutlineX, HiOutlinePaperClip } from "react-icons/hi";
 import { IoSend } from "react-icons/io5";
 import { FiHeadphones } from "react-icons/fi";
+import { selectCurrentUser } from "@/redux/slices/authSlice";
 
 const SupportChat = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const user = useSelector(selectCurrentUser);
+  const userName = user?.name || user?.first_name || "there";
 
   return (
     <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-[500]">
@@ -41,7 +45,7 @@ const SupportChat = () => {
             {/* Support Message */}
             <div className="flex flex-col gap-2 items-start">
               <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm max-w-[80%] border border-[#F4F4F4]">
-                <p className="text-sm text-[#1A1D1F]">Hey Kabir 👋</p>
+                <p className="text-sm text-[#1A1D1F]">Hey {userName} 👋</p>
               </div>
               <div className="flex items-end gap-2">
                 <div className="w-8 h-8 bg-[#3366FF] text-white rounded-full flex items-center justify-center shrink-0">
