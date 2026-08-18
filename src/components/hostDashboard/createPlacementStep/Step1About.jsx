@@ -92,27 +92,6 @@ const Step1About = ({ register, errors, control, Controller }) => {
             </div>
           </div>
         </div>
-
-        {/* Status selection */}
-        <div className="flex flex-col gap-2 pt-2">
-          <label className="text-sm font-medium text-gray-700">Placement Status</label>
-          <Controller
-            name="status"
-            control={control}
-            defaultValue="draft"
-            render={({ field }) => (
-              <Select onValueChange={field.onChange} value={field.value || 'draft'}>
-                <SelectTrigger className="w-full h-11 bg-white text-left focus:ring-Primary">
-                  <SelectValue placeholder="Select Status (Draft or Publish)" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-50">
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="publish">Publish</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
-        </div>
       </div>
 
       {/* Included Features & Highlights as Input Box */}

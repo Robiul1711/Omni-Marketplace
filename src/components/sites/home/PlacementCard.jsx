@@ -8,12 +8,21 @@ import {
   ArrowRight,
   Edit,
   Trash2,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { fadeInUp } from "@/utils/animations";
 import DefaultImage from "@/assets/images/i1.png";
 
-const PlacementCard = ({ item, isHostView = false, onEdit, onDelete }) => {
+const PlacementCard = ({
+  item,
+  isHostView = false,
+  onEdit,
+  onDelete,
+  onPublish,
+  isPublishing = false,
+}) => {
   // Extract values from API response structure or fallback mock object
   const id = item.id;
   const title = item.campaign_info?.pl_bus_name || item.title || "Placement Ad";
@@ -176,6 +185,31 @@ const PlacementCard = ({ item, isHostView = false, onEdit, onDelete }) => {
               </Link>
             )}
           </div>
+
+          {/* Big Full-Width Publish Button for Draft Placements */}
+          {isHostView && rawStatus === 'draft' && (
+            <div className="mt-3.5 pt-3 border-t border-gray-100">
+              <button
+                type="button"
+                disabled={isPublishing}
+                onClick={() => onPublish && onPublish(item)}
+                className="w-full h-10 bg-Primary hover:bg-Primary/90 active:scale-[0.99] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-Primary/20 transition-all disabled:opacity-50 cursor-pointer"
+                title="Publish Placement"
+              >
+                {isPublishing ? (
+                  <>
+                    <Loader2 className="animate-spin size-4" />
+                    <span>Publishing Placement...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={15} />
+                    <span>Publish Placement</span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

@@ -1,26 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import Logo from "@/assets/images/logoNew.png";
-import { useDispatch } from "react-redux";
-import { clearAuth } from "@/redux/slices/authSlice";
-import { clearUiState } from "@/redux/slices/uiSlice";
-import { useQueryClient } from "@tanstack/react-query";
+import useLogout from "@/hooks/useLogout";
 
 const HostSidebar = ({ sidebar, open, setOpen }) => {
   const location = useLocation();
   const [activeParentIndex, setActiveParentIndex] = useState(null);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { logout } = useLogout();
 
-  const handleLogout = () => {
-    dispatch(clearAuth());
-    dispatch(clearUiState());
-    queryClient.clear();
-    navigate("/auth/login");
+  const handleLogout = async () => {
     setOpen(false);
+    await logout();
   };
 
   useEffect(() => {

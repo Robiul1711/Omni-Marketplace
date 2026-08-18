@@ -38,6 +38,7 @@ import HostSettings from "@/pages/hostDashboard/Settings";
 import HostSupport from "@/pages/hostDashboard/Support";
 import Earnings from "@/pages/hostDashboard/Earnings";
 import Profile from "@/pages/hostDashboard/Profile";
+import PrivateRoute from "@/routes/PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -128,7 +129,11 @@ const router = createBrowserRouter([
   // Admin routes
   {
     path: "/advertising/dashboard",
-    element: <AdvertisingLayout />,
+    element: (
+      <PrivateRoute allowedRoles={["Omnipresent", "Advertiser", "Business", "User"]}>
+        <AdvertisingLayout />
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true,
@@ -159,7 +164,11 @@ const router = createBrowserRouter([
   // Host routes
   {
     path: "/host/dashboard",
-    element: <HostLayout />,
+    element: (
+      <PrivateRoute allowedRoles={["Host"]}>
+        <HostLayout />
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true,

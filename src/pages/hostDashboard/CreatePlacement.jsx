@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-toastify';
 import useAxiosSecure from '@/hooks/useAxiosSecure';
 import ProgressBar from '@/components/hostDashboard/createPlacementStep/ProgressBar';
@@ -17,6 +18,7 @@ const CreatePlacement = () => {
   const isEdit = Boolean(id);
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
 
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -141,6 +143,7 @@ const CreatePlacement = () => {
 
       if (res.data?.status || res.status === 200 || res.status === 201) {
         toast.success(res.data?.message || (isEdit ? 'Placement updated successfully!' : 'Placement created successfully!'));
+        await queryClient.invalidateQueries({ queryKey: ["hostPlacements"] });
         navigate('/host/dashboard/my-placements');
       } else {
         toast.error(res.data?.message || 'Failed to submit placement');

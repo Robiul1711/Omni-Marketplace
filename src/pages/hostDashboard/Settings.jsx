@@ -1,20 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { FiCamera, FiAlertCircle, FiClock, FiRefreshCw } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import useClient from '@/hooks/useClient';
 import useMutationClient from '@/hooks/useMutationClient';
 import { PROFILE, HOST_ONBOARDING, UPDATE_PASSWORD, REQUEST_VERIFICATION, HOST_ONBOARDING_OPTIONS } from '@/apiFunctions/apiEndPoints';
-
-const getFileUrl = (path) => {
-  if (!path) return "";
-  if (path.startsWith("http")) return path;
-  const cleanPath = path.replace(/\\/g, "/");
-  const base = import.meta.env.VITE_IMG_URL || "";
-  const separator = (base.endsWith("/") || cleanPath.startsWith("/")) ? "" : "/";
-  return `${base}${separator}${cleanPath}`;
-};
+import { setUser } from '@/redux/slices/authSlice';
+import { setUser as setUiUser } from '@/redux/slices/uiSlice';
+import { getFileUrl } from '@/utils/fileUrl';
 
 const isImage = (path) => {
   if (!path) return false;
@@ -64,6 +60,8 @@ const SettingsSkeleton = () => {
 };
 
 const AccountSettings = ({ user, refetch }) => {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const avatarInputRef = useRef(null);
@@ -125,8 +123,20 @@ const AccountSettings = ({ user, refetch }) => {
     }
 
     updateProfile({ data: formData }, {
-      onSuccess: () => {
-        refetch();
+      onSuccess: async (res) => {
+        const responseData = res?.data || res;
+        const updatedUser = responseData?.data || responseData;
+        if (updatedUser && typeof updatedUser === 'object' && (updatedUser.id || updatedUser.email || updatedUser.name)) {
+          dispatch(setUser(updatedUser));
+          dispatch(setUiUser({ user: updatedUser }));
+        }
+        await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+        const refetchRes = await refetch();
+        const freshUser = refetchRes?.data?.data || refetchRes?.data;
+        if (freshUser) {
+          dispatch(setUser(freshUser));
+          dispatch(setUiUser({ user: freshUser }));
+        }
       }
     });
   };
@@ -168,7 +178,7 @@ const AccountSettings = ({ user, refetch }) => {
             >
               <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-50 shadow-sm bg-gray-100">
                 <img 
-                  src={avatarPreview || user?.avatar || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"} 
+                  src={avatarPreview || getFileUrl(user?.avatar) || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
                 />
@@ -606,6 +616,7 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
 };
 
 const Settings = () => {
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('Account');
 
   const { data: profileData, isLoading: isProfileLoading, refetch: refetchProfile } = useClient({
@@ -625,6 +636,14 @@ const Settings = () => {
     url: HOST_ONBOARDING_OPTIONS,
     isPrivate: true,
   });
+
+  useEffect(() => {
+    const u = profileData?.data || profileData;
+    if (u && typeof u === 'object' && (u.id || u.email || u.name)) {
+      dispatch(setUser(u));
+      dispatch(setUiUser({ user: u }));
+    }
+  }, [profileData, dispatch]);
 
   if (isProfileLoading || isOnboardingLoading || isOptionsLoading) {
     return <SettingsSkeleton />;

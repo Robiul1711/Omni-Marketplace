@@ -1,71 +1,81 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, Loader2, AlertCircle } from 'lucide-react';
 import PlacementCard from '@/components/sites/home/PlacementCard';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import PlacementCardSkeleton from '@/components/sites/home/PlacementSkeleton';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import useClient from '@/hooks/useClient';
 import useAxiosSecure from '@/hooks/useAxiosSecure';
 import { toast } from 'react-toastify';
 
 const MyPlaceMents = () => {
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
 
-  const [placements, setPlacements] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const [deleteModalItem, setDeleteModalItem] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [publishingId, setPublishingId] = useState(null);
 
-  const fetchPlacements = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await axiosSecure.get('/auth/placements');
-      
-      let list = [];
-      if (Array.isArray(res.data)) {
-        list = res.data;
-      } else if (Array.isArray(res.data?.data)) {
-        list = res.data.data;
-      } else if (res.data?.data?.data && Array.isArray(res.data.data.data)) {
-        list = res.data.data.data;
-      }
-      setPlacements(list);
-    } catch (err) {
-      console.error('Failed to fetch host placements:', err);
-      toast.error('Failed to fetch placements.');
-    } finally {
-      setLoading(false);
-    }
-  }, [axiosSecure]);
+  // Cached data fetch with React Query
+  const { data: rawData, isLoading, refetch } = useClient({
+    queryKey: ["hostPlacements"],
+    url: "/auth/placements",
+    isPrivate: true,
+  });
 
-  useEffect(() => {
-    fetchPlacements();
-  }, [fetchPlacements]);
+  const placements = useMemo(() => {
+    if (!rawData) return [];
+    if (Array.isArray(rawData)) return rawData;
+    if (Array.isArray(rawData?.data)) return rawData.data;
+    if (Array.isArray(rawData?.data?.data)) return rawData.data.data;
+    return [];
+  }, [rawData]);
 
   // Robust client side filtering based on selected status filter
-  const displayedPlacements = placements.filter((item) => {
-    if (statusFilter === 'all') return true;
-    const s = (item.status || '').toLowerCase();
-    if (statusFilter === 'publish') {
-      return s === 'publish' || s === 'active' || s === 'published';
-    }
-    if (statusFilter === 'pending') {
-      return s === 'pending';
-    }
-    if (statusFilter === 'draft') {
-      return s === 'draft';
-    }
-    return s === statusFilter.toLowerCase();
-  });
+  const displayedPlacements = useMemo(() => {
+    return placements.filter((item) => {
+      if (statusFilter === 'all') return true;
+      const s = (item.status || '').toLowerCase();
+      if (statusFilter === 'publish') {
+        return s === 'publish' || s === 'active' || s === 'published';
+      }
+      if (statusFilter === 'pending') {
+        return s === 'pending';
+      }
+      if (statusFilter === 'draft') {
+        return s === 'draft';
+      }
+      return s === statusFilter.toLowerCase();
+    });
+  }, [placements, statusFilter]);
 
   const handleEdit = (item) => {
     navigate(`/host/dashboard/edit-placement/${item.id}`);
+  };
+
+  const handlePublish = async (item) => {
+    const slugOrId = item.slug || item.id;
+    setPublishingId(item.id);
+    try {
+      const res = await axiosSecure.patch(`/auth/placements/${slugOrId}/status`, {
+        status: "publish",
+      });
+
+      if (res.data?.status || res.status === 200 || res.status === 204) {
+        toast.success(res.data?.message || "Placement published successfully!");
+        await queryClient.invalidateQueries({ queryKey: ["hostPlacements"] });
+        refetch();
+      } else {
+        toast.error(res.data?.message || "Failed to publish placement.");
+      }
+    } catch (err) {
+      console.error("Failed to publish placement:", err);
+      toast.error(err?.response?.data?.message || "Error publishing placement.");
+    } finally {
+      setPublishingId(null);
+    }
   };
 
   const handleDeleteClick = (item) => {
@@ -80,7 +90,8 @@ const MyPlaceMents = () => {
       if (res.data?.status || res.status === 200 || res.status === 204) {
         toast.success(res.data?.message || 'Placement deleted successfully!');
         setDeleteModalItem(null);
-        fetchPlacements();
+        await queryClient.invalidateQueries({ queryKey: ["hostPlacements"] });
+        refetch();
       } else {
         toast.error(res.data?.message || 'Failed to delete placement.');
       }
@@ -113,74 +124,59 @@ const MyPlaceMents = () => {
         {/* Content Section */}
         <div className="bg-white rounded-[24px] overflow-hidden border border-gray-100 shadow-sm">
           {/* Filter Bar */}
-          <div className="px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100">
-            <div className="flex items-center gap-6">
-              <h2 className="text-lg font-bold text-[#101828]">
-                Total Placements : <span className="ml-1.5 text-[#667085] font-semibold">{displayedPlacements.length}</span>
-              </h2>
+          <div className="px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-[#101828]">
+              Total Placements : <span className="ml-1.5 text-[#667085] font-semibold">{displayedPlacements.length}</span>
+            </h2>
 
-              {/* Status Tabs */}
-              <div className="hidden sm:flex bg-gray-100 p-1 rounded-xl gap-1">
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter('all')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter('publish')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Published
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter('pending')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'pending' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Pending
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStatusFilter('draft')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  Draft
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Select value={statusFilter} onValueChange={(val) => setStatusFilter(val)}>
-                <SelectTrigger className="w-[180px] font-semibold text-[#344054] border-[#D0D5DD] rounded-lg h-10">
-                  <SelectValue placeholder="Filter by Status" />
-                </SelectTrigger>
-                <SelectContent className="bg-white z-50">
-                  <SelectItem value="all">All Placements</SelectItem>
-                  <SelectItem value="publish">Published Only</SelectItem>
-                  <SelectItem value="pending">Pending Only</SelectItem>
-                  <SelectItem value="draft">Drafts Only</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Status Tabs */}
+            <div className="flex bg-gray-100 p-1 rounded-xl gap-1 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setStatusFilter('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                  statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('publish')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                  statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Published
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('pending')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                  statusFilter === 'pending' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Pending
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatusFilter('draft')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
+                  statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                Draft
+              </button>
             </div>
           </div>
 
           {/* Grid Section */}
           <div className="p-6">
-            {loading ? (
-              <div className="py-20 flex flex-col items-center justify-center gap-3 text-gray-500 font-medium">
-                <Loader2 className="animate-spin size-8 text-Primary" />
-                Fetching placements...
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-8">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <PlacementCardSkeleton key={index} />
+                ))}
               </div>
             ) : displayedPlacements.length === 0 ? (
               <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
@@ -212,6 +208,8 @@ const MyPlaceMents = () => {
                     isHostView={true}
                     onEdit={handleEdit}
                     onDelete={handleDeleteClick}
+                    onPublish={handlePublish}
+                    isPublishing={publishingId === item.id}
                   />
                 ))}
               </div>
@@ -222,8 +220,8 @@ const MyPlaceMents = () => {
 
       {/* Delete Confirmation Modal */}
       {deleteModalItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-in fade-in zoom-in duration-200 z-10">
             <div className="flex items-center gap-3 text-red-600">
               <div className="p-3 bg-red-50 rounded-full">
                 <AlertCircle size={24} />
