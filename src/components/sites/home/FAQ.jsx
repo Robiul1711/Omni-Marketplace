@@ -7,35 +7,56 @@ import {
   AccordionTrigger,
 } from "../../ui/accordion";
 import { fadeInUp } from "@/utils/animations";
+import useClient from "@/hooks/useClient";
+
+const fallbackFaqData = [
+  {
+    id: 1,
+    question: "What is Omni Marketplace?",
+    answer:
+      "Omni Marketplace is a structured advertising placement marketplace where advertisers can find and book specific media slots directly from hosts across global channels.",
+  },
+  {
+    id: 2,
+    question: "How do I start as an advertiser?",
+    answer:
+      "Simply browse our placements, select the ones that fit your campaign goals, and book them directly through our secure platform.",
+  },
+  {
+    id: 3,
+    question: "Can I host my own advertising space?",
+    answer:
+      "Yes! If you have an audience or a physical/digital space that can host advertisements, you can join as a host and list your placements for advertisers to book.",
+  },
+  {
+    id: 4,
+    question: "How do I create a placement as a host?",
+    answer:
+      "Visit your Host Dashboard, click \"Create Placement\", fill in the details (format, size, duration, price), and submit for approval.",
+  },
+  {
+    id: 5,
+    question: "Are the placements verified?",
+    answer:
+      "We maintain a rigorous verification process for all our hosts and their listings to ensure transparency and reliability for every transaction.",
+  },
+  {
+    id: 6,
+    question: "What payment methods are supported?",
+    answer:
+      "We accept payments through Stripe, which supports major debit and credit cards. All transactions are processed securely through our payment system.",
+  },
+];
 
 const FAQ = () => {
-  const faqData = [
-    {
-      question: "What is Omni Marketplace?",
-      answer:
-        "Omni Marketplace is a structured advertising placement marketplace where advertisers can find and book specific media slots directly from hosts across global channels.",
-    },
-    {
-      question: "How do I start as an advertiser?",
-      answer:
-        "Simply browse our placements, select the ones that fit your campaign goals, and book them directly through our secure platform.",
-    },
-    {
-      question: "Can I host my own advertising space?",
-      answer:
-        "Yes! If you have an audience or a physical/digital space that can host advertisements, you can join as a host and list your placements for advertisers to book.",
-    },
-    {
-      question: "Are the placements verified?",
-      answer:
-        "We maintain a rigorous verification process for all our hosts and their listings to ensure transparency and reliability for every transaction.",
-    },
-   {
-  question: "What payment methods are supported?",
-  answer:
-    "We accept payments through Stripe, which supports major debit and credit cards. All transactions are processed securely through our payment system.",
-}
-  ];
+  const { data, isLoading } = useClient({
+    queryKey: ["faqs"],
+    url: "/faqs",
+    isPrivate: false,
+  });
+
+  const apiFaqs = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : null);
+  const faqsToDisplay = (apiFaqs && apiFaqs.length > 0) ? apiFaqs : fallbackFaqData;
 
   return (
     <section className="section-padding-x bg-white">
@@ -61,18 +82,28 @@ const FAQ = () => {
           whileInView="animate"
           viewport={{ once: true }}
         >
-          <Accordion type="single" collapsible className="w-full">
-            {faqData.map((item, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border-b border-gray-100 last:border-none py-2">
-                <AccordionTrigger className="text-lg md:text-xl font-medium text-[#171717] font-host-grotesk hover:no-underline hover:text-Primary transition-colors py-6">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-[#525866] text-base md:text-lg font-normal font-host-grotesk leading-relaxed pb-6">
-                  {item.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          {isLoading ? (
+            <div className="py-12 flex justify-center text-gray-400 font-medium">
+              Loading FAQs...
+            </div>
+          ) : (
+            <Accordion type="single" collapsible className="w-full">
+              {faqsToDisplay.map((item, index) => (
+                <AccordionItem
+                  key={item.id || index}
+                  value={`item-${item.id || index}`}
+                  className="border-b border-gray-100 last:border-none py-2"
+                >
+                  <AccordionTrigger className="text-lg md:text-xl font-medium text-[#171717] font-host-grotesk hover:no-underline hover:text-Primary transition-colors py-6 text-left">
+                    {item.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-[#525866] text-base md:text-lg font-normal font-host-grotesk leading-relaxed pb-6">
+                    {item.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          )}
         </motion.div>
       </div>
     </section>

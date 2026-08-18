@@ -1,137 +1,167 @@
-import React, { useRef, useState } from 'react';
-import { Upload, Trash2, CheckCircle, X, FileText } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Upload, Trash2, Image as ImageIcon, Video, Compass, FileText, CheckCircle } from 'lucide-react';
 
-const Step5Upload = ({ register, errors, control }) => {
+const MediaSection = ({ title, description, accept, isMultiple, files, onFileSelect, onFileRemove, icon: Icon, existingFiles = [] }) => {
   const fileInputRef = useRef(null);
-  const [files, setFiles] = useState([]);
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files);
-    if (selectedFiles.length === 0) return;
-
-    const newFiles = selectedFiles.map((file) => ({
-      id: Math.random().toString(36).substr(2, 9),
-      name: file.name,
-      size: (file.size / (1024 * 1024)).toFixed(2), // Size in MB
-      progress: 0,
-      status: 'uploading',
-    }));
-
-    setFiles((prev) => [...prev, ...newFiles]);
-
-    // Simulate upload for each new file
-    newFiles.forEach((fileObj) => {
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += Math.floor(Math.random() * 20) + 5;
-        if (progress >= 100) {
-          progress = 100;
-          clearInterval(interval);
-          setFiles((prev) =>
-            prev.map((f) =>
-              f.id === fileObj.id ? { ...f, progress: 100, status: 'completed' } : f
-            )
-          );
-        } else {
-          setFiles((prev) =>
-            prev.map((f) => (f.id === fileObj.id ? { ...f, progress } : f))
-          );
-        }
-      }, 300);
-    });
-
-    // Reset input
+  const handleChange = (e) => {
+    const selected = Array.from(e.target.files || []);
+    if (selected.length === 0) return;
+    onFileSelect(isMultiple ? selected : selected[0]);
     e.target.value = '';
   };
 
-  const removeFile = (id) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id));
-  };
-
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8 border-t border-gray-100">
-      <h2 className="text-xl font-semibold text-[#1a1a1a]">Upload Cover Image</h2>
-      
+    <div className="p-6 bg-white border border-gray-200 rounded-2xl space-y-4 shadow-sm">
+      <div className="flex items-center gap-3">
+        <div className="p-2.5 bg-Primary/10 text-Primary rounded-xl">
+          <Icon size={20} />
+        </div>
+        <div>
+          <h3 className="text-base font-bold text-gray-900">{title}</h3>
+          <p className="text-xs text-gray-500">{description}</p>
+        </div>
+      </div>
+
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleFileChange}
+        onChange={handleChange}
+        accept={accept}
+        multiple={isMultiple}
         className="hidden"
-        multiple
-        accept="image/png, image/jpeg"
       />
 
-      <div 
-        onClick={handleUploadClick}
-        className="w-full border-2 border-dashed border-gray-200 rounded-xl p-12 flex flex-col items-center justify-center space-y-4 bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
+      <div
+        onClick={() => fileInputRef.current?.click()}
+        className="w-full border-2 border-dashed border-gray-200 hover:border-Primary/50 rounded-xl p-6 flex flex-col items-center justify-center space-y-2 bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
       >
-        <Upload className="size-8 text-gray-400" />
-        <p className="text-sm text-gray-600 text-center">
-          Drag and drop your file here, or <span className="text-Primary font-medium">click to browse</span> Accepted formats Jpg or PNG
+        <Upload className="size-6 text-gray-400" />
+        <p className="text-xs text-gray-600 text-center">
+          Click to upload {isMultiple ? 'files' : 'a file'} or drag & drop ({accept})
         </p>
       </div>
 
-      <div className="space-y-4">
-        {files.map((file) => (
-          <div key={file.id} className="p-4 bg-white border border-gray-100 rounded-xl flex items-center gap-4 transition-all duration-300">
-            <div className="size-10 bg-blue-50 rounded-lg flex items-center justify-center">
-              {file.status === 'completed' ? (
-                <FileText className="size-5 text-Primary" />
-              ) : (
-                <Upload className="size-5 text-Primary animate-bounce" />
-              )}
-            </div>
-            <div className="flex-1 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-900 truncate max-w-[200px] md:max-w-xs">{file.name}</span>
-                <button 
+      {/* Display Existing Media URLs (when editing) */}
+      {existingFiles.length > 0 && (
+        <div className="space-y-2 pt-2">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Current Media:</p>
+          <div className="flex flex-wrap gap-3">
+            {existingFiles.map((item, idx) => (
+              <div key={idx} className="relative group rounded-lg overflow-hidden border border-gray-200 size-20 bg-gray-100">
+                {typeof item === 'string' || item?.url ? (
+                  <img
+                    src={typeof item === 'string' ? item : item.url}
+                    alt="existing media"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-xs text-gray-400 p-1 text-center">
+                    Media #{idx + 1}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Selected New Files List */}
+      {files && (Array.isArray(files) ? files.length > 0 : true) && (
+        <div className="space-y-2 pt-2">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Newly Selected:</p>
+          <div className="space-y-2">
+            {(Array.isArray(files) ? files : [files]).map((file, idx) => (
+              <div key={idx} className="p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-3 min-w-0">
+                  <FileText className="size-4 text-Primary shrink-0" />
+                  <div className="truncate">
+                    <p className="text-xs font-semibold text-gray-800 truncate">{file.name}</p>
+                    <p className="text-[10px] text-gray-500">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                  </div>
+                </div>
+                <button
                   type="button"
-                  onClick={() => removeFile(file.id)}
-                  className="p-1 hover:bg-gray-50 rounded-full transition-colors"
+                  onClick={() => onFileRemove(idx)}
+                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
                 >
-                  {file.status === 'completed' ? (
-                    <Trash2 className="size-4 text-gray-400 hover:text-red-500" />
-                  ) : (
-                    <X className="size-4 text-gray-400 hover:text-red-500" />
-                  )}
+                  <Trash2 size={16} />
                 </button>
               </div>
-              
-              {file.status === 'uploading' && (
-                <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-Primary transition-all duration-300" 
-                    style={{ width: `${file.progress}%` }}
-                  />
-                </div>
-              )}
-
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <span>{file.size} MB / {file.size} MB</span>
-                <div className="flex items-center gap-4">
-                  {file.status === 'completed' ? (
-                    <span className="flex items-center gap-1 text-Primary font-medium">
-                      <CheckCircle className="size-3" />
-                      Completed
-                    </span>
-                  ) : (
-                    <>
-                      <span className="flex items-center gap-1">
-                        <span className="size-2 bg-Primary rounded-full animate-pulse" />
-                        Loading
-                      </span>
-                      <span>{file.progress}%</span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Step5Upload = ({ watch, setValue }) => {
+  const coverImage = watch('cover_image');
+  const photos = watch('photos') || [];
+  const videos = watch('videos') || [];
+  const panaromas = watch('panaromas') || [];
+
+  const existingCoverImage = watch('existing_cover_image');
+  const existingMedia = watch('existing_media') || [];
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pt-8 border-t border-gray-100">
+      <h2 className="text-xl font-semibold text-[#1a1a1a]">Media & Files Upload</h2>
+      <p className="text-sm text-gray-500">Upload cover image, photo gallery, video teasers, and panoramas.</p>
+
+      <div className="space-y-6">
+        {/* Cover Image */}
+        <MediaSection
+          title="Cover Image (cover_image)"
+          description="Main cover picture for placement listing"
+          accept="image/png, image/jpeg, image/webp"
+          isMultiple={false}
+          files={coverImage}
+          existingFiles={existingCoverImage ? [existingCoverImage] : []}
+          onFileSelect={(file) => setValue('cover_image', file)}
+          onFileRemove={() => setValue('cover_image', null)}
+          icon={ImageIcon}
+        />
+
+        {/* Photos Array */}
+        <MediaSection
+          title="Photos Gallery (photos[])"
+          description="High resolution photo gallery of your placement location"
+          accept="image/png, image/jpeg, image/webp"
+          isMultiple={true}
+          files={photos}
+          existingFiles={existingMedia.filter(m => m?.type === 'photo' || !m?.type)}
+          onFileSelect={(newFiles) => setValue('photos', [...photos, ...newFiles])}
+          onFileRemove={(index) => setValue('photos', photos.filter((_, i) => i !== index))}
+          icon={ImageIcon}
+        />
+
+        {/* Videos Array */}
+        <MediaSection
+          title="Video Files (videos[])"
+          description="Video previews or showcase clips of the screen / venue"
+          accept="video/mp4, video/mov, video/webm"
+          isMultiple={true}
+          files={videos}
+          existingFiles={existingMedia.filter(m => m?.type === 'video')}
+          onFileSelect={(newFiles) => setValue('videos', [...videos, ...newFiles])}
+          onFileRemove={(index) => setValue('videos', videos.filter((_, i) => i !== index))}
+          icon={Video}
+        />
+
+        {/* Panoramas Array */}
+        <MediaSection
+          title="Panorama Views (panaromas[])"
+          description="360° or panorama wide shot photos of the space"
+          accept="image/png, image/jpeg, image/webp"
+          isMultiple={true}
+          files={panaromas}
+          existingFiles={existingMedia.filter(m => m?.type === 'panorama')}
+          onFileSelect={(newFiles) => setValue('panaromas', [...panaromas, ...newFiles])}
+          onFileRemove={(index) => setValue('panaromas', panaromas.filter((_, i) => i !== index))}
+          icon={Compass}
+        />
       </div>
     </div>
   );

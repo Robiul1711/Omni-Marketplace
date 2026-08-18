@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import FooterLogo from "@/assets/images/logo.png";
+import FooterLogo from "@/assets/images/logoNew.png";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
 import useClient from "@/hooks/useClient";
 
@@ -57,15 +57,12 @@ const Footer = () => {
             variants={fadeInUp}
             className="col-span-2 lg:col-span-2 max-w-sm flex flex-col items-start"
           >
-            <Link to="/" className="flex items-center gap-3 mb-8">
+            <Link to="/" className="flex items-center mb-8">
               <img
                 src={FooterLogo}
                 alt="Omni Logo"
-                className="w-10 h-10 object-contain"
+                className="h-14 md:h-24 w-auto object-contain max-w-[200px]"
               />
-              <span className="text-[#171717] font-bold text-xl font-host-grotesk tracking-tight">
-                Omni Marketplace
-              </span>
             </Link>
             <p className="text-[#525866] text-base font-normal font-host-grotesk leading-relaxed">
               {footerText}

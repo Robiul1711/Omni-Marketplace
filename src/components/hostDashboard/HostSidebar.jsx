@@ -1,26 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
-import Logo from "@/assets/images/logo.png";
-import { useDispatch } from "react-redux";
-import { clearAuth } from "@/redux/slices/authSlice";
-import { clearUiState } from "@/redux/slices/uiSlice";
-import { useQueryClient } from "@tanstack/react-query";
+import Logo from "@/assets/images/logoNew.png";
+import useLogout from "@/hooks/useLogout";
 
 const HostSidebar = ({ sidebar, open, setOpen }) => {
   const location = useLocation();
   const [activeParentIndex, setActiveParentIndex] = useState(null);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { logout } = useLogout();
 
-  const handleLogout = () => {
-    dispatch(clearAuth());
-    dispatch(clearUiState());
-    queryClient.clear();
-    navigate("/auth/login");
+  const handleLogout = async () => {
     setOpen(false);
+    await logout();
   };
 
   useEffect(() => {
@@ -73,12 +65,9 @@ const HostSidebar = ({ sidebar, open, setOpen }) => {
           }`}
       >
         {/* Logo */}
-        <div className="p-8 flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2">
-            <img src={Logo} alt="Logo" className="w-8 h-8 object-contain" />
-            <span className="text-[#1A1D1F] font-bold text-xl tracking-tight">
-              Omni Marketplace
-            </span>
+        <div className="p-8 flex items-center">
+          <Link to="/" className="flex items-center">
+            <img src={Logo} alt="Logo" className="h-12 md:h-14 w-auto object-contain max-w-[200px]" />
           </Link>
         </div>
 

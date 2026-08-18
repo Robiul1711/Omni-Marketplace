@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
+import { useQueryClient } from '@tanstack/react-query';
 import { FiCamera, FiAlertCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import useClient from '@/hooks/useClient';
 import useMutationClient from '@/hooks/useMutationClient';
 import { PROFILE, UPDATE_PASSWORD } from '@/apiFunctions/apiEndPoints';
+import { setUser } from '@/redux/slices/authSlice';
+import { setUser as setUiUser } from '@/redux/slices/uiSlice';
+import { getFileUrl } from '@/utils/fileUrl';
 
 const SettingsSkeleton = () => {
   return (
@@ -42,6 +47,8 @@ const SettingsSkeleton = () => {
 };
 
 const Settings = () => {
+  const dispatch = useDispatch();
+  const queryClient = useQueryClient();
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const avatarInputRef = useRef(null);
@@ -53,6 +60,13 @@ const Settings = () => {
   });
 
   const user = profileData?.data || profileData;
+
+  useEffect(() => {
+    if (user && typeof user === 'object' && (user.id || user.email || user.name)) {
+      dispatch(setUser(user));
+      dispatch(setUiUser({ user: user }));
+    }
+  }, [user, dispatch]);
 
   // Profile Form
   const {
@@ -110,8 +124,20 @@ const Settings = () => {
     }
 
     updateProfile({ data: formData }, {
-      onSuccess: () => {
-        refetch();
+      onSuccess: async (res) => {
+        const responseData = res?.data || res;
+        const updatedUser = responseData?.data || responseData;
+        if (updatedUser && typeof updatedUser === 'object' && (updatedUser.id || updatedUser.email || updatedUser.name)) {
+          dispatch(setUser(updatedUser));
+          dispatch(setUiUser({ user: updatedUser }));
+        }
+        await queryClient.invalidateQueries({ queryKey: ["userProfile"] });
+        const refetchRes = await refetch();
+        const freshUser = refetchRes?.data?.data || refetchRes?.data;
+        if (freshUser) {
+          dispatch(setUser(freshUser));
+          dispatch(setUiUser({ user: freshUser }));
+        }
       }
     });
   };
@@ -157,7 +183,7 @@ const Settings = () => {
             >
               <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-50 shadow-sm bg-gray-100">
                 <img 
-                  src={avatarPreview || user?.avatar || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"} 
+                  src={avatarPreview || getFileUrl(user?.avatar) || "https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=200&auto=format&fit=crop"} 
                   alt="Profile" 
                   className="w-full h-full object-cover"
                 />
