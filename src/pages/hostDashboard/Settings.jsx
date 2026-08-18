@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
-import { FiCamera, FiAlertCircle, FiClock, FiRefreshCw } from 'react-icons/fi';
+import { FiCamera, FiAlertCircle, FiClock, FiRefreshCw, FiFileText, FiExternalLink, FiUpload } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import useClient from '@/hooks/useClient';
@@ -14,8 +14,9 @@ import { getFileUrl } from '@/utils/fileUrl';
 
 const isImage = (path) => {
   if (!path) return false;
-  const ext = path.split('.').pop().toLowerCase();
-  return ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+  const clean = String(path).split('?')[0].split('#')[0];
+  const ext = clean.split('.').pop().toLowerCase();
+  return ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].includes(ext);
 };
 
 const SettingsSkeleton = () => {
@@ -330,6 +331,12 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
   const docInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const currentDocUrl =
+    onboarding?.business_registration_file_url ||
+    (onboarding?.business_registration_file
+      ? getFileUrl(onboarding.business_registration_file)
+      : null);
+
   const establishmentTypes = options?.establishment_types || ["Restaurant", "Podcast", "Digital Screen"];
   const responseTimes = options?.response_times || ["Within 24 hours", "Within 48 hours", "Within 1 week"];
   const operatingHoursOptions = options?.operating_hours || ["Mon-Fri [9 AM - 5 PM]", "Sat-Sun [10 AM - 6 PM]", "Mon-Sun [24/7]"];
@@ -504,49 +511,90 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
             </div>
 
             <div className="space-y-2 pt-2">
-              <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-[#1A1D1F]">Business Registration Document</label>
+              <div className="flex items-center gap-4 flex-wrap">
                 <input 
                   type="file" 
                   ref={docInputRef} 
                   onChange={handleDocChange} 
                   className="hidden" 
-                  accept=".pdf,.jpg,.png,.doc"
+                  accept=".pdf,.jpg,.png,.doc,.docx"
                 />
-                {selectedFile || onboarding?.business_registration_file ? (
-                  <div className="flex items-center gap-3">
-                    {selectedFile ? (
-                      <div 
-                        className="w-12 h-12 rounded-lg bg-[#4B5563] text-white flex flex-col items-center justify-center font-bold text-xs uppercase leading-none shadow-sm cursor-default"
-                        title="New local file chosen (Click Save Changes to upload)"
-                      >
-                        FILE
-                      </div>
+
+                {selectedFile ? (
+                  <div className="flex items-center gap-3 p-2.5 pr-4 bg-blue-50/80 border border-blue-200 rounded-xl shadow-xs">
+                    {selectedFile.type?.startsWith('image/') ? (
+                      <img
+                        src={URL.createObjectURL(selectedFile)}
+                        alt="Selected Preview"
+                        className="w-12 h-12 rounded-lg object-cover border border-blue-200 shadow-xs"
+                      />
                     ) : (
-                      <a 
-                        href={getFileUrl(onboarding.business_registration_file)} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="w-12 h-12 rounded-lg bg-[#4B5563] hover:bg-gray-700 text-white flex flex-col items-center justify-center font-bold text-xs uppercase leading-none transition-all shadow-sm cursor-pointer"
-                        title="Click to view/download document"
-                      >
-                        FILE
-                      </a>
+                      <div className="w-12 h-12 rounded-lg bg-blue-100 text-[#3366FF] flex items-center justify-center">
+                        <FiFileText size={22} />
+                      </div>
                     )}
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-[#1A1D1F] max-w-[220px] truncate" title={selectedFile.name}>
+                        {selectedFile.name}
+                      </span>
+                      <span className="text-xs text-[#3366FF] font-medium">New file selected (Save to upload)</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => docInputRef.current?.click()}
+                      className="ml-2 p-2 text-gray-400 hover:text-gray-600 hover:bg-white rounded-lg transition-colors cursor-pointer"
+                      title="Select different file"
+                    >
+                      <FiRefreshCw size={16} />
+                    </button>
+                  </div>
+                ) : currentDocUrl ? (
+                  <div className="flex items-center gap-3 p-2.5 pr-4 bg-gray-50 border border-gray-200 rounded-xl shadow-xs">
+                    <a 
+                      href={currentDocUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 group cursor-pointer"
+                      title="Click to view/download document"
+                    >
+                      {isImage(currentDocUrl || onboarding?.business_registration_file) ? (
+                        <img
+                          src={currentDocUrl}
+                          alt="Business Registration"
+                          className="w-12 h-12 rounded-lg object-cover border border-gray-200 shadow-xs group-hover:opacity-90 transition-opacity"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-lg bg-blue-50 text-[#3366FF] flex items-center justify-center shadow-xs">
+                          <FiFileText size={22} />
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-[#1A1D1F] group-hover:text-[#3366FF] flex items-center gap-1.5 transition-colors">
+                          Registration Document <FiExternalLink size={14} />
+                        </span>
+                        <span className="text-xs text-gray-500">Click to view document</span>
+                      </div>
+                    </a>
+                    <button 
+                      type="button"
+                      onClick={() => docInputRef.current?.click()}
+                      className="ml-3 text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-200/60 transition-colors cursor-pointer"
+                      title="Upload new file"
+                    >
+                      <FiRefreshCw size={16} />
+                    </button>
                   </div>
                 ) : (
-                  <div className="w-12 h-12 bg-gray-100 text-gray-400 flex flex-col items-center justify-center rounded-lg border border-gray-200 shadow-sm font-bold text-xs uppercase leading-none font-host-grotesk">
-                    None
-                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => docInputRef.current?.click()}
+                    className="flex items-center gap-2.5 px-4 py-3 border-2 border-dashed border-gray-200 hover:border-[#3366FF] hover:bg-blue-50/40 rounded-xl text-gray-600 text-sm font-medium transition-all cursor-pointer"
+                  >
+                    <FiUpload size={18} className="text-[#3366FF]" />
+                    <span>Upload Registration File (.pdf, .jpg, .png, .doc)</span>
+                  </button>
                 )}
-
-                <button 
-                  type="button"
-                  onClick={() => docInputRef.current?.click()}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-50 cursor-pointer"
-                  title="Select new file"
-                >
-                   <FiRefreshCw size={18} />
-                </button>
               </div>
             </div>
           </div>
@@ -569,15 +617,31 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 max-w-4xl">
           <div className="space-y-3">
              <div className="flex items-center gap-3">
-               {onboarding?.business_registration_file ? (
+               {currentDocUrl ? (
                  <a 
-                   href={getFileUrl(onboarding.business_registration_file)} 
+                   href={currentDocUrl} 
                    target="_blank" 
                    rel="noopener noreferrer"
-                   className="w-12 h-12 rounded-lg bg-[#4B5563] hover:bg-gray-700 text-white flex flex-col items-center justify-center font-bold text-xs uppercase leading-none transition-all shadow-sm cursor-pointer"
+                   className="inline-flex items-center gap-3 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-xl transition-all group cursor-pointer shadow-xs"
                    title="Click to view/download document"
                  >
-                   FILE
+                   {isImage(currentDocUrl || onboarding?.business_registration_file) ? (
+                     <img
+                       src={currentDocUrl}
+                       alt="Business Registration"
+                       className="w-10 h-10 rounded-lg object-cover border border-gray-200"
+                     />
+                   ) : (
+                     <div className="w-10 h-10 rounded-lg bg-blue-50 text-[#3366FF] flex items-center justify-center">
+                       <FiFileText size={20} />
+                     </div>
+                   )}
+                   <div className="flex flex-col text-left">
+                     <span className="text-sm font-semibold text-[#1A1D1F] group-hover:text-[#3366FF] flex items-center gap-1.5 transition-colors">
+                       Registration Document <FiExternalLink size={14} />
+                     </span>
+                     <span className="text-xs text-gray-500">View uploaded file</span>
+                   </div>
                  </a>
                ) : (
                  <div className="w-12 h-12 bg-gray-100 text-gray-400 flex flex-col items-center justify-center rounded-lg border border-gray-200 shadow-sm font-bold text-xs uppercase leading-none font-host-grotesk">
