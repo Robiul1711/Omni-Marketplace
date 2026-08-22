@@ -79,6 +79,9 @@ const ChooseOmni = ({ data, isLoading }) => {
     return <ChooseOmniSkeleton />;
   }
 
+  const mainTitle =
+    data?.title || "Why Advertisers and Hosts Choose Omni";
+
   const advertiserTitle =
     data?.advertisers?.title || "Built for Brands That Want Real Visibility";
   const advertiserItems =
@@ -124,7 +127,7 @@ const ChooseOmni = ({ data, isLoading }) => {
           className=" mb-16 text-center"
         >
           <h2 className="text-[32px] md:text-[48px]  font-medium text-[#171717] font-host-grotesk">
-            Why Advertisers and Hosts Choose Omni
+            {mainTitle}
           </h2>
         </motion.div>
 

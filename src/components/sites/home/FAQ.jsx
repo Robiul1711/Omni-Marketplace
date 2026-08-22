@@ -64,17 +64,29 @@ const fallbackFaqData = [
   },
 ];
 
-const FAQ = () => {
-  const { data, isLoading } = useClient({
+const FAQ = ({ data, title: propTitle, subtitle: propSubtitle }) => {
+  const { data: faqApiData, isLoading } = useClient({
     queryKey: ["faqs"],
     url: "/faqs",
     isPrivate: false,
   });
 
-  const apiFaqs = Array.isArray(data?.data)
-    ? data.data
-    : Array.isArray(data)
-    ? data
+  const sectionTitle =
+    data?.title || propTitle || faqApiData?.title || "Frequently Asked Questions";
+  const sectionSubtitle =
+    data?.subtitle ||
+    propSubtitle ||
+    faqApiData?.subtitle ||
+    "Everything you need to know about Omni Marketplace and how it works.";
+
+  const apiFaqs = Array.isArray(data?.faqs)
+    ? data.faqs
+    : Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(faqApiData?.data)
+    ? faqApiData.data
+    : Array.isArray(faqApiData)
+    ? faqApiData
     : null;
   const faqsToDisplay =
     apiFaqs && apiFaqs.length > 0 ? apiFaqs : fallbackFaqData;
@@ -90,10 +102,10 @@ const FAQ = () => {
           className="text-center mb-16"
         >
           <h2 className="text-[32px] md:text-[48px] font-medium text-[#171717] font-host-grotesk mb-6">
-            Frequently Asked Questions
+            {sectionTitle}
           </h2>
           <p className="text-[#525866] text-base md:text-lg font-normal font-host-grotesk max-w-[600px] mx-auto">
-            Everything you need to know about Omni Marketplace and how it works.
+            {sectionSubtitle}
           </p>
         </motion.div>
 

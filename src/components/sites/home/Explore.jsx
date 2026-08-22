@@ -7,7 +7,13 @@ import Button from "../../ui/Button";
 import PlacementCard from "./PlacementCard";
 import { Link } from "react-router-dom";
 
-const Explore = () => {
+const Explore = ({ data }) => {
+  const title = data?.title || "Explore Advertising Placements";
+  const subtitle =
+    data?.subtitle ||
+    data?.description ||
+    "Structured packages from verified media hosts.";
+
   return (
     <section className="section-padding-x bg-white">
       <div className="max-w-[1400px] mx-auto">
@@ -20,10 +26,10 @@ const Explore = () => {
           className="text-center mb-16"
         >
           <h2 className="text-[32px] md:text-[48px] font-bold text-[#00226E] font-host-grotesk mb-4">
-            Explore Advertising Placements
+            {title}
           </h2>
           <p className="text-[#525866] text-lg font-medium">
-            Structured packages from verified media hosts.
+            {subtitle}
           </p>
         </motion.div>
 

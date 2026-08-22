@@ -47,13 +47,19 @@ const PlacementCard = ({
   const rawStatus = (item.status || "draft").toLowerCase();
 
   const getStatusBadge = (s) => {
-    if (s === 'publish' || s === 'active' || s === 'published') {
+    if (s === 'approved' || s === 'publish' || s === 'active' || s === 'published') {
       return { label: 'Published', style: 'bg-emerald-600 text-white' };
     }
     if (s === 'pending') {
       return { label: 'Pending', style: 'bg-amber-500 text-white' };
     }
-    return { label: 'Draft', style: 'bg-gray-600 text-white' };
+    if (s === 'reject' || s === 'rejected') {
+      return { label: 'Rejected', style: 'bg-rose-600 text-white' };
+    }
+    if (s === 'draft') {
+      return { label: 'Draft', style: 'bg-gray-600 text-white' };
+    }
+    return { label: s.charAt(0).toUpperCase() + s.slice(1), style: 'bg-gray-600 text-white' };
   };
 
   const badgeInfo = getStatusBadge(rawStatus);
@@ -186,25 +192,25 @@ const PlacementCard = ({
             )}
           </div>
 
-          {/* Big Full-Width Publish Button for Draft Placements */}
-          {isHostView && rawStatus === 'draft' && (
+          {/* Big Full-Width Submit Button for Draft or Rejected Placements */}
+          {isHostView && (rawStatus === 'draft' || rawStatus === 'reject' || rawStatus === 'rejected') && (
             <div className="mt-3.5 pt-3 border-t border-gray-100">
               <button
                 type="button"
                 disabled={isPublishing}
                 onClick={() => onPublish && onPublish(item)}
                 className="w-full h-10 bg-Primary hover:bg-Primary/90 active:scale-[0.99] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-Primary/20 transition-all disabled:opacity-50 cursor-pointer"
-                title="Publish Placement"
+                title={rawStatus === 'draft' ? "Submit for Approval" : "Resubmit for Approval"}
               >
                 {isPublishing ? (
                   <>
                     <Loader2 className="animate-spin size-4" />
-                    <span>Publishing Placement...</span>
+                    <span>Submitting Placement...</span>
                   </>
                 ) : (
                   <>
                     <Send size={15} />
-                    <span>Publish Placement</span>
+                    <span>{rawStatus === 'draft' ? 'Submit Placement' : 'Resubmit Placement'}</span>
                   </>
                 )}
               </button>

@@ -93,6 +93,11 @@ const MarketPlaceworks = ({ data, isLoading }) => {
     return <MarketPlaceWorksSkeleton />;
   }
 
+  const title = data?.title || "How Omni Marketplace Works";
+  const subtitle =
+    data?.subtitle ||
+    "A structured process designed to protect both advertisers and hosts.";
+
   const advertisersList =
     Array.isArray(data?.advertisers) && data.advertisers.length > 0
       ? [...data.advertisers]
@@ -130,10 +135,10 @@ const MarketPlaceworks = ({ data, isLoading }) => {
           className="text-center mb-12"
         >
           <h2 className="text-[32px] md:text-[54px] font-semibold text-[#101828] font-host-grotesk mb-4">
-            How Omni Marketplace Works
+            {title}
           </h2>
           <p className="text-[#525866] text-lg md:text-[20px] font-normal font-host-grotesk">
-            A structured process designed to protect both advertisers and hosts.
+            {subtitle}
           </p>
         </motion.div>
 

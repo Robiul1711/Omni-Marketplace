@@ -26,7 +26,7 @@ const Home = () => {
         verifiedHosts={verifiedHosts}
         isLoading={isLoading}
       />
-      <Explore />
+      <Explore data={content?.explore_placements || content?.explore} />
       <MarketPlaceworks
         data={content?.how_it_works}
         isLoading={isLoading}
@@ -43,8 +43,8 @@ const Home = () => {
         data={content?.why_choose_us}
         isLoading={isLoading}
       />
-      <FAQ />
-      <ReadyStarted />
+      <FAQ data={content?.faq} />
+      <ReadyStarted data={content?.ready_started || content?.get_started} />
     </div>
   );
 };
