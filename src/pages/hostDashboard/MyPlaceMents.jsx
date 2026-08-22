@@ -81,19 +81,19 @@ const MyPlaceMents = () => {
     setPublishingId(item.id);
     try {
       const res = await axiosSecure.patch(`/auth/placements/${slugOrId}/status`, {
-        status: "pending",
+        status: "publish",
       });
 
       if (res.data?.status || res.status === 200 || res.status === 204) {
-        toast.success(res.data?.message || "Placement submitted successfully!");
+        toast.success(res.data?.message || "Placement published successfully!");
         await queryClient.invalidateQueries({ queryKey: ["hostPlacements"] });
         refetch();
       } else {
-        toast.error(res.data?.message || "Failed to submit placement.");
+        toast.error(res.data?.message || "Failed to publish placement.");
       }
     } catch (err) {
-      console.error("Failed to submit placement:", err);
-      toast.error(err?.response?.data?.message || "Error submitting placement.");
+      console.error("Failed to publish placement:", err);
+      toast.error(err?.response?.data?.message || "Error publishing placement.");
     } finally {
       setPublishingId(null);
     }
