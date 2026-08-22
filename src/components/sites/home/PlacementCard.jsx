@@ -11,7 +11,7 @@ import {
   Send,
   Loader2,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { fadeInUp } from "@/utils/animations";
 import DefaultImage from "@/assets/images/i1.png";
 
@@ -23,6 +23,17 @@ const PlacementCard = ({
   onPublish,
   isPublishing = false,
 }) => {
+  const navigate = useNavigate();
+
+  const handleEditClick = (e) => {
+    if (e) e.stopPropagation();
+    if (onEdit) {
+      onEdit(item);
+    } else {
+      navigate(`/host/dashboard/edit-placement/${item.id}`);
+    }
+  };
+
   // Extract values from API response structure or fallback mock object
   const id = item.id;
   const title = item.campaign_info?.pl_bus_name || item.title || "Placement Ad";
@@ -167,7 +178,7 @@ const PlacementCard = ({
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => onEdit && onEdit(item)}
+                  onClick={handleEditClick}
                   className="p-2 text-gray-600 hover:text-Primary bg-gray-50 hover:bg-Primary/10 rounded-lg transition-colors"
                   title="Edit Placement"
                 >
@@ -192,28 +203,40 @@ const PlacementCard = ({
             )}
           </div>
 
-          {/* Big Full-Width Submit Button for Draft or Rejected Placements */}
+          {/* Action Button: Publish for Drafts, Edit Placement for Rejected */}
           {isHostView && (rawStatus === 'draft' || rawStatus === 'reject' || rawStatus === 'rejected') && (
             <div className="mt-3.5 pt-3 border-t border-gray-100">
-              <button
-                type="button"
-                disabled={isPublishing}
-                onClick={() => onPublish && onPublish(item)}
-                className="w-full h-10 bg-Primary hover:bg-Primary/90 active:scale-[0.99] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-Primary/20 transition-all disabled:opacity-50 cursor-pointer"
-                title={rawStatus === 'draft' ? "Submit for Approval" : "Resubmit for Approval"}
-              >
-                {isPublishing ? (
-                  <>
-                    <Loader2 className="animate-spin size-4" />
-                    <span>Submitting Placement...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send size={15} />
-                    <span>{rawStatus === 'draft' ? 'Submit Placement' : 'Resubmit Placement'}</span>
-                  </>
-                )}
-              </button>
+              {rawStatus === 'draft' ? (
+                <button
+                  type="button"
+                  disabled={isPublishing}
+                  onClick={() => onPublish && onPublish(item)}
+                  className="w-full h-10 bg-Primary hover:bg-Primary/90 active:scale-[0.99] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-Primary/20 transition-all disabled:opacity-50 cursor-pointer"
+                  title="Publish Placement"
+                >
+                  {isPublishing ? (
+                    <>
+                      <Loader2 className="animate-spin size-4" />
+                      <span>Publishing Placement...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={15} />
+                      <span>Publish Placement</span>
+                    </>
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleEditClick}
+                  className="w-full h-10 bg-Primary hover:bg-Primary/90 active:scale-[0.99] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 shadow-md shadow-Primary/20 transition-all cursor-pointer"
+                  title="Edit Placement"
+                >
+                  <Edit size={15} />
+                  <span>Edit Placement</span>
+                </button>
+              )}
             </div>
           )}
         </div>
