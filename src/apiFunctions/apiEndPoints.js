@@ -11,4 +11,7 @@ export const REQUEST_VERIFICATION = "/auth/host-onboarding/request-verification"
 export const HOST_ONBOARDING_OPTIONS = "/host-onboarding-options";
 export const RESEND_OTP = "/resend-otp";
 export const LOGOUT = "/auth/logout";
+export const PLACEMENTS = "/placements";
+export const PLACEMENTS_OPTIONS = "/placements/options";
+export const AUTH_PLACEMENTS_OPTIONS = "/auth/placements/options";
 

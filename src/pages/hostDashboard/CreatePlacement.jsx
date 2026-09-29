@@ -12,6 +12,7 @@ import Step3Audience from '@/components/hostDashboard/createPlacementStep/Step3A
 import Step4Pricing from '@/components/hostDashboard/createPlacementStep/Step4Pricing';
 import Step5Upload from '@/components/hostDashboard/createPlacementStep/Step5Upload';
 import { buildPlacementFormData, mapPlacementToFormValues } from '@/services/placementService';
+import { AUTH_PLACEMENTS_OPTIONS } from '@/apiFunctions/apiEndPoints';
 
 const CreatePlacement = () => {
   const { id } = useParams();
@@ -98,7 +99,7 @@ const CreatePlacement = () => {
   useEffect(() => {
     const fetchOptions = async () => {
       try {
-        const res = await axiosSecure.get('/auth/placements/options');
+        const res = await axiosSecure.get(AUTH_PLACEMENTS_OPTIONS);
         if (res.data?.data) {
           setOptions(res.data.data);
         }
