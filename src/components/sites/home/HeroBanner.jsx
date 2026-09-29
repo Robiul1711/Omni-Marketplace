@@ -11,19 +11,47 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { fadeInUp, staggerContainer } from "../../../utils/animations";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import useClient from "@/hooks/useClient";
+import { PLACEMENTS_OPTIONS } from "@/apiFunctions/apiEndPoints";
 
 const HeroBanner = () => {
+  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [category, setCategory] = useState("");
-  const [establishmentType, setEstablishmentType] = useState("");
+  const [category, setCategory] = useState("all");
+  const [establishmentType, setEstablishmentType] = useState("all");
+
+  const { data: optionsResponse } = useClient({
+    queryKey: ["placementOptions"],
+    url: PLACEMENTS_OPTIONS,
+  });
+
+  const optionsData = optionsResponse?.data || {};
+  const promotionTypes = optionsData.promotion_types || [];
+  const channelTypes = optionsData.channel_types || [];
 
   const handleSearch = () => {
-    console.log("Search Values:", {
-      search: searchValue,
-      category,
-      type: establishmentType,
-    });
+    const params = new URLSearchParams();
+    if (searchValue.trim()) params.set("search", searchValue.trim());
+    if (category && category !== "all") params.set("promotion_type", category);
+    if (establishmentType && establishmentType !== "all") params.set("channel_type", establishmentType);
+    const queryString = params.toString();
+    navigate(queryString ? `/browse-placements?${queryString}` : `/browse-placements`);
+  };
+
+  const handleMapClick = () => {
+    const params = new URLSearchParams();
+    if (searchValue.trim()) params.set("search", searchValue.trim());
+    if (category && category !== "all") params.set("promotion_type", category);
+    if (establishmentType && establishmentType !== "all") params.set("channel_type", establishmentType);
+    const queryString = params.toString();
+    navigate(queryString ? `/browse-placements-map?${queryString}` : `/browse-placements-map`);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
@@ -105,64 +133,89 @@ const HeroBanner = () => {
             <input
               type="text"
               placeholder="Search placements..."
-              className="bg-transparent border-none outline-none font-host-grotesk text-[rgba(10,10,10,0.50)] w-full placeholder:text-gray-400"
+              className="bg-transparent border-none outline-none font-host-grotesk text-[rgba(10,10,10,0.80)] w-full placeholder:text-gray-400 text-sm"
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </div>
 
           {/* Select Category */}
           <div className=" flex  justify-center items-center sm:flex-row flex-col gap-5">
             <div className="w-full!  px-2 border-b lg:border-b-0 lg:border-r border-gray-100/50">
-              <Select onValueChange={setCategory}>
+              <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger
-                  className="border-none shadow-none font-host-grotesk text-[#525866] h-12! rounded-xl transition-colors"
+                  className="border-none shadow-none font-host-grotesk text-[#525866] h-12! rounded-xl transition-colors cursor-pointer"
                   style={{ background: "rgba(71, 108, 255, 0.10)" }}
                 >
                   <SelectValue placeholder="Promotion Category" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="digital">Digital</SelectItem>
-                  <SelectItem value="outdoor">Outdoor</SelectItem>
-                  <SelectItem value="print">Print</SelectItem>
+                <SelectContent className="bg-white">
+                  <SelectItem value="all">All Promotion Categories</SelectItem>
+                  {promotionTypes.map((prom) => (
+                    <SelectItem key={prom.id} value={String(prom.id)}>
+                      {prom.name}
+                    </SelectItem>
+                  ))}
+                  {promotionTypes.length === 0 && (
+                    <>
+                      <SelectItem value="1">Product Promotion</SelectItem>
+                      <SelectItem value="2">Event Promotion</SelectItem>
+                      <SelectItem value="3">Brand Awareness</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             {/* Select Type */}
             <div className="w-full!  px-2 border-b lg:border-b-0 lg:border-r border-gray-100/50">
-              <Select onValueChange={setEstablishmentType}>
+              <Select value={establishmentType} onValueChange={setEstablishmentType}>
                 <SelectTrigger
-                  className="border-none shadow-none font-host-grotesk text-[#525866] h-12!  rounded-xl transition-colors"
+                  className="border-none shadow-none font-host-grotesk text-[#525866] h-12!  rounded-xl transition-colors cursor-pointer"
                   style={{ background: "rgba(71, 108, 255, 0.10)" }}
                 >
                   <SelectValue placeholder="Channel / Establishment Type" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="retail">Retail</SelectItem>
-                  <SelectItem value="media">Media House</SelectItem>
-                  <SelectItem value="public">Public Space</SelectItem>
+                <SelectContent className="bg-white">
+                  <SelectItem value="all">All Channel Types</SelectItem>
+                  {channelTypes.map((chan) => (
+                    <SelectItem key={chan.id} value={String(chan.id)}>
+                      {chan.name}
+                    </SelectItem>
+                  ))}
+                  {channelTypes.length === 0 && (
+                    <>
+                      <SelectItem value="4">In-Store Audio Network</SelectItem>
+                      <SelectItem value="5">Digital Billboard</SelectItem>
+                      <SelectItem value="6">Interactive Kiosk</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             {/* Map Icon Box */}
-            <Link to={`/browse-placements-map`}>
-              <div className="p-4 bg-[rgba(71,108,255,0.10)] hover:bg-[rgba(71,108,255,0.15)] rounded-xl h-12!  transition-all cursor-pointer border border-transparent shrink-0 hidden md:flex justify-center items-center">
-                <MapPin size={24} className="text-[#335cff]" />
-              </div>
-            </Link>
+            <button
+              type="button"
+              onClick={handleMapClick}
+              title="Browse on Map"
+              className="p-4 bg-[rgba(71,108,255,0.10)] hover:bg-[rgba(71,108,255,0.20)] rounded-xl h-12! transition-all cursor-pointer border border-transparent shrink-0 hidden md:flex justify-center items-center"
+            >
+              <MapPin size={24} className="text-[#335cff]" />
+            </button>
           </div>
 
           {/* Search Button */}
           <Button
             onClick={handleSearch}
-            className="w-full md:w-auto bg-[#335cff] hover:bg-[#2849cc] gap-2 px-6 md:px-10 py-3 rounded-xl md:rounded-2xl text-base md:text-lg shadow-lg shadow-[#335cff]/20"
+            className="w-full md:w-auto bg-[#335cff] hover:bg-[#2849cc] gap-2 px-6 md:px-10 py-3 rounded-xl md:rounded-2xl text-base md:text-lg shadow-lg shadow-[#335cff]/20 cursor-pointer"
           >
             <Search size={22} className="shrink-0" />{" "}
             <span className="md:inline">Search</span>
           </Button>
         </motion.div>
+
 
         {/* Features/Badges */}
         <motion.div
