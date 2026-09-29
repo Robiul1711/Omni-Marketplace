@@ -1,13 +1,27 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { PLACEMENTS_DATA } from "@/utils/AllData";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
 import Button from "../../ui/Button";
 import PlacementCard from "./PlacementCard";
 import { Link } from "react-router-dom";
+import useClient from "@/hooks/useClient";
+import { PLACEMENTS } from "@/apiFunctions/apiEndPoints";
 
 const Explore = () => {
+  const { data: placementsResponse, isLoading } = useClient({
+    queryKey: ["homepagePlacements"],
+    url: PLACEMENTS,
+    params: {
+      is_homepage: 1,
+    },
+  });
+
+  const placements = placementsResponse?.data && Array.isArray(placementsResponse.data) && placementsResponse.data.length > 0
+    ? placementsResponse.data
+    : (isLoading ? [] : PLACEMENTS_DATA);
+
   return (
     <section className="section-padding-x bg-white">
       <div className="max-w-[1400px] mx-auto">
@@ -28,17 +42,23 @@ const Explore = () => {
         </motion.div>
 
         {/* Grid Section */}
-        <motion.div
-          variants={staggerContainer}
-          initial="initial"
-          whileInView="animate"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"
-        >
-          {PLACEMENTS_DATA.map((item) => (
-            <PlacementCard key={item.id} item={item} />
-          ))}
-        </motion.div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="animate-spin text-Primary" size={36} />
+          </div>
+        ) : (
+          <motion.div
+            variants={staggerContainer}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16"
+          >
+            {placements.map((item) => (
+              <PlacementCard key={item.id} item={item} />
+            ))}
+          </motion.div>
+        )}
 
         {/* Footer Action */}
         <motion.div

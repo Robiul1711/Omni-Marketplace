@@ -39,6 +39,8 @@ export const OnBoardHost = () => {
       operatingHours: "",
       footTraffic: "",
       responseTime: "",
+      screenDisplayMethods: "",
+      contentCreationTools: "",
       verificationFile: "",
     },
   });
@@ -60,6 +62,14 @@ export const OnBoardHost = () => {
   const establishmentTypes = onboardingOptions?.data?.establishment_types || ["Restaurant", "Podcast", "Digital Screen"];
   const responseTimes = onboardingOptions?.data?.response_times || ["Within 24 hours", "Within 48 hours", "Within 1 week"];
   const operatingHoursOptions = onboardingOptions?.data?.operating_hours || ["Mon-Fri [9 AM - 5 PM]", "Sat-Sun [10 AM - 6 PM]", "Mon-Sun [24/7]"];
+  const contentCreationToolsOptions = onboardingOptions?.data?.content_creation_tools || ["Canva", "Photoshop", "Figma"];
+  const screenDisplayMethodsOptions = onboardingOptions?.data?.screen_display_methods || [
+    "Casting",
+    "Digital signage software",
+    "Media player",
+    "Smart TV solution",
+    "Other methods",
+  ];
 
   useEffect(() => {
     if (existingOnboarding?.data) {
@@ -70,6 +80,8 @@ export const OnBoardHost = () => {
       setValue("operatingHours", onboardData.operating_hours || "");
       setValue("footTraffic", onboardData.estimated_monthly_foot_traffic || "");
       setValue("responseTime", onboardData.typical_campaign_response_time || "");
+      setValue("screenDisplayMethods", onboardData.screen_display_methods || onboardData.screen_display_method || "");
+      setValue("contentCreationTools", onboardData.content_creation_tools || onboardData.content_creation_tool || "");
       if (onboardData.business_registration_file) {
         setValue("verificationFile", onboardData.business_registration_file_url || onboardData.business_registration_file);
       }
@@ -102,6 +114,8 @@ export const OnBoardHost = () => {
         "operatingHours",
         "footTraffic",
         "responseTime",
+        "screenDisplayMethods",
+        "contentCreationTools",
       ];
       const isValid = await trigger(fieldsToValidate);
       if (!isValid) return;
@@ -126,6 +140,8 @@ export const OnBoardHost = () => {
     formData.append("operating_hours", data.operatingHours);
     formData.append("estimated_monthly_foot_traffic", data.footTraffic);
     formData.append("typical_campaign_response_time", data.responseTime);
+    formData.append("screen_display_methods", data.screenDisplayMethods);
+    formData.append("content_creation_tools", data.contentCreationTools);
 
     if (data.verificationFile instanceof File) {
       formData.append("business_registration_file", data.verificationFile);
@@ -359,6 +375,60 @@ export const OnBoardHost = () => {
                       </SelectTrigger>
                       <SelectContent className="bg-white">
                         {responseTimes.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              {/* Screen Display Methods Select */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-[#171717] font-host-grotesk flex justify-between mb-2">
+                  Screen Display Methods
+                  {errors.screenDisplayMethods && (
+                    <span className="text-[11px] text-red-500 normal-case">{errors.screenDisplayMethods.message}</span>
+                  )}
+                </label>
+                <Controller
+                  name="screenDisplayMethods"
+                  control={control}
+                  rules={{ required: "Screen display method is required" }}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className={`w-full h-14! px-5 rounded-xl border ${errors.screenDisplayMethods ? "border-red-500" : "border-gray-200"} focus:border-Primary outline-none transition-all font-host-grotesk bg-white text-left shadow-none`}>
+                        <SelectValue placeholder="Select screen display method" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {screenDisplayMethodsOptions.map((opt) => (
+                          <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+
+              {/* Content Creation Tools Select */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-[#171717] font-host-grotesk flex justify-between mb-2">
+                  Content Creation Tools
+                  {errors.contentCreationTools && (
+                    <span className="text-[11px] text-red-500 normal-case">{errors.contentCreationTools.message}</span>
+                  )}
+                </label>
+                <Controller
+                  name="contentCreationTools"
+                  control={control}
+                  rules={{ required: "Content creation tool is required" }}
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger className={`w-full h-14! px-5 rounded-xl border ${errors.contentCreationTools ? "border-red-500" : "border-gray-200"} focus:border-Primary outline-none transition-all font-host-grotesk bg-white text-left shadow-none`}>
+                        <SelectValue placeholder="Select content creation tool" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        {contentCreationToolsOptions.map((opt) => (
                           <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                         ))}
                       </SelectContent>
