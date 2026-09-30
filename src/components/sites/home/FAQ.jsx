@@ -9,6 +9,22 @@ import {
 import { fadeInUp } from "@/utils/animations";
 import useClient from "@/hooks/useClient";
 
+const FAQSkeleton = () => {
+  return (
+    <div className="space-y-4 animate-pulse">
+      {[1, 2, 3, 4, 5].map((i) => (
+        <div
+          key={i}
+          className="border-b border-gray-100 py-6 flex items-center justify-between"
+        >
+          <div className="h-6 bg-gray-200 rounded-lg w-2/3" />
+          <div className="w-5 h-5 bg-gray-200 rounded-full" />
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const fallbackFaqData = [
   {
     id: 1,
@@ -32,7 +48,7 @@ const fallbackFaqData = [
     id: 4,
     question: "How do I create a placement as a host?",
     answer:
-      "Visit your Host Dashboard, click \"Create Placement\", fill in the details (format, size, duration, price), and submit for approval.",
+      'Visit your Host Dashboard, click "Create Placement", fill in the details (format, size, duration, price), and submit for approval.',
   },
   {
     id: 5,
@@ -48,15 +64,32 @@ const fallbackFaqData = [
   },
 ];
 
-const FAQ = () => {
-  const { data, isLoading } = useClient({
+const FAQ = ({ data, title: propTitle, subtitle: propSubtitle }) => {
+  const { data: faqApiData, isLoading } = useClient({
     queryKey: ["faqs"],
     url: "/faqs",
     isPrivate: false,
   });
 
-  const apiFaqs = Array.isArray(data?.data) ? data.data : (Array.isArray(data) ? data : null);
-  const faqsToDisplay = (apiFaqs && apiFaqs.length > 0) ? apiFaqs : fallbackFaqData;
+  const sectionTitle =
+    data?.title || propTitle || faqApiData?.title || "Frequently Asked Questions";
+  const sectionSubtitle =
+    data?.subtitle ||
+    propSubtitle ||
+    faqApiData?.subtitle ||
+    "Everything you need to know about Omni Marketplace and how it works.";
+
+  const apiFaqs = Array.isArray(data?.faqs)
+    ? data.faqs
+    : Array.isArray(data?.items)
+    ? data.items
+    : Array.isArray(faqApiData?.data)
+    ? faqApiData.data
+    : Array.isArray(faqApiData)
+    ? faqApiData
+    : null;
+  const faqsToDisplay =
+    apiFaqs && apiFaqs.length > 0 ? apiFaqs : fallbackFaqData;
 
   return (
     <section className="section-padding-x bg-white">
@@ -69,10 +102,10 @@ const FAQ = () => {
           className="text-center mb-16"
         >
           <h2 className="text-[32px] md:text-[48px] font-medium text-[#171717] font-host-grotesk mb-6">
-            Frequently Asked Questions
+            {sectionTitle}
           </h2>
           <p className="text-[#525866] text-base md:text-lg font-normal font-host-grotesk max-w-[600px] mx-auto">
-            Everything you need to know about Omni Marketplace and how it works.
+            {sectionSubtitle}
           </p>
         </motion.div>
 
@@ -83,9 +116,7 @@ const FAQ = () => {
           viewport={{ once: true }}
         >
           {isLoading ? (
-            <div className="py-12 flex justify-center text-gray-400 font-medium">
-              Loading FAQs...
-            </div>
+            <FAQSkeleton />
           ) : (
             <Accordion type="single" collapsible className="w-full">
               {faqsToDisplay.map((item, index) => (

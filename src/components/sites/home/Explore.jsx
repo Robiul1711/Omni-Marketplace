@@ -9,18 +9,12 @@ import { Link } from "react-router-dom";
 import useClient from "@/hooks/useClient";
 import { PLACEMENTS } from "@/apiFunctions/apiEndPoints";
 
-const Explore = () => {
-  const { data: placementsResponse, isLoading } = useClient({
-    queryKey: ["homepagePlacements"],
-    url: PLACEMENTS,
-    params: {
-      is_homepage: 1,
-    },
-  });
-
-  const placements = placementsResponse?.data && Array.isArray(placementsResponse.data) && placementsResponse.data.length > 0
-    ? placementsResponse.data
-    : (isLoading ? [] : PLACEMENTS_DATA);
+const Explore = ({ data }) => {
+  const title = data?.title || "Explore Advertising Placements";
+  const subtitle =
+    data?.subtitle ||
+    data?.description ||
+    "Structured packages from verified media hosts.";
 
   return (
     <section className="section-padding-x bg-white">
@@ -34,10 +28,10 @@ const Explore = () => {
           className="text-center mb-16"
         >
           <h2 className="text-[32px] md:text-[48px] font-bold text-[#00226E] font-host-grotesk mb-4">
-            Explore Advertising Placements
+            {title}
           </h2>
           <p className="text-[#525866] text-lg font-medium">
-            Structured packages from verified media hosts.
+            {subtitle}
           </p>
         </motion.div>
 

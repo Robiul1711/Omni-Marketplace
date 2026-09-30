@@ -15,9 +15,51 @@ import { useNavigate } from "react-router-dom";
 import useClient from "@/hooks/useClient";
 import { PLACEMENTS_OPTIONS } from "@/apiFunctions/apiEndPoints";
 
+const HeroBannerSkeleton = () => {
+  return (
+    <section className="relative min-h-[95vh] pt-40 pb-20 flex flex-col items-center justify-center overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10">
+        <img
+          src={BackgroundImage}
+          alt="Background"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]" />
+      </div>
+
+      <div className="max-w-[1400px] w-full mx-auto px-4 flex flex-col items-center text-center z-10 animate-pulse">
+        {/* Title Skeleton */}
+        <div className="h-10 sm:h-14 md:h-20 bg-gray-300/60 rounded-2xl w-11/12 max-w-4xl mb-4" />
+        <div className="h-8 sm:h-12 md:h-16 bg-gray-300/60 rounded-2xl w-3/4 max-w-2xl mb-8" />
+
+        {/* Subtitle Skeleton */}
+        <div className="h-6 bg-gray-300/60 rounded-lg w-4/5 max-w-xl mb-16" />
+
+        {/* Search Bar Container Skeleton */}
+        <div className="bg-white/80 backdrop-blur-xl p-4 rounded-[24px] shadow-sm border border-white/60 w-full max-w-6xl h-24 mb-16" />
+
+        {/* Features Badges Skeleton */}
+        <div className="flex flex-wrap justify-center gap-6 md:gap-16">
+          <div className="h-6 bg-white/40 rounded-full w-40" />
+          <div className="h-6 bg-white/40 rounded-full w-36" />
+          <div className="h-6 bg-white/40 rounded-full w-44" />
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const HeroBanner = ({ data, verifiedHosts, isLoading }) => {
 const HeroBanner = () => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
+  const [category, setCategory] = useState("");
+  const [establishmentType, setEstablishmentType] = useState("");
+
+  if (isLoading) {
+    return <HeroBannerSkeleton />;
+  }
   const [category, setCategory] = useState("all");
   const [establishmentType, setEstablishmentType] = useState("all");
 
@@ -31,27 +73,85 @@ const HeroBanner = () => {
   const channelTypes = optionsData.channel_types || [];
 
   const handleSearch = () => {
-    const params = new URLSearchParams();
-    if (searchValue.trim()) params.set("search", searchValue.trim());
-    if (category && category !== "all") params.set("promotion_type", category);
-    if (establishmentType && establishmentType !== "all") params.set("channel_type", establishmentType);
-    const queryString = params.toString();
-    navigate(queryString ? `/browse-placements?${queryString}` : `/browse-placements`);
+    console.log("Search Values:", {
+      search: searchValue,
+      category,
+      type: establishmentType,
+    });
   };
 
-  const handleMapClick = () => {
-    const params = new URLSearchParams();
-    if (searchValue.trim()) params.set("search", searchValue.trim());
-    if (category && category !== "all") params.set("promotion_type", category);
-    if (establishmentType && establishmentType !== "all") params.set("channel_type", establishmentType);
-    const queryString = params.toString();
-    navigate(queryString ? `/browse-placements-map?${queryString}` : `/browse-placements-map`);
-  };
+  const defaultAvatars = [
+    "https://i.pravatar.cc/100?img=12",
+    "https://i.pravatar.cc/100?img=32",
+    "https://i.pravatar.cc/100?img=44",
+  ];
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      handleSearch();
+  const hostAvatars =
+    Array.isArray(verifiedHosts) && verifiedHosts.length > 0
+      ? verifiedHosts.slice(0, 3).map((h, idx) => {
+          if (typeof h === "string") return h;
+          return (
+            h?.avatar ||
+            h?.profile_photo ||
+            h?.image ||
+            h?.avatar_url ||
+            defaultAvatars[idx % defaultAvatars.length]
+          );
+        })
+      : defaultAvatars;
+
+  const title = data?.title || "Secure Advertising Deals with Verified Hosts";
+  const description =
+    data?.description ||
+    "A secure marketplace where brands connect with verified advertising hosts.";
+  const features =
+    Array.isArray(data?.features) && data.features.length > 0
+      ? data.features
+      : ["Escrow Protected", "Verified Hosts", "Structured Pricing"];
+
+  const renderTitle = () => {
+    if (title.toLowerCase().includes("verified hosts")) {
+      const matchIndex = title.toLowerCase().indexOf("verified hosts");
+      const before = title.slice(0, matchIndex);
+      const after = title.slice(matchIndex + "verified hosts".length);
+
+      return (
+        <>
+          {before}
+          <span className="inline-flex items-center gap-2 md:gap-4 flex-wrap justify-center">
+            Verified
+            <span className="inline-flex items-center -space-x-4 mx-2">
+              {hostAvatars.map((src, idx) => (
+                <img
+                  key={idx}
+                  src={src}
+                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm object-cover"
+                  alt={`Host ${idx + 1}`}
+                />
+              ))}
+            </span>
+            Hosts
+          </span>
+          {after}
+        </>
+      );
     }
+
+    return (
+      <span className="inline-flex items-center gap-2 md:gap-4 flex-wrap justify-center">
+        {title}
+        <span className="inline-flex items-center -space-x-4 mx-2">
+          {hostAvatars.map((src, idx) => (
+            <img
+              key={idx}
+              src={src}
+              className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm object-cover"
+              alt={`Host ${idx + 1}`}
+            />
+          ))}
+        </span>
+      </span>
+    );
   };
 
   return (
@@ -88,28 +188,7 @@ const HeroBanner = () => {
               backgroundClip: "text",
             }}
           >
-            Secure Advertising Deals with
-            <span className="inline-flex items-center gap-2 md:gap-4 flex-wrap justify-center">
-              Verified
-              <span className="inline-flex items-center -space-x-4 mx-2">
-                <img
-                  src="https://i.pravatar.cc/100?img=12"
-                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm"
-                  alt="Host 1"
-                />
-                <img
-                  src="https://i.pravatar.cc/100?img=32"
-                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm"
-                  alt="Host 2"
-                />
-                <img
-                  src="https://i.pravatar.cc/100?img=44"
-                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm"
-                  alt="Host 3"
-                />
-              </span>
-              Hosts
-            </span>
+            {renderTitle()}
           </h1>
         </motion.div>
 
@@ -118,8 +197,7 @@ const HeroBanner = () => {
           variants={fadeInUp}
           className="text-[#465E92] text-lg md:text-[24px] font-host-grotesk  mx-auto mb-16"
         >
-          A secure marketplace where brands connect with verified advertising
-          hosts.
+          {description}
         </motion.p>
 
         {/* Search Bar Container */}
@@ -222,17 +300,13 @@ const HeroBanner = () => {
           variants={fadeInUp}
           className="flex flex-wrap justify-center gap-4 md:gap-16"
         >
-          {[
-            { text: "Escrow Protected" },
-            { text: "Verified Hosts" },
-            { text: "Structured Pricing" },
-          ].map((item, idx) => (
+          {features.map((item, idx) => (
             <div
               key={idx}
               className="flex items-center gap-3 text-[#EBF1FF] font-host-grotesk font-medium text-lg"
             >
               <CheckCircle2 size={24} className="text-[#EBF1FF]" />
-              {item.text}
+              {typeof item === "string" ? item : item?.text || item?.title}
             </div>
           ))}
         </motion.div>
@@ -242,3 +316,4 @@ const HeroBanner = () => {
 };
 
 export default HeroBanner;
+

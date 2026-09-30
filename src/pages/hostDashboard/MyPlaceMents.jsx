@@ -33,16 +33,37 @@ const MyPlaceMents = () => {
     return [];
   }, [rawData]);
 
+  // Count stats for each status enum
+  const counts = useMemo(() => {
+    const res = { all: placements.length, pending: 0, approved: 0, reject: 0, draft: 0 };
+    placements.forEach((item) => {
+      const s = (item.status || 'draft').toLowerCase();
+      if (s === 'approved' || s === 'publish' || s === 'published' || s === 'active') {
+        res.approved++;
+      } else if (s === 'pending') {
+        res.pending++;
+      } else if (s === 'reject' || s === 'rejected') {
+        res.reject++;
+      } else if (s === 'draft') {
+        res.draft++;
+      }
+    });
+    return res;
+  }, [placements]);
+
   // Robust client side filtering based on selected status filter
   const displayedPlacements = useMemo(() => {
     return placements.filter((item) => {
       if (statusFilter === 'all') return true;
-      const s = (item.status || '').toLowerCase();
-      if (statusFilter === 'publish') {
-        return s === 'publish' || s === 'active' || s === 'published';
+      const s = (item.status || 'draft').toLowerCase();
+      if (statusFilter === 'approved') {
+        return s === 'approved' || s === 'publish' || s === 'active' || s === 'published';
       }
       if (statusFilter === 'pending') {
         return s === 'pending';
+      }
+      if (statusFilter === 'reject') {
+        return s === 'reject' || s === 'rejected';
       }
       if (statusFilter === 'draft') {
         return s === 'draft';
@@ -103,6 +124,14 @@ const MyPlaceMents = () => {
     }
   };
 
+  const statusTabs = [
+    { key: 'all', label: 'All', count: counts.all },
+    { key: 'pending', label: 'Pending', count: counts.pending },
+    { key: 'approved', label: 'Published', count: counts.approved },
+    { key: 'reject', label: 'Rejected', count: counts.reject },
+    { key: 'draft', label: 'Draft', count: counts.draft },
+  ];
+
   return (
     <div className="min-h-screen bg-[#F9FAFB] space-y-8">
       <div className="space-y-8">
@@ -131,42 +160,29 @@ const MyPlaceMents = () => {
 
             {/* Status Tabs */}
             <div className="flex bg-gray-100 p-1 rounded-xl gap-1 overflow-x-auto">
-              <button
-                type="button"
-                onClick={() => setStatusFilter('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
-                  statusFilter === 'all' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                All
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter('publish')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
-                  statusFilter === 'publish' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Published
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter('pending')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
-                  statusFilter === 'pending' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Pending
-              </button>
-              <button
-                type="button"
-                onClick={() => setStatusFilter('draft')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0 ${
-                  statusFilter === 'draft' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                Draft
-              </button>
+              {statusTabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setStatusFilter(tab.key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 ${
+                    statusFilter === tab.key
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      statusFilter === tab.key
+                        ? 'bg-gray-100 text-gray-900'
+                        : 'bg-gray-200/80 text-gray-600'
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
             </div>
           </div>
 
