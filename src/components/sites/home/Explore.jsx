@@ -16,6 +16,23 @@ const Explore = ({ data }) => {
     data?.description ||
     "Structured packages from verified media hosts.";
 
+  const { data: placementsResponse, isLoading } = useClient({
+    queryKey: ["homepagePlacements"],
+    url: PLACEMENTS,
+    params: {
+      is_homepage: 1,
+    },
+  });
+
+  const placements =
+    placementsResponse?.data &&
+    Array.isArray(placementsResponse.data) &&
+    placementsResponse.data.length > 0
+      ? placementsResponse.data
+      : isLoading
+      ? []
+      : PLACEMENTS_DATA;
+
   return (
     <section className="section-padding-x bg-white">
       <div className="max-w-[1400px] mx-auto">
