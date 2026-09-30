@@ -1,0 +1,21 @@
+{
+  "default_branch": "main",
+  "branches": [
+    "ashiq",
+    "main",
+    "origin",
+    "setu"
+  ],
+  "parent": {
+    "ashiq": "main",
+    "main": null,
+    "origin": "main",
+    "setu": "main"
+  },
+  "order": [
+    "main",
+    "ashiq",
+    "origin",
+    "setu"
+  ]
+}
