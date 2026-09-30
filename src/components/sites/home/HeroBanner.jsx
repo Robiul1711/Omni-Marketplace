@@ -51,15 +51,8 @@ const HeroBannerSkeleton = () => {
 };
 
 const HeroBanner = ({ data, verifiedHosts, isLoading }) => {
-const HeroBanner = () => {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  const [category, setCategory] = useState("");
-  const [establishmentType, setEstablishmentType] = useState("");
-
-  if (isLoading) {
-    return <HeroBannerSkeleton />;
-  }
   const [category, setCategory] = useState("all");
   const [establishmentType, setEstablishmentType] = useState("all");
 
@@ -73,12 +66,32 @@ const HeroBanner = () => {
   const channelTypes = optionsData.channel_types || [];
 
   const handleSearch = () => {
-    console.log("Search Values:", {
-      search: searchValue,
-      category,
-      type: establishmentType,
-    });
+    const params = new URLSearchParams();
+    if (searchValue.trim()) params.set("search", searchValue.trim());
+    if (category && category !== "all") params.set("promotion_type", category);
+    if (establishmentType && establishmentType !== "all") params.set("channel_type", establishmentType);
+    const queryString = params.toString();
+    navigate(queryString ? `/browse-placements?${queryString}` : `/browse-placements`);
   };
+
+  const handleMapClick = () => {
+    const params = new URLSearchParams();
+    if (searchValue.trim()) params.set("search", searchValue.trim());
+    if (category && category !== "all") params.set("promotion_type", category);
+    if (establishmentType && establishmentType !== "all") params.set("channel_type", establishmentType);
+    const queryString = params.toString();
+    navigate(queryString ? `/browse-placements-map?${queryString}` : `/browse-placements-map`);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  if (isLoading) {
+    return <HeroBannerSkeleton />;
+  }
 
   const defaultAvatars = [
     "https://i.pravatar.cc/100?img=12",
