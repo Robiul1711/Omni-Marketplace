@@ -1,12 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SlidersHorizontal, Search, Settings2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeInUp, staggerContainer } from "@/utils/animations";
 import BrowseFilter from "@/components/sites/browse/BrowseFilter";
 import BrowseProduct from "@/components/sites/browse/BrowseProduct";
 
+const initialFilters = {
+  promotion_types: [],
+  channel_types: [],
+  min_price: "",
+  max_price: "",
+  audience_size: "all",
+  location: "all",
+};
+
 const BrowsePlacement = () => {
+  const [searchParams] = useSearchParams();
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  
+  const urlSearch = searchParams.get("search") || "";
+  const urlPromType = searchParams.get("promotion_type");
+  const urlChanType = searchParams.get("channel_type");
+  const urlLocation = searchParams.get("location");
+
+  const [searchTerm, setSearchTerm] = useState(urlSearch);
+  const [filters, setFilters] = useState({
+    promotion_types: urlPromType ? [Number(urlPromType) || urlPromType] : [],
+    channel_types: urlChanType ? [Number(urlChanType) || urlChanType] : [],
+    min_price: searchParams.get("min_price") || "",
+    max_price: searchParams.get("max_price") || "",
+    audience_size: searchParams.get("audience_size") || "all",
+    location: urlLocation || "all",
+  });
+
+  useEffect(() => {
+    const s = searchParams.get("search") || "";
+    const p = searchParams.get("promotion_type");
+    const c = searchParams.get("channel_type");
+    const loc = searchParams.get("location");
+    
+    setSearchTerm(s);
+    setFilters((prev) => ({
+      ...prev,
+      promotion_types: p ? [Number(p) || p] : prev.promotion_types,
+      channel_types: c ? [Number(c) || c] : prev.channel_types,
+      location: loc || prev.location,
+    }));
+  }, [searchParams]);
+
+  const handleResetFilters = () => {
+    setFilters(initialFilters);
+  };
 
   return (
     <div className="py-10  !pt-[150px]">
@@ -36,6 +81,8 @@ const BrowsePlacement = () => {
               />
               <input
                 type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search placements..."
                 className="w-full h-14 pl-11 pr-4 rounded-xl border border-gray-200 focus:border-Primary outline-none text-sm transition-all bg-white shadow-sm"
               />
@@ -50,9 +97,13 @@ const BrowsePlacement = () => {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            className="hidden lg:block w-[350px] sticky top-24"
+            className="hidden lg:block w-[350px] sticky top-24 shrink-0"
           >
-            <BrowseFilter />
+            <BrowseFilter
+              filters={filters}
+              onFilterChange={setFilters}
+              onReset={handleResetFilters}
+            />
           </motion.div>
 
           {/* Product Feed */}
@@ -66,6 +117,8 @@ const BrowsePlacement = () => {
                 />
                 <input
                   type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search placements..."
                   className="w-full h-11 pl-11 pr-4 rounded-xl border border-gray-100 focus:border-Primary outline-none text-sm transition-all"
                 />
@@ -78,7 +131,7 @@ const BrowsePlacement = () => {
               </button>
             </div>
 
-            <BrowseProduct />
+            <BrowseProduct searchTerm={searchTerm} filters={filters} />
           </div>
         </div>
       </div>
@@ -114,7 +167,13 @@ const BrowsePlacement = () => {
                 </button>
               </div>
               <div className="flex-grow overflow-hidden">
-                <BrowseFilter isMobile onClose={() => setIsFilterOpen(false)} />
+                <BrowseFilter
+                  filters={filters}
+                  onFilterChange={setFilters}
+                  onReset={handleResetFilters}
+                  isMobile
+                  onClose={() => setIsFilterOpen(false)}
+                />
               </div>
             </motion.div>
           </>

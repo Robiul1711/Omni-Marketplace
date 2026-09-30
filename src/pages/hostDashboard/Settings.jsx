@@ -340,6 +340,14 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
   const establishmentTypes = options?.establishment_types || ["Restaurant", "Podcast", "Digital Screen"];
   const responseTimes = options?.response_times || ["Within 24 hours", "Within 48 hours", "Within 1 week"];
   const operatingHoursOptions = options?.operating_hours || ["Mon-Fri [9 AM - 5 PM]", "Sat-Sun [10 AM - 6 PM]", "Mon-Sun [24/7]"];
+  const contentCreationToolsOptions = options?.content_creation_tools || ["Canva", "Photoshop", "Figma"];
+  const screenDisplayMethodsOptions = options?.screen_display_methods || [
+    "Casting",
+    "Digital signage software",
+    "Media player",
+    "Smart TV solution",
+    "Other methods",
+  ];
 
   const { register, handleSubmit, control, setValue, formState: { errors } } = useForm({
     defaultValues: {
@@ -348,7 +356,9 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
       internetAccess: onboarding?.has_internet_access ? 'Yes' : 'No',
       operatingHours: onboarding?.operating_hours || '',
       estimatedMonthlyFootTraffic: onboarding?.estimated_monthly_foot_traffic || '',
-      responseTime: onboarding?.typical_campaign_response_time || 'Within 24 hours'
+      responseTime: onboarding?.typical_campaign_response_time || 'Within 24 hours',
+      screenDisplayMethods: onboarding?.screen_display_methods || onboarding?.screen_display_method || '',
+      contentCreationTools: onboarding?.content_creation_tools || onboarding?.content_creation_tool || '',
     }
   });
 
@@ -360,6 +370,8 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
       setValue('operatingHours', onboarding.operating_hours || '');
       setValue('estimatedMonthlyFootTraffic', onboarding.estimated_monthly_foot_traffic || '');
       setValue('responseTime', onboarding.typical_campaign_response_time || 'Within 24 hours');
+      setValue('screenDisplayMethods', onboarding.screen_display_methods || onboarding.screen_display_method || '');
+      setValue('contentCreationTools', onboarding.content_creation_tools || onboarding.content_creation_tool || '');
     }
   }, [onboarding, setValue]);
 
@@ -385,6 +397,8 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
     formData.append('operating_hours', data.operatingHours);
     formData.append('estimated_monthly_foot_traffic', data.estimatedMonthlyFootTraffic);
     formData.append('typical_campaign_response_time', data.responseTime);
+    formData.append('screen_display_methods', data.screenDisplayMethods);
+    formData.append('content_creation_tools', data.contentCreationTools);
 
     if (selectedFile) {
       formData.append('business_registration_file', selectedFile);
@@ -502,6 +516,46 @@ const ChannelSettings = ({ onboarding, options, refetch }) => {
                     </SelectTrigger>
                     <SelectContent className="bg-white">
                       {responseTimes.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#1A1D1F]">Screen Display Methods</label>
+              <Controller
+                name="screenDisplayMethods"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
+                      <SelectValue placeholder="Select screen display method" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {screenDisplayMethodsOptions.map((opt) => (
+                        <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-[#1A1D1F]">Content Creation Tools</label>
+              <Controller
+                name="contentCreationTools"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-full px-4 py-6 bg-white border border-gray-200 rounded-xl font-medium text-[#1A1D1F]">
+                      <SelectValue placeholder="Select content creation tool" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {contentCreationToolsOptions.map((opt) => (
                         <SelectItem key={opt} value={opt}>{opt}</SelectItem>
                       ))}
                     </SelectContent>

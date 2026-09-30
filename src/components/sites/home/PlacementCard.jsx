@@ -37,23 +37,24 @@ const PlacementCard = ({
   // Extract values from API response structure or fallback mock object
   const id = item.id;
   const title = item.campaign_info?.pl_bus_name || item.title || "Placement Ad";
-  const category = item.campaign_info?.channel_type?.name || item.category || "Audio/Display";
-  const hostName = item.user?.name || item.host || "Host";
-  const isVerified = item.user?.onboarding_status === "approved" || item.verified || false;
+  const category = item.campaign_info?.channel_name || item.campaign_info?.prom_name || item.campaign_info?.channel_type?.name || item.category || "Audio/Display";
+  const hostName = item.user?.name || (item.user?.first_name ? `${item.user.first_name} ${item.user.last_name || ''}`.trim() : null) || item.host || "Host";
+  const isVerified = item.user?.onboarding_status === "approved" || item.user?.onboarding_status === "verified" || item.verified || false;
   
   const coverImage = item.cover_image || item.image || DefaultImage;
   const traffic = item.audience_overview?.monthly_foottraffic || item.traffic || "N/A Traffic";
   
   const locationStr = item.city && item.state 
-    ? `${item.city}, ${item.state}, ${item.country || ''}`
+    ? `${item.city}, ${item.state}${item.country ? `, ${item.country}` : ''}`
     : (item.location || "Location N/A");
 
   const durationStr = item.campaign_duration || item.campaign_info?.duration || item.duration || "30 days";
   const price = item.starting_price ?? item.price ?? 0;
 
-  const totalSlots = item.campaign_info?.slot || 10;
+  const totalSlots = item.total_slot ?? item.campaign_info?.slot ?? 10;
   const availableSlots = item.slot_available ?? totalSlots;
   const slotsPercentage = Math.round(((totalSlots - availableSlots) / totalSlots) * 100);
+  const isSaved = item.is_favorite ?? item.isSaved ?? false;
 
   const rawStatus = (item.status || "draft").toLowerCase();
 
@@ -83,12 +84,14 @@ const PlacementCard = ({
       <div>
         {/* Card Image Area */}
         <div className="relative h-[180px] overflow-hidden bg-gray-100">
-          <img
-            src={coverImage}
-            alt={title}
-            onError={(e) => { e.target.src = DefaultImage; }}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+          <Link to={!isHostView ? `/placement/${item.slug || id}` : "#"} className="block w-full h-full">
+            <img
+              src={coverImage}
+              alt={title}
+              onError={(e) => { e.target.src = DefaultImage; }}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          </Link>
 
           {/* Overlay Badges */}
           <div className="absolute top-3.5 right-3.5 flex items-center gap-2">
@@ -100,8 +103,8 @@ const PlacementCard = ({
               <button className="bg-white/20 backdrop-blur-md p-1.5 rounded-full text-white hover:bg-white/30 transition-all border border-white/20 flex items-center justify-center">
                 <Heart
                   size={16}
-                  fill={item.isSaved ? "#FF4D4F" : "transparent"}
-                  className={`cursor-pointer transition-colors ${item.isSaved ? "text-[#FF4D4F]" : "text-white hover:text-red-500"}`}
+                  fill={isSaved ? "#FF4D4F" : "transparent"}
+                  className={`cursor-pointer transition-colors ${isSaved ? "text-[#FF4D4F]" : "text-white hover:text-red-500"}`}
                 />
               </button>
             )}
@@ -111,13 +114,16 @@ const PlacementCard = ({
         {/* Card Body */}
         <div className="p-5">
           <div className="flex justify-between items-start mb-1 gap-2">
-            <h3 className="text-base font-bold text-[#101828] leading-tight line-clamp-1">
-              {title}
-            </h3>
+            <Link to={!isHostView ? `/placement/${item.slug || id}` : "#"}>
+              <h3 className="text-base font-bold text-[#101828] leading-tight line-clamp-1 hover:text-Primary transition-colors">
+                {title}
+              </h3>
+            </Link>
             <div className="bg-[#EFF6FF] px-2 py-0.5 rounded text-[10px] font-bold text-Primary uppercase shrink-0">
               {category}
             </div>
           </div>
+
 
           <div className="flex items-center gap-1.5 mb-4">
             <span className="text-[#667085] text-[13px] font-semibold">
@@ -195,7 +201,7 @@ const PlacementCard = ({
               </div>
             ) : (
               <Link
-                to={`/placement/${id}`}
+                to={`/placement/${item.slug || id}`}
                 className="flex items-center gap-1 text-Primary font-bold text-[13px] hover:translate-x-1 transition-transform"
               >
                 View Placement <ArrowRight size={14} />
