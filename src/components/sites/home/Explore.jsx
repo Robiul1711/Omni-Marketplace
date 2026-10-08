@@ -34,10 +34,10 @@ const Explore = () => {
           className="text-center mb-16"
         >
           <h2 className="text-[32px] md:text-[48px] font-bold text-[#00226E] font-host-grotesk mb-4">
-            Explore Advertising Placements
+            {title}
           </h2>
           <p className="text-[#525866] text-lg font-medium">
-            Structured packages from verified media hosts.
+            {subtitle}
           </p>
         </motion.div>
 

@@ -88,28 +88,7 @@ const HeroBanner = () => {
               backgroundClip: "text",
             }}
           >
-            Secure Advertising Deals with
-            <span className="inline-flex items-center gap-2 md:gap-4 flex-wrap justify-center">
-              Verified
-              <span className="inline-flex items-center -space-x-4 mx-2">
-                <img
-                  src="https://i.pravatar.cc/100?img=12"
-                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm"
-                  alt="Host 1"
-                />
-                <img
-                  src="https://i.pravatar.cc/100?img=32"
-                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm"
-                  alt="Host 2"
-                />
-                <img
-                  src="https://i.pravatar.cc/100?img=44"
-                  className="w-10 h-10 md:w-16 md:h-16 rounded-full border-4 border-white shadow-sm"
-                  alt="Host 3"
-                />
-              </span>
-              Hosts
-            </span>
+            {renderTitle()}
           </h1>
         </motion.div>
 
@@ -118,8 +97,7 @@ const HeroBanner = () => {
           variants={fadeInUp}
           className="text-[#465E92] text-lg md:text-[24px] font-host-grotesk  mx-auto mb-16"
         >
-          A secure marketplace where brands connect with verified advertising
-          hosts.
+          {description}
         </motion.p>
 
         {/* Search Bar Container */}
@@ -222,17 +200,13 @@ const HeroBanner = () => {
           variants={fadeInUp}
           className="flex flex-wrap justify-center gap-4 md:gap-16"
         >
-          {[
-            { text: "Escrow Protected" },
-            { text: "Verified Hosts" },
-            { text: "Structured Pricing" },
-          ].map((item, idx) => (
+          {features.map((item, idx) => (
             <div
               key={idx}
               className="flex items-center gap-3 text-[#EBF1FF] font-host-grotesk font-medium text-lg"
             >
               <CheckCircle2 size={24} className="text-[#EBF1FF]" />
-              {item.text}
+              {typeof item === "string" ? item : item?.text || item?.title}
             </div>
           ))}
         </motion.div>
@@ -242,3 +216,4 @@ const HeroBanner = () => {
 };
 
 export default HeroBanner;
+
