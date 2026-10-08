@@ -10,11 +10,11 @@ import useClient from "@/hooks/useClient";
 import { PLACEMENTS } from "@/apiFunctions/apiEndPoints";
 
 const Explore = ({ data }) => {
-  const title = data?.title || "Explore Advertising Placements";
+  const title = data?.title || "Explore Placements";
   const subtitle =
     data?.subtitle ||
     data?.description ||
-    "Structured packages from verified media hosts.";
+    "Find the perfect placement for your brand across high-traffic locations.";
 
   const { data: placementsResponse, isLoading } = useClient({
     queryKey: ["homepagePlacements"],
@@ -24,14 +24,9 @@ const Explore = ({ data }) => {
     },
   });
 
-  const placements =
-    placementsResponse?.data &&
-    Array.isArray(placementsResponse.data) &&
-    placementsResponse.data.length > 0
-      ? placementsResponse.data
-      : isLoading
-      ? []
-      : PLACEMENTS_DATA;
+  const placements = placementsResponse?.data && Array.isArray(placementsResponse.data) && placementsResponse.data.length > 0
+    ? placementsResponse.data
+    : (isLoading ? [] : PLACEMENTS_DATA);
 
   return (
     <section className="section-padding-x bg-white">
